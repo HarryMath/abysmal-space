@@ -25,8 +25,8 @@ public class Turret {
     this.generationId = generationId;
   }
 
-  public void control(float touchX, float touchY, float x, float y) {
-    this.newAngle = defineAngle(touchX - x, touchY - y, newAngle);
+  public void control(float direction) {
+    this.newAngle = direction;
   }
 
   public void move(float shipAngle, float shipX, float shipY, float delta) {

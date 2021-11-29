@@ -176,7 +176,7 @@ public class BotsProcessor implements EnemiesProcessor {
 
     // preControl values
     float aimX, aimY;
-    float aimAngle;
+    float aimAngle = 0;
 
     public Bot(Ship ship) {
       this.biasAngle = MathUtils.random(0, MathUtils.PI2);
@@ -201,8 +201,8 @@ public class BotsProcessor implements EnemiesProcessor {
       if (ship.distance < ship.definition.radarPower) {
         ship.move(delta);
         if (ship.distance > 4) {
-          aimAngle = Geometry.defineAngle(playerX - ship.x, playerY - ship.y, 0);
-          ship.control( aimX, aimY, ship.x * 20, ship.y * 20, delta);
+          aimAngle = Geometry.defineAngle(playerX - ship.x, playerY - ship.y, aimAngle);
+          ship.control( aimAngle, ship.distance > 20 ? 1 : ship.distance / 20, delta);
           final float radius  = biasRadius + ship.distance / SCREEN_WIDTH;
           biasAngle += biasAngleSpeed;
           aimX = (playerX + radius * MathUtils.cos(aimAngle)) * 20;
@@ -210,7 +210,7 @@ public class BotsProcessor implements EnemiesProcessor {
           if (ship.distance < SCREEN_WIDTH * 0.4f * ship.definition.maxZoom ) {
             boolean needToShotTurrets = false;
             for (Turret t: ship.turrets) {
-              t.control(playerX, playerY, ship.x, ship.y);
+              t.control(aimAngle);
               if (Math.abs((t.angle + ship.angle) % MathUtils.PI2 - t.newAngle) < 0.011f ) {
                 needToShotTurrets = true;
                 break;

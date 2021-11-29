@@ -19,7 +19,7 @@ public class AutomaticTurret extends Turret {
   }
 
   @Override
-  public void control(float touchX, float touchY, float x, float y) {}
+  public void control(float direction) {}
 
   @Override
   public void move(float shipAngle, float shipX, float shipY, float delta) {

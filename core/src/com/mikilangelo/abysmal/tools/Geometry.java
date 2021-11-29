@@ -17,7 +17,7 @@ public abstract class Geometry {
     if (x >= 0) {
       res = MathUtils.asin(y / (float) Math.hypot(x, y));
     } else {
-      res = PI - MathUtils.asin( y / (float) Math.hypot(x, y));
+      res = PI - MathUtils.asin(y / (float) Math.hypot(x, y));
     }
     return (res + PI2) % PI2;
   }
@@ -26,7 +26,8 @@ public abstract class Geometry {
     if (cos == 0 && sin == 0) {
       return angle;
     }
-    return cos >= 0 ? MathUtils.asin(sin) : PI - MathUtils.asin(sin);
+    final float res = cos >= 0 ? MathUtils.asin(sin) : PI - MathUtils.asin(sin);
+    return (res + PI2) % PI2;
   }
 
   public static float squaresSum(float x, float y) {

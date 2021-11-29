@@ -145,7 +145,7 @@ public class UdpClient implements EnemiesProcessor {
   @Override
   public void process(final Ship player, final float delta) {
     missedFrames++;
-    if (missedFrames > 4) {
+    if (missedFrames > 2) {
       missedFrames = 0;
       state.g = player.generationId;
       state.x = playerX = player.x;
@@ -203,7 +203,6 @@ public class UdpClient implements EnemiesProcessor {
   }
 
   private class Player {
-    private float distance;
     private final String generationId;
     private boolean underControl = false;
     private int badPackages = 10;
@@ -220,8 +219,8 @@ public class UdpClient implements EnemiesProcessor {
     }
 
     public boolean isDead(float playerX, float playerY, float delta) {
-      distance = Geometry.distance(playerX, playerY, ship.x, ship.y);
-      if (distance < 50 && !world.isLocked()) {
+      ship.distance = Geometry.distance(playerX, playerY, ship.x, ship.y);
+      if (ship.distance < 50 && !world.isLocked()) {
         ship.move(delta);
         if (underControl) {
           ship.kak();
@@ -242,14 +241,14 @@ public class UdpClient implements EnemiesProcessor {
         if (!world.isLocked() && !isStopped.get() && data.t > lastState.t) {
 //            final float deltaTime = TimeUtils.millis() - data.t / 1000f;
           final float deltaTime = (data.t - lastState.t) / 1000f;
-          final float compareTime = 0.5f + deltaTime * 2f;
+          final float compareTime = 0.3f + deltaTime * 1.5f;
           underControl = data.c;
           if (badPackages < 5) {
-            if (Geometry.distance(
-                    lastState.x + lastState.aX * deltaTime,
+            if (Geometry.distance(lastState.x + lastState.aX * deltaTime,
                     lastState.y + lastState.aY * deltaTime,
                     data.x, data.y) > Math.hypot(lastState.aX, lastState.aY) * compareTime * (1 + badPackages) ||
-                    Geometry.distance(data.aX, data.aY, lastState.aX, lastState.aY) > (0.8f + compareTime) * (2.3f + badPackages)
+                    (Geometry.distance(data.aX, data.aY, lastState.aX, lastState.aY) > (0.7f + compareTime) * (2 + badPackages) &&
+                            Math.abs(data.aX) + Math.abs(data.aY) > Math.abs(lastState.aX) + Math.abs(lastState.aY))
             ) {
               badPackages++;
               System.out.println("\nbad package " + badPackages);
@@ -265,8 +264,9 @@ public class UdpClient implements EnemiesProcessor {
             badPackages = 0;
           }
           lastState = data;
-          ship.body.setLinearVelocity(data.aX * 0.97f, data.aY * 0.97f);
-          ship.body.setAngularVelocity(data.aA * 0.97f);
+          ship.body.setLinearVelocity(0, 0);
+          ship.body.setLinearVelocity(data.aX * 0.9f, data.aY * 0.9f);
+          ship.body.setAngularVelocity(data.aA * 0.9f);
           ship.body.setTransform(data.x, data.y, data.a);
           ((ShipData)ship.body.getUserData()).health = data.h;
 
@@ -283,7 +283,7 @@ public class UdpClient implements EnemiesProcessor {
     }
 
     public void draw(Batch batch, float delta) {
-      if (distance < SCREEN_WIDTH * 3) {
+      if (ship.distance < SCREEN_WIDTH * 3) {
         ship.draw(batch, delta);
       }
     }

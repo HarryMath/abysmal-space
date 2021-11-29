@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -53,7 +52,7 @@ public class GameScreen implements Screen {
   public static float SCREEN_WIDTH = 25;
   public static World world;
   public static Ship ship;
-  public static boolean underControl = false;
+  public static boolean screenUnderControl = false;
   private DestroyableObjectData shipData;
   public static float cameraX = 0, cameraY = 0;
 
@@ -146,16 +145,12 @@ public class GameScreen implements Screen {
     } catch (Exception e) {
       e.printStackTrace();
     }
+    handleControls(delta);
     updateCamera();
-    if (Settings.drawBackground) {
-      drawBackground(delta);
-    }
+    drawBackground(delta);
     drawObjects(delta);
     // debugRenderer.render(world, camera.combined);
     drawInterface(delta);
-    if (!game.isSensor) {
-      handleKeyBoard(delta);
-    }
     if (shipData.getHealth() < 0) {
       dispose();
       game.setScreen(new MenuScreen(game));
@@ -168,30 +163,49 @@ public class GameScreen implements Screen {
     }
   }
 
-  private void handleKeyBoard(float delta) {
-    ship.newAngle = ship.angle;
-    if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
-      ship.applyImpulse(1, delta, true);
-    }
-    if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-      ship.applyImpulse(-0.01f, delta, false);
-    }
-    if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-      ship.rotate(0.7f);
-    }
-    if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-      ship.rotate(-0.7f);
-    }
-    if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-      if (initialZoomCoefficient < ship.definition.maxZoom) {
-        initialZoomCoefficient += 0.01;
+  private void handleControls(float delta) {
+    ship.move(delta);
+    screenUnderControl = false;
+    if (!game.isSensor) {
+      ship.newAngle = ship.angle;
+      if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
+        ship.applyImpulse(1, delta, true);
+      }
+      if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+        ship.applyImpulse(-0.01f, delta, false);
+      }
+      if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        ship.rotate(0.7f);
+      }
+      if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        ship.rotate(-0.7f);
+      }
+      if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+        if (initialZoomCoefficient < ship.definition.maxZoom) {
+          initialZoomCoefficient += 0.01;
+        }
+      }
+      if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
+        if (initialZoomCoefficient > 0.4) {
+          initialZoomCoefficient -= 0.01;
+        }
       }
     }
-    if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
-      if (initialZoomCoefficient > 0.4) {
-        initialZoomCoefficient -= 0.01;
+
+      if (Gdx.input.isTouched(1)) {
+        touch2Handler.touchX = Gdx.input.getX(1);
+        touch2Handler.touchY = Gdx.input.getY(1);
+        screenUnderControl = touch2Handler.handleTouch(joystick, shooter, delta);
+      } else {
+        touch2Handler.endTouch();
       }
-    }
+      if (Gdx.input.isTouched(0)) {
+        touch1Handler.touchX = Gdx.input.getX(0);
+        touch1Handler.touchY = Gdx.input.getY(0);
+        screenUnderControl = touch1Handler.handleTouch(joystick, shooter, delta);
+      } else {
+        touch1Handler.endTouch();
+      }
   }
 
   private void updateCamera() {
@@ -225,7 +239,6 @@ public class GameScreen implements Screen {
       }
       portal.draw(game.objectsBatch, delta, cameraX, cameraY, camera.zoom);
       ParticlesRepository.drawAll(game.objectsBatch, delta);
-      ship.move(delta);
       LasersRepository.drawSimple(game.objectsBatch, delta);
       enemiesProcessor.process(ship, delta);
       enemiesProcessor.drawAll(game.objectsBatch, delta);
@@ -239,6 +252,9 @@ public class GameScreen implements Screen {
   }
 
   private void drawBackground(float delta) {
+    if (!Settings.drawBackground) {
+      return;
+    }
     if (Settings.showBlackHoles) {
       frameBuffer.begin(); {
         drawBackgroundAt(shaderBatch, delta, 1.2f);
@@ -275,37 +291,17 @@ public class GameScreen implements Screen {
 
 	private void drawInterface(float delta) {
 		game.batchInterface.begin(); {
-		  underControl = false;
-			if (Gdx.input.isTouched(1)) {
-        touch2Handler.touchX = Gdx.input.getX(1);
-        touch2Handler.touchY = Gdx.input.getY(1);
-        underControl = touch2Handler.handleTouch(game.batchInterface, joystick, shooter, delta);
-			} else {
-        touch2Handler.endTouch();
-      }
-			if (Gdx.input.isTouched(0)) {
-        touch1Handler.touchX = Gdx.input.getX(0);
-        touch1Handler.touchY = Gdx.input.getY(0);
-        underControl = touch1Handler.handleTouch(game.batchInterface, joystick, shooter, delta);
-			} else {
-			  touch1Handler.endTouch();
-			}
-      if (!shooter.turretQ) {
-        shooter.draw(game.batchInterface);
-      }
-
-			radar.move();
+		  shooter.draw(game.batchInterface);
+		  joystick.draw(game.batchInterface);
       radar.draw(game.batchInterface);
 			AsteroidsRepository.drawAtRadar(game.batchInterface, radar, cameraX, cameraY);
       enemiesProcessor.drawAtRadar(game.batchInterface, radar, cameraX, cameraY);
-
 			game.customFont.getData().setScale(HEIGHT / 1400f);
 			healthIndicator.draw(game.batchInterface, game.customFont, shipData.getHealth());
 //			game.customFont.draw(game.batchInterface, "FPS: " + FPS, 10, HEIGHT - 20);
 			game.customFont.draw(game.batchInterface, "speed: " + Math.round(ship.body.getLinearVelocity().len()), 10, HEIGHT - 50);
 //			game.customFont.draw(game.batchInterface, "x: " + Math.round(cameraX) + ", y: " + Math.round(cameraY), 10, HEIGHT - 80);
 //			game.customFont.draw(game.batchInterface, "health: " + ((ShipData)ship.body.getUserData()).health, 10, HEIGHT - 110);
-
 		}
 		game.batchInterface.end();
 	}

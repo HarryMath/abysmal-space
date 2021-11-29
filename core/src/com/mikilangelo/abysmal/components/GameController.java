@@ -44,7 +44,7 @@ public class GameController implements GestureDetector.GestureListener {
 
   @Override
   public boolean zoom(float initialDistance, float distance) {
-    if (!GameScreen.underControl) {
+    if (!GameScreen.screenUnderControl) {
       if (initialDistance > distance && GameScreen.initialZoomCoefficient < maxZoom) {
         GameScreen.initialZoomCoefficient += 0.01;
       } else if (initialDistance < distance && GameScreen.initialZoomCoefficient > 0.4f) {

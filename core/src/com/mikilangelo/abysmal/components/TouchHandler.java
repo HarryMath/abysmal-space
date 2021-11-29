@@ -26,34 +26,32 @@ public class TouchHandler {
     hasCreatedJoystick = hasCreatedShooter = false;
   }
 
-  public boolean handleTouch(Batch batch, Joystick joystick, Shooter shooter, float delta) {
+  public boolean handleTouch(Joystick joystick, Shooter shooter, float delta) {
     if (touchY > HEIGHT / 3f && !createdShooter && !createdJoystick) {
       if (touchX < WIDTH / 3f) {
         if (!hasCreatedJoystick) {
           createdJoystick = hasCreatedJoystick = true;
-          joystick.x = touchX;
-          joystick.y = HEIGHT - touchY;
+          joystick.startTouch(touchX, HEIGHT - touchY);
         }
       } else if (touchX > 2 * WIDTH / 3f) {
         if (!hasCreatedShooter && turretsControl) {
-          shooter.area.x = touchX;
-          shooter.area.y = HEIGHT - touchY;
+          shooter.startTouch(touchX, HEIGHT - touchY);
           createdShooter = hasCreatedShooter = true;
         }
       }
     }
     if (createdShooter) {
-      shooter.draw(batch, touchX, HEIGHT - touchY);
+      shooter.update(touchX, HEIGHT - touchY);
       for (short i = 0; i < ship.turrets.size; i++) {
-        ship.turrets.get(i).control(touchX, HEIGHT - touchY, shooter.area.x, shooter.area.y);
+        ship.turrets.get(i).control(shooter.getDirection());
       }
       ship.shot();
-    } else if (!turretsControl && shooter.area.contains(touchX, HEIGHT - touchY)) {
+    } else if (!turretsControl && shooter.contains(touchX, HEIGHT - touchY)) {
       ship.shot();
     }
     if (createdJoystick) {
-      joystick.draw(batch, touchX, HEIGHT - touchY);
-      ship.control(touchX, HEIGHT - touchY, joystick.x, joystick.y, delta);
+      joystick.update(touchX, HEIGHT - touchY);
+      ship.control(joystick.getDirection(), joystick.getPower(), delta);
     }
     return createdJoystick || createdShooter;
   }

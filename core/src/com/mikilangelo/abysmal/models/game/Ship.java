@@ -95,11 +95,9 @@ public class Ship {
     shieldScale = shieldSize;
   }
 
-  public void control(float touchX, float touchY, float centerX, float centerY, float delta) {
-    newAngle = Geometry.defineAngle(touchX - centerX, touchY - centerY, newAngle);
-    float touchDistance = Geometry.distance(touchX, touchY, centerX, centerY);
-    touchDistance = touchDistance > Joystick.radius ? 1 : touchDistance / Joystick.radius;
-    this.applyImpulse(touchDistance, delta, this.distance < SCREEN_WIDTH);
+  public void control(float direction, float power, float delta) {
+    newAngle = direction;
+    this.applyImpulse(power, delta, this.distance < SCREEN_WIDTH);
     if (angle < 0 || newAngle < 0 || angle > MathUtils.PI2 || newAngle > MathUtils.PI2) {
       System.out.println("WARNING! angles incorrect");
       System.out.println("newAngle: " + newAngle);

@@ -31,6 +31,7 @@ public class Radar {
   }
 
   public void draw(Batch batch) {
+    move();
     batch.draw(this.circle, this.x - radius, this.y - radius, radius * 2, radius * 2);
     this.scanner.setRotation(angle);
     this.scanner.draw(batch);
@@ -56,7 +57,7 @@ public class Radar {
     }
   }
 
-  public void move() {
+  private void move() {
     this.angle += 2f;
     this.angle %= 360;
   }
