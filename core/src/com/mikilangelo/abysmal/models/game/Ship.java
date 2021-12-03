@@ -57,7 +57,6 @@ public class Ship {
 
   private final float controlSpeedResistance;
   private final float simpleSpeedResistance;
-  private final float shieldRadius;
   private final float shieldSize;
   private float shieldScale;
   private final Sprite shieldTexture = new Sprite(TexturesRepository.get("things/shield.png"));
@@ -90,8 +89,8 @@ public class Ship {
     this.simpleSpeedResistance = 0.9995f - definition.speedResistance * definition.speedResistance;
     this.x = x; this.y = y;
     this.distance =isPlayer ? 0 : Geometry.distance(playerX, playerY, x, y);
-    shieldRadius = 0.63f * definition.size * (float) Math.hypot(1, definition.bodyTexture.getWidth() / definition.bodyTexture.getHeight());
-    shieldSize = shieldRadius * 2 / shieldTexture.getHeight();
+    // shieldRadius = 0.63f * definition.size * (float) Math.hypot(1, definition.bodyTexture.getWidth() / definition.bodyTexture.getHeight());
+    shieldSize = definition.shieldRadius * 2 / shieldTexture.getHeight();
     shieldScale = shieldSize;
   }
 
@@ -102,7 +101,7 @@ public class Ship {
       System.out.println("WARNING! angles incorrect");
       System.out.println("newAngle: " + newAngle);
       System.out.println("angles: " + angle);
-      System.exit(-11);
+      // System.exit(-11);
     }
     if (angle != newAngle) {
       if (angle <= newAngle + definition.controlPower / 5f && angle >= newAngle - definition.controlPower / 5f) {
@@ -311,9 +310,9 @@ public class Ship {
     bodyDef.type = BodyDef.BodyType.DynamicBody;
     bodyDef.position.x = x; bodyDef.position.y = y;
     CircleShape shape = new CircleShape();
-    shape.setRadius(shieldRadius);
+    shape.setRadius(definition.shieldRadius);
     FixtureDef fixtureDef = new FixtureDef();
-    fixtureDef.density = body.getMass() / (shieldRadius * shieldRadius * MathUtils.PI);
+    fixtureDef.density = body.getMass() / (definition.shieldRadius * definition.shieldRadius * MathUtils.PI);
     fixtureDef.friction = definition.friction * 0.2f;
     fixtureDef.restitution = (1 + definition.restitution) * 0.5f;
     fixtureDef.shape = shape;

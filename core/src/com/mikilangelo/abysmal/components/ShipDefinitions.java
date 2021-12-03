@@ -49,12 +49,13 @@ public abstract class ShipDefinitions {
     defender.radarPower = 95;
     defender.maxZoom = 1.4f;
     // body
-    defender.size = 2.25f;
+    defender.size = 2.263f;
     defender.density = 1.5f;
     defender.friction = 0.3f;
     defender.restitution = 0.85f;
     defender.bodyLoader = new BodLLoader(Gdx.files.internal("ships/defender/body.json"));
     defender.bodyScale = 2.3f;
+    defender.shieldRadius = 2;
     // dynamic
     defender.speedPower = 32.7f;
     defender.controlPower = 0.39f;
@@ -110,8 +111,8 @@ public abstract class ShipDefinitions {
     engineRed1.particleTexture = new Sprite(TexturesRepository.get("ships/defender/kak0.png"));
     engineRed2.particleTexture = engineRed1.particleTexture;
     engines.add(engineBlue1, engineBlue2, engineRed1, engineRed2);
-    engineBlue1.positionX = engineRed1.positionX = -1.1f;
-    engineBlue2.positionX = engineRed2.positionX = -1.1f;
+    engineBlue1.positionX = engineRed1.positionX = -1f;
+    engineBlue2.positionX = engineRed2.positionX = -1f;
     engineBlue1.positionY = engineRed1.positionY = 0.385f;
     engineBlue2.positionY = engineRed2.positionY = -0.385f;
     for (byte i = 0; i < engines.size; i ++) {
@@ -137,18 +138,19 @@ public abstract class ShipDefinitions {
     invader.radarPower = 120;
     invader.maxZoom = 2.3f;
     // body
-    invader.size = 2.57f;
+    invader.size = 2.587f;
     invader.density = 0.97f;
     invader.friction = 0.3f;
     invader.restitution = 0.85f;
     invader.bodyLoader = new BodLLoader(Gdx.files.internal("ships/invader/body.json"));
     invader.bodyScale = 6.3f;
+    invader.shieldRadius = 2.9f;
     // dynamic
     invader.speedPower = 26.7f;
     invader.controlPower = 0.09f;
     invader.controlResistanceOnSpeed = -0.00001f;
-    invader.speedResistance = 0.018f;
-    invader.rotationResistance = 0.017f;
+    invader.speedResistance = 0.0177f;
+    invader.rotationResistance = 0.018f;
     // textures
     invader.bodyTexture = new Sprite(TexturesRepository.get("ships/invader/body.png"));
     invader.bodyTexture.setScale( invader.size / invader.bodyTexture.getHeight() );
@@ -188,7 +190,7 @@ public abstract class ShipDefinitions {
     Array<EngineDef> engines = new Array<>();
     EngineDef e = new EngineDef();
     engines.add(e);
-    e.positionX = -2.7f;
+    e.positionX = -2.07f;
     e.positionY = 0;
     e.particleTexture = new Sprite(TexturesRepository.get("ships/invader/kak.png"));
     e.particleSpeedDispersion = 2.15f; // 10f;
@@ -216,6 +218,7 @@ public abstract class ShipDefinitions {
     hyperion.restitution = 0.85f;
     hyperion.bodyLoader = new BodLLoader(Gdx.files.internal("ships/hyperion/body.json"));
     hyperion.bodyScale = 7.43f;
+    hyperion.shieldRadius = 4.1f;
     // dynamic
     hyperion.speedPower = 42.5f;
     hyperion.controlPower = 0.057f;

@@ -19,6 +19,7 @@ public class ShipDef {
   public float density;
   public float friction;
   public float restitution;
+  public float shieldRadius;
 
   // dynamic
   public float speedResistance;

@@ -73,6 +73,7 @@ public class MenuScreen implements Screen {
   EnemiesProcessor enemiesProcessor;
 
   public MenuScreen(AbysmalSpace game) {
+    System.out.println("\n!Menu start called\n");
     MusicPlayer.start("sounds/menu.mp3", 0.6f);
     this.game = game;
     camera = new OrthographicCamera();
@@ -337,7 +338,6 @@ public class MenuScreen implements Screen {
 
   @Override
   public void dispose() {
-    System.out.println("\n!Menu dispose called\n");
     stars.clear();
     shapeRenderer.dispose();
   }
