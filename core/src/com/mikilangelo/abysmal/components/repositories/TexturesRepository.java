@@ -36,6 +36,7 @@ public abstract class TexturesRepository {
     loadTextures("planets/", new String[]{
             "Baren", "Eros", "Gelios", "Ice", "mud", "Tatuin", "moon", "Terra", "Vulcano"}, ".png");
     loadTextures("planets/nebula/", range(1, 61), ".png");
+    loadTextures("planets/Magrateya", range(5), ".png");
     loadTextures("things/spawn/", range(24), ".png");
     loadTextures("things/", new String[] {"shield", "shieldTouch"}, ".png");
     loadTextures("ships/defender/", new String[] {
@@ -46,6 +47,7 @@ public abstract class TexturesRepository {
     loadTextures("ships/invader/", new String[] {"body", "kak", "laser"}, ".png");
     loadTextures("ships/hyperion/explosions/", range(11), ".png");
     loadTextures("explosions/ship/", range(13), ".png");
+    loadTextures("explosions/big/", range(27), ".png");
     loadTextures("explosions/green/FX_6_", range(7), ".png");
     loadTextures("explosions/stone/", range(4), ".png");
     loadTextures("explosions/asteroid/", range(1, 7), ".png");

@@ -19,9 +19,9 @@ public abstract class ExplosionsRepository {
 
   public static void init() {
     sheepExplosionSound = SoundsRepository.getSound("explosions/ship/sound.mp3");
-    for (byte i = 0; i < 13; i++) {
-      Sprite frame = new Sprite(TexturesRepository.get("explosions/ship/" + i + ".png"));
-      frame.setScale( GameScreen.SCREEN_HEIGHT * 0.31f / frame.getHeight());
+    for (byte i = 0; i < 27; i++) {
+      Sprite frame = new Sprite(TexturesRepository.get("explosions/big/" + i + ".png"));
+      frame.setScale( GameScreen.SCREEN_HEIGHT * 0.41f / frame.getHeight());
       shipExplosion.add(frame);
     }
     for (byte i = 0; i < 7; i++) {
@@ -33,7 +33,7 @@ public abstract class ExplosionsRepository {
 
   public static void addShipExplosion(float x, float y, float soundScale) {
     sheepExplosionSound.play(soundScale);
-    explosions.add(new Explosion(shipExplosion, x, y, 0.025f));
+    explosions.add(new Explosion(shipExplosion, x, y, 0.035f));
     AsteroidsRepository.applyImpulse(x, y);
   }
 

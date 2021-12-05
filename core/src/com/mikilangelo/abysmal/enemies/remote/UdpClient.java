@@ -48,8 +48,8 @@ public class UdpClient implements EnemiesProcessor {
 
   public UdpClient() throws IOException {
     this.client = new DatagramSocket();
-    address = InetAddress.getByName("localhost");
-//    address = InetAddress.getByName("13.53.170.78");
+//    address = InetAddress.getByName("localhost");
+    address = InetAddress.getByName("13.53.170.78");
     inputPacket = new DatagramPacket(new byte[512], 512);
     sendingThread = new SendingThread();
     receiveThread = new Thread(() -> {
