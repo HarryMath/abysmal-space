@@ -29,6 +29,7 @@ public abstract class ShipDefinitions {
     generateDefender();
     generateHyperion();
     generateInvader();
+    generateAlien();
   }
 
   public static ShipDef getShipDefinition(String shipName) {
@@ -201,6 +202,90 @@ public abstract class ShipDefinitions {
 
     shipNames.put(invader.name, shipDefinitions.size);
     shipDefinitions.add(invader);
+  }
+
+  private static void generateAlien() {
+    ShipDef alien = new ShipDef();
+    alien.name = "alien";
+    alien.health = 95;
+    alien.radarPower = 120;
+    alien.maxZoom = 2.3f;
+    // body
+    alien.size = 4.137f;
+    alien.density = 0.87f;
+    alien.friction = 0.3f;
+    alien.restitution = 0.85f;
+    alien.bodyLoader = new BodLLoader(Gdx.files.internal("ships/alien/body.json"));
+    alien.bodyScale = 6.87f;
+    alien.shieldRadius = 3.9f;
+    // dynamic
+    alien.speedPower = 347.7f;
+    alien.controlPower = 0.08f;
+    alien.controlResistanceOnSpeed = -0.00001f;
+    alien.speedResistance = 0.0727f;
+    alien.rotationResistance = 0.014f;
+    // textures
+    alien.bodyTexture = new Sprite(TexturesRepository.get("ships/alien/body.png"));
+    alien.bodyTexture.setScale( alien.size / alien.bodyTexture.getHeight() );
+    alien.decor = new Sprite(TexturesRepository.get("ships/alien/decor.png"));
+    alien.decor.setScale( alien.bodyTexture.getScaleY() );
+    alien.engineAnimation = new Array<>();
+    for (byte i = 0; i < 0; i++) {
+      alien.engineAnimation.add(new Sprite(TexturesRepository.get("ships/alien/engine" + i + ".png")));
+      alien.engineAnimation.get(i).setScale( alien.size / alien.engineAnimation.get(i).getHeight() );
+    }
+    alien.frameFrequency = 0.1f;
+    // lasers
+    LaserDef laserDefinition = new LaserDef(); {
+      laserDefinition.impulse = 2.3f;
+      laserDefinition.lifeTime = 3;
+      laserDefinition.damage = 7;
+      laserDefinition.touches = 2;
+      laserDefinition.texture = new Sprite(TexturesRepository.get("ships/alien/laser.png"));
+      laserDefinition.texture.setScale( 1.46f / laserDefinition.texture.getHeight() );
+      laserDefinition.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+      laserDefinition.sound = Gdx.audio.newSound(Gdx.files.internal("ships/defender/shot.wav"));
+      laserDefinition.explosionTextures = new Array<>();
+      laserDefinition.density = 1.9f;
+    }
+
+    for (byte i = 0; i < 11; i++) {
+      laserDefinition.explosionTextures.add(new Sprite(TexturesRepository.get(
+              "ships/defender/explosions/" + i + ".png")));
+      laserDefinition.explosionTextures.get(i)
+              .setScale( 1.97f / laserDefinition.explosionTextures.get(i).getHeight() );
+    }
+    alien.laserDefinition = laserDefinition;
+    alien.lasersAmount = 2;
+    alien.lasersDistance = 1.06f;
+    alien.shotInterval = 211f;
+    // turrets
+    alien.turretDefinitions = new Array<>();
+    // engines
+    Array<EngineDef> engines = new Array<>();
+    EngineDef engine1 = new EngineDef();
+    EngineDef engine2 = new EngineDef();
+    engine1.particleTexture = new Sprite(TexturesRepository.get("ships/alien/kak.png"));
+    engine2.particleTexture = engine1.particleTexture;
+    engines.add(engine1, engine2);
+    engine1.positionX = -2.1f;
+    engine2.positionX = -2.1f;
+    engine1.positionY = 0.477f;
+    engine2.positionY = -0.477f;
+    for (byte i = 0; i < engines.size; i ++) {
+      final EngineDef e = engines.get(i);
+      e.particleSpeedDispersion = 0.08f; // 10f;
+      e.particlePositionDispersion = 0.13f; // 10f;
+      e.particleLifeTime =  0.28f; // 7f;
+      e.particleScale = 0.014f;
+      e.particleSizeDispersion = 0.003f; // 0.011f;
+      e.particleShipSpeedCoefficient = 0.85f; // -0.05f;
+      e.isTopLayer = false;
+    }
+    alien.engineDefinitions = engines;
+
+    shipNames.put(alien.name, shipDefinitions.size);
+    shipDefinitions.add(alien);
   }
 
   private static void generateHyperion() {

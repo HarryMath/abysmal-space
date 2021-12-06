@@ -223,6 +223,12 @@ public class Ship {
     definition.bodyTexture.setRotation(this.angle * MathUtils.radiansToDegrees);
     definition.bodyTexture.setCenter(x, y);
     definition.bodyTexture.draw(batch);
+    if (definition.decor != null) {
+      definition.decor.setCenter(x, y);
+      definition.decor.setRotation(this.angle * MathUtils.radiansToDegrees);
+      definition.decor.setAlpha(body.getLinearVelocity().len() / definition.maxSpeed);
+      definition.decor.draw(batch);
+    }
     for (int i = 0; i < turrets.size; i++) {
       turrets.get(i).draw(batch, angle);
     }

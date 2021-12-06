@@ -21,7 +21,7 @@ public abstract class ExplosionsRepository {
     sheepExplosionSound = SoundsRepository.getSound("explosions/ship/sound.mp3");
     for (byte i = 0; i < 27; i++) {
       Sprite frame = new Sprite(TexturesRepository.get("explosions/big/" + i + ".png"));
-      frame.setScale( GameScreen.SCREEN_HEIGHT * 0.41f / frame.getHeight());
+      frame.setScale( GameScreen.SCREEN_HEIGHT * 0.45f / frame.getHeight());
       shipExplosion.add(frame);
     }
     for (byte i = 0; i < 7; i++) {

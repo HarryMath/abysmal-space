@@ -45,6 +45,7 @@ public abstract class TexturesRepository {
     loadTextures("ships/hyperion/", new String[] {
             "body", "laser", "engine0", "engine1", "engine2", "turret", "turretSmall"}, ".png");
     loadTextures("ships/invader/", new String[] {"body", "kak", "laser"}, ".png");
+    loadTextures("ships/alien/", new String[] {"body", "kak", "laser", "decor"}, ".png");
     loadTextures("ships/hyperion/explosions/", range(11), ".png");
     loadTextures("explosions/ship/", range(13), ".png");
     loadTextures("explosions/big/", range(27), ".png");

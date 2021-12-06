@@ -94,7 +94,7 @@ public class BotsProcessor implements EnemiesProcessor {
   }
 
   private void generateBotsIn(float xMin, float xMax, float yMin, float yMax) { // 650
-    float normalSquare = (xMax - xMin) * (yMax - yMin) / SCREEN_HEIGHT / SCREEN_WIDTH / 150f;
+    float normalSquare = (xMax - xMin) * (yMax - yMin) / SCREEN_HEIGHT / SCREEN_WIDTH / 550f;
     int amount = Math.round(MathUtils.random(7f, 17f) * normalSquare);
     for (short i = 0; i < amount; i++) {
       generateBotsGroup(MathUtils.random(xMin, xMax), MathUtils.random(yMin, yMax));

@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Array;
 
 public class Shine {
-  private static final float INITIAL_SIZE = 0.11f;
+  private static final float INITIAL_SIZE = 0.14f;
   private static final float INITIAL_LAYER = 0.991f;
   Array<Sprite> textures = new Array<>();
   float counter = 0;
