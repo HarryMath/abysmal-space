@@ -36,10 +36,8 @@ public abstract class ShipDefinitions {
   }
 
   public static void disposeAll() {
-    Asteroid.dispose();
     shipDefinitions.clear();
     shipNames.clear();
-    GameScreen.world.dispose();
   }
 
   private static void generateDefender() {

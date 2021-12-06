@@ -32,7 +32,7 @@ public abstract class TexturesRepository {
             "radar_scanner", "shot", "arrow", "health/leftBar", "health/rightBar", "health/full",
             "health/blizzard", "health/center", "health/gray", "health/white"},
             ".png");
-    loadTextures("", new String[]{"back", "backMenu", "starMenu"}, ".png");
+    loadTextures("", new String[]{"back", "backMenu", "starMenu", "star"}, ".png");
     loadTextures("planets/", new String[]{
             "Baren", "Eros", "Gelios", "Ice", "mud", "Tatuin", "moon", "Terra", "Vulcano"}, ".png");
     loadTextures("planets/nebula/", range(1, 61), ".png");

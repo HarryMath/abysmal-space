@@ -151,12 +151,12 @@ public class Ship {
   public void move(float delta) {
     x = primaryBody.getPosition().x;
     y = primaryBody.getPosition().y;
-    this.angle = (this.body.getAngle() + MathUtils.PI2) % MathUtils.PI2;
+    this.angle = Geometry.normalizeAngle(this.body.getAngle());
     this.body.setAngularVelocity(this.body.getAngularVelocity() * (1 - definition.rotationResistance));
     primaryBody.setLinearVelocity(
             primaryBody.getLinearVelocity().x * simpleSpeedResistance,
             primaryBody.getLinearVelocity().y * simpleSpeedResistance);
-    // primaryBody.setTransform(x, y, angle);
+    primaryBody.setTransform(x, y, angle);
     secondaryBody.setTransform(x, y, angle);
     secondaryBody.setLinearVelocity(primaryBody.getLinearVelocity());
     for (Turret t : turrets) {

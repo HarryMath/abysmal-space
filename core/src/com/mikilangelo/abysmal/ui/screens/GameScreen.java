@@ -36,7 +36,6 @@ import com.mikilangelo.abysmal.models.game.Ship;
 import com.mikilangelo.abysmal.models.game.animations.Portal;
 import com.mikilangelo.abysmal.models.game.animations.Shine;
 import com.mikilangelo.abysmal.models.game.basic.StaticObject;
-import com.mikilangelo.abysmal.models.game.extended.AnimatedPlanet;
 import com.mikilangelo.abysmal.models.game.extended.Planet;
 import com.mikilangelo.abysmal.models.game.extended.Star;
 import com.mikilangelo.abysmal.models.objectsData.DestroyableObjectData;
@@ -70,7 +69,8 @@ public class GameScreen implements Screen {
   Shooter shooter;
   public Radar radar;
   final Array<Star> stars = new Array<>();
-  final Array<Planet> planets = new Array<>();
+  final Array<StaticObject> nearObjects = new Array<>();
+  final Array<StaticObject> farObjects = new Array<>();
   final AbysmalSpace game;
   Box2DDebugRenderer debugRenderer;
   Texture background;
@@ -133,15 +133,15 @@ public class GameScreen implements Screen {
   }
 
   private void generatePlanets() {
-    planets.add(new Planet("Terra", 4.1f, 100, 100, 0.84f));
-    planets.add(new Planet("moon", 2.8f, 103, 97, 0.75f));
+    nearObjects.add(new Planet("Terra", 4.1f, 100, 100, 0.84f));
+    nearObjects.add(new Planet("moon", 2.8f, 103, 97, 0.75f));
     // planets.add(new AnimatedPlanet("nebula", 3f, -200, -50, 0.8f, 60));
 
-    planets.add(new Planet("Magrateya0", 23.1f, -100, -100, 0.87f));
-    planets.add(new Planet("Magrateya1", 11.1f, -100, -100, 0.8375f));
-    planets.add(new Planet("Magrateya2", 9.2f, -100, -100, 0.837f));
-    planets.add(new Planet("Magrateya3", 9.1f, -100, -100, 0.836f));
-    planets.add(new Planet("Magrateya4", 9.1f, -100, -100, 0.835f));
+    farObjects.add(new Planet("Magrateya0", 35f, -100, -100, 0.86f));
+    nearObjects.add(new Planet("Magrateya1", 11.1f, -100, -100, 0.839f));
+    nearObjects.add(new Planet("Magrateya2", 9.3f, -100, -100, 0.8375f));
+    nearObjects.add(new Planet("Magrateya3", 9.1f, -100, -100, 0.836f));
+    nearObjects.add(new Planet("Magrateya4", 9.1f, -100, -100, 0.8345f));
   }
 
   @Override
@@ -239,7 +239,7 @@ public class GameScreen implements Screen {
   private void drawObjects(float delta) {
     game.objectsBatch.begin(); {
       if (Settings.drawBackground) {
-        for (StaticObject p : planets) {
+        for (StaticObject p : nearObjects) {
           p.draw(game.objectsBatch, cameraX, cameraY, camera.zoom * 1.2f);
         }
       }
@@ -289,6 +289,9 @@ public class GameScreen implements Screen {
             WIDTH * camera.zoom * scale / cameraScreenCoefficient,
             HEIGHT * camera.zoom * scale / cameraScreenCoefficient);
     shine.draw(batch, delta, cameraX, cameraY, camera.zoom);
+    for (StaticObject o: farObjects) {
+      o.draw(batch, cameraX, cameraY, camera.zoom * scale);
+    }
     for (Star s : stars) {
       s.draw(batch, cameraX, cameraY, camera.zoom * scale);
     }
@@ -304,7 +307,7 @@ public class GameScreen implements Screen {
       enemiesProcessor.drawAtRadar(game.batchInterface, radar, cameraX, cameraY);
 			game.customFont.getData().setScale(HEIGHT / 1400f);
 			healthIndicator.draw(game.batchInterface, game.customFont, shipData.getHealth());
-//			game.customFont.draw(game.batchInterface, "FPS: " + FPS, 10, HEIGHT - 20);
+			game.customFont.draw(game.batchInterface, "FPS: " + FPS, 10, HEIGHT - 20);
 			game.customFont.draw(game.batchInterface, "speed: " + Math.round(ship.body.getLinearVelocity().len()), 10, HEIGHT - 50);
 //			game.customFont.draw(game.batchInterface, "x: " + Math.round(cameraX) + ", y: " + Math.round(cameraY), 10, HEIGHT - 80);
 //			game.customFont.draw(game.batchInterface, "health: " + ((ShipData)ship.body.getUserData()).health, 10, HEIGHT - 110);
@@ -333,13 +336,13 @@ public class GameScreen implements Screen {
 	private void generateStars() {
     Star.initTexture();
     for (int i = 0; i < 370; i++) {
-      stars.add(new Star(MathUtils.random(0.93f, 0.98f), 0.37f));
+      stars.add(new Star(MathUtils.random(0.93f, 0.98f), 0.36f));
     }
     for (int i = 0; i < 120; i++) {
-      stars.add(new Star(MathUtils.random(0.87f, 0.92f), 0.5f));
+      stars.add(new Star(MathUtils.random(0.87f, 0.92f), 0.51f));
     }
     for (int i = 0; i < 45; i++) {
-      stars.add(new Star(MathUtils.random(0.81f, 0.85f), 0.66f));
+      stars.add(new Star(MathUtils.random(0.81f, 0.85f), 0.67f));
     }
   }
 
@@ -367,6 +370,7 @@ public class GameScreen implements Screen {
     ExplosionsRepository.clear();
     LasersRepository.clear();
     AsteroidsRepository.clear();
+    ship.destroy(world);
     world.dispose();
     stars.clear();
     if (shader != null) {

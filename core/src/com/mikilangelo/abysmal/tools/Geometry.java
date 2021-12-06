@@ -6,8 +6,9 @@ import com.badlogic.gdx.math.Vector2;
 public abstract class Geometry {
 
   private static final float PI = MathUtils.PI;
-  private static final float halfPI = MathUtils.PI / 2;
-  private static final float PI2 = MathUtils.PI2;
+  private static final float halfPI = PI / 2;
+  private static final float PI2 = 2 * PI;
+  private static final float PI4 = 2 * PI2;
 
   public static float defineAngle(float x, float y, float angle) {
     if (x == 0 && y == 0) {
@@ -50,5 +51,9 @@ public abstract class Geometry {
 
   public static float defineAngle(Vector2 p1, Vector2 p2) {
     return defineAngle(p1.x - p2.x, p1.y - p2.y, 0);
+  }
+
+  public static float normalizeAngle(float a) {
+    return (a + PI4) % PI2;
   }
 }

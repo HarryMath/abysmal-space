@@ -1,5 +1,6 @@
 package com.mikilangelo.abysmal.models.game.extended;
 
+import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.models.game.basic.StaticObject;
 import com.mikilangelo.abysmal.ui.screens.GameScreen;
 import com.badlogic.gdx.graphics.Texture;
@@ -23,7 +24,7 @@ public class Star implements StaticObject {
     this.rangeY = GameScreen.SCREEN_HEIGHT * (1.9f - layer);
     this.layer = layer;
     this.opacity = opacity;
-    this.scale = GameScreen.SCREEN_HEIGHT * 0.027f * (1.03f - (float) Math.pow(layer, 0.31f));
+    this.scale = GameScreen.SCREEN_HEIGHT * 0.028f * (1.03f - (float) Math.pow(layer, 0.31f));
     if (layer <= 0.2f) {
       this.rangeX *= 2;
       this.rangeY *= 2;
@@ -33,7 +34,7 @@ public class Star implements StaticObject {
   }
 
   public static void initTexture() {
-    texture = new Sprite(new Texture("star.png"));
+    texture = new Sprite(TexturesRepository.get("star.png"));
     isInitialised = true;
   }
 

@@ -33,7 +33,7 @@ public abstract class MusicPlayer {
   }
 
   public static void play() {
-    if (currentMusic.getVolume() >= currentVolume) {
+    if (currentVolume < 0 || currentMusic.getVolume() >= currentVolume) {
       return;
     }
     if (previousMusic.getVolume() > 0) {
@@ -51,5 +51,13 @@ public abstract class MusicPlayer {
     if (currentMusic.getVolume() >= currentVolume * 0.999f - 0.0001f) {
       currentMusic.setVolume(currentVolume);
     }
+  }
+
+  public static void dispose() {
+    currentVolume = -1;
+    currentMusic.stop();
+    previousMusic.stop();
+    currentMusic.dispose();
+    previousMusic.dispose();
   }
 }

@@ -1,5 +1,6 @@
 package com.mikilangelo.abysmal.ui.screens.options;
 
+import com.mikilangelo.abysmal.components.MusicPlayer;
 import com.mikilangelo.abysmal.components.ShipDefinitions;
 import com.badlogic.gdx.Gdx;
 import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
@@ -15,7 +16,10 @@ public class ExitOption implements Option {
   public void handleClick(MenuScreen screen) {
     TexturesRepository.disposeAll();
     ShipDefinitions.disposeAll();
-    Gdx.app.exit();
-    System.exit(0);
+    MusicPlayer.dispose();
+    Gdx.app.postRunnable(() -> {
+      Gdx.app.exit();
+      System.exit(0);
+    });
   }
 }

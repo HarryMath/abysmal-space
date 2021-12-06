@@ -60,14 +60,10 @@ public class AbysmalSpace extends Game {
 		backgroundBatch.dispose();
 		customFont.dispose();
 		simpleFont.dispose();
+		MusicPlayer.dispose();
 		ShipDefinitions.disposeAll();
 		TexturesRepository.disposeAll();
 		SoundsRepository.disposeAll();
 		Asteroid.dispose();
-		try {
-			GameScreen.enemiesProcessor.dispose();
-		} catch (Exception ignore) {
-			System.exit(0);
-		}
 	}
 }
