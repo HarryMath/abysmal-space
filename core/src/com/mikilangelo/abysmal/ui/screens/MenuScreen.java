@@ -22,6 +22,7 @@ import com.mikilangelo.abysmal.enemies.EnemiesProcessor;
 import com.mikilangelo.abysmal.enemies.bots.BotsProcessor;
 import com.mikilangelo.abysmal.enemies.remote.UdpClient;
 import com.mikilangelo.abysmal.models.definitions.ShipDef;
+import com.mikilangelo.abysmal.models.game.PlayerShip;
 import com.mikilangelo.abysmal.models.game.Ship;
 import com.mikilangelo.abysmal.models.game.animations.EngineAnimation;
 import com.mikilangelo.abysmal.models.game.extended.Planet;
@@ -123,7 +124,7 @@ public class MenuScreen implements Screen {
   public void setSingleplayer() {
     game.setScreen(new GameScreen(
             game,
-            new Ship(currentShip, 0, 0),
+            new PlayerShip(currentShip, 0, 0),
             new BotsProcessor()));
     dispose();
   }
@@ -132,7 +133,7 @@ public class MenuScreen implements Screen {
     try {
       game.setScreen(new GameScreen(
               game,
-              new Ship(currentShip, 0, 0),
+              new PlayerShip(currentShip, 0, 0),
               new UdpClient()));
       dispose();
     } catch (Exception e) {

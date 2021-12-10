@@ -32,6 +32,7 @@ import com.mikilangelo.abysmal.components.repositories.LasersRepository;
 import com.mikilangelo.abysmal.components.repositories.ParticlesRepository;
 import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.enemies.EnemiesProcessor;
+import com.mikilangelo.abysmal.models.game.PlayerShip;
 import com.mikilangelo.abysmal.models.game.Ship;
 import com.mikilangelo.abysmal.models.game.animations.Portal;
 import com.mikilangelo.abysmal.models.game.animations.Shine;
@@ -50,9 +51,9 @@ public class GameScreen implements Screen {
   public static final float SCREEN_HEIGHT = 25;
   public static float SCREEN_WIDTH = 25;
   public static World world;
-  public static Ship ship;
+  private final PlayerShip ship;
   public static boolean screenUnderControl = false;
-  private DestroyableObjectData shipData;
+  private final DestroyableObjectData shipData;
   public static float cameraX = 0, cameraY = 0;
 
   public static int HEIGHT;
@@ -92,7 +93,7 @@ public class GameScreen implements Screen {
 
   public static EnemiesProcessor enemiesProcessor;
 
-  public GameScreen(final AbysmalSpace game, Ship ship, EnemiesProcessor processor) {
+  public GameScreen(final AbysmalSpace game, PlayerShip ship, EnemiesProcessor processor) {
     MusicPlayer.start("sounds/battle2.mp3", 0.5f);
     this.game = game;
     camera = new OrthographicCamera();
@@ -111,7 +112,7 @@ public class GameScreen implements Screen {
     ship.createBody(world);
     ship.activateShield();
     shipData = ((DestroyableObjectData) ship.body.getUserData());
-    GameScreen.ship = ship;
+    this.ship = ship;
     joystick = new Joystick(HEIGHT / 8);
     shooter = new Shooter(ship.turrets.size > 0);
     AsteroidsRepository.generateAsteroids(ship.x, ship.y);
@@ -181,10 +182,10 @@ public class GameScreen implements Screen {
         ship.applyImpulse(-0.01f, delta, false);
       }
       if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-        ship.rotate(0.7f);
+        ship.rotate(0.7f, delta);
       }
       if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-        ship.rotate(-0.7f);
+        ship.rotate(-0.7f, delta);
       }
       if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
         if (initialZoomCoefficient < ship.definition.maxZoom) {

@@ -226,7 +226,9 @@ public class UdpClient implements EnemiesProcessor {
       }
       if (((ShipData) ship.body.getUserData()).health <= -30) {
         if (ship.distance < 100) {
-          ExplosionsRepository.addShipExplosion(ship.x, ship.y, 1 - ship.distance / 100);
+          ExplosionsRepository.addShipExplosion(
+                  ship.x, ship.y, 1 - ship.distance * 0.01f,
+                  (ship.x - playerX) / ship.distance );
         }
         this.isDead = true;
         ship.destroy(world);
@@ -265,7 +267,9 @@ public class UdpClient implements EnemiesProcessor {
           if (data.health <= 0) {
             if (!isDead) {
               if (ship.distance < 100) {
-                ExplosionsRepository.addShipExplosion(ship.x, ship.y, 1 - ship.distance / 100);
+                ExplosionsRepository.addShipExplosion(
+                        ship.x, ship.y, 1 - ship.distance * 0.01f,
+                        (ship.x - playerX) / ship.distance );
               }
               ship.destroy(world);
               this.isDead = true;
@@ -302,7 +306,7 @@ public class UdpClient implements EnemiesProcessor {
         if (shotData.hasTurret) {
 
         } else {
-          ship.shotDirectly(0.1f, shotData.x, shotData.y, shotData.impulseX, shotData.impulseY, 0);
+          ship.shotDirectly(shotData.x, shotData.y, shotData.impulseX, shotData.impulseY, 0);
         }
       });
     }

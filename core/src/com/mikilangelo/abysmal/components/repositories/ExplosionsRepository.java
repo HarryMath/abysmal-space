@@ -31,8 +31,8 @@ public abstract class ExplosionsRepository {
     }
   }
 
-  public static void addShipExplosion(float x, float y, float soundScale) {
-    sheepExplosionSound.play(soundScale);
+  public static void addShipExplosion(float x, float y, float soundScale, float pan) {
+    sheepExplosionSound.play(soundScale, 1, pan);
     explosions.add(new Explosion(shipExplosion, x, y, 0.035f));
     AsteroidsRepository.applyImpulse(x, y);
   }

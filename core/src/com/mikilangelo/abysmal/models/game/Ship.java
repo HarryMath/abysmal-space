@@ -63,11 +63,6 @@ public class Ship {
   private final Sprite shieldTouchTexture = new Sprite(TexturesRepository.get("things/shieldTouch.png"));
   private final Array<ShieldTouch> shieldTouches = new Array<>();
 
-  public Ship(ShipDef def, float x, float y) {
-    this(def, x, y, true, x, y);
-  }
-
-
   public Ship(ShipDef def, float x, float y, boolean isPlayer, float playerX, float playerY) {
     totalShips++;
     this.generationId = def.name + (totalShips % 10) + MathUtils.random(0, 9) +
@@ -88,7 +83,7 @@ public class Ship {
     this.controlSpeedResistance = (0.998f - definition.speedResistance / 2);
     this.simpleSpeedResistance = 0.9995f - definition.speedResistance * definition.speedResistance;
     this.x = x; this.y = y;
-    this.distance =isPlayer ? 0 : Geometry.distance(playerX, playerY, x, y);
+    this.distance = isPlayer ? 0 : Geometry.distance(playerX, playerY, x, y);
     // shieldRadius = 0.63f * definition.size * (float) Math.hypot(1, definition.bodyTexture.getWidth() / definition.bodyTexture.getHeight());
     shieldSize = definition.shieldRadius * 2 / shieldTexture.getHeight();
     shieldScale = shieldSize;
@@ -97,12 +92,10 @@ public class Ship {
   public void control(float direction, float power, float delta) {
     newAngle = direction;
     this.applyImpulse(power, delta, this.distance < SCREEN_WIDTH);
-    if (angle < 0 || newAngle < 0 || angle > MathUtils.PI2 || newAngle > MathUtils.PI2) {
-      System.out.println("WARNING! angles incorrect");
-      System.out.println("newAngle: " + newAngle);
-      System.out.println("angles: " + angle);
-      // System.exit(-11);
-    }
+
+    assert angle >= 0 && angle <= MathUtils.PI2;
+    assert newAngle >= 0 && newAngle <= MathUtils.PI2;
+
     if (angle != newAngle) {
       if (angle <= newAngle + definition.controlPower / 5f && angle >= newAngle - definition.controlPower / 5f) {
         this.body.setAngularVelocity(this.body.getAngularVelocity() * 0.82f);
@@ -110,9 +103,9 @@ public class Ship {
         final float rotationLeft = (angle - newAngle + MathUtils.PI2) % MathUtils.PI2;
         final float rotationRight = (newAngle - angle + MathUtils.PI2) % MathUtils.PI2;
         if (rotationLeft < rotationRight) {
-          this.rotate(- rotationLeft / MathUtils.PI2 * 0.35f - 0.65f);
+          this.rotate(- rotationLeft / MathUtils.PI * 0.45f - 0.55f, delta);
         } else {
-          this.rotate(rotationLeft / MathUtils.PI2 * 0.35f + 0.65f);
+          this.rotate(rotationLeft / MathUtils.PI * 0.45f + 0.55f, delta);
         }
       }
     }
@@ -121,8 +114,8 @@ public class Ship {
   // power: [0, 1]
   public void applyImpulse(float power, float delta, boolean withParticles) {
     primaryBody.applyLinearImpulse(
-            power * MathUtils.cos(angle) * definition.speedPower * (delta / 2 + 1/120f),
-            power * MathUtils.sin(angle) * definition.speedPower * (delta / 2 + 1/120f),
+            power * MathUtils.cos(angle) * definition.speedPower * (delta / 2 + 0.0083f),
+            power * MathUtils.sin(angle) * definition.speedPower * (delta / 2 + 0.0083f),
             primaryBody.getPosition().x,
             primaryBody.getPosition().y,
             true);
@@ -132,9 +125,9 @@ public class Ship {
     if (withParticles) kak();
   }
 
-  public void rotate(float direction) {
+  public void rotate(float direction, float delta) {
     final float coef = Math.min(primaryBody.getLinearVelocity().len() * definition.controlResistanceOnSpeed, 0.5f);
-    this.body.setAngularVelocity(this.body.getAngularVelocity() + direction * definition.controlPower);
+    this.body.setAngularVelocity(this.body.getAngularVelocity() + direction * definition.controlPower / (0.99f + delta));
     if (!underControl) {
       primaryBody.setLinearVelocity(
               body.getLinearVelocity().x * controlSpeedResistance,
@@ -164,7 +157,18 @@ public class Ship {
     }
   }
 
-  public void shotDirectly(float soundScale, float x, float y, float sX, float sY, long deltaMillis) {
+  public void shotDirectly(float x, float y, float sX, float sY, long deltaMillis) {
+    if (distance >= 140) {
+      this.shotDirectly(0, 0, x, y, sX, sY, deltaMillis);
+    } else {
+      this.shotDirectly((140 - distance) / 141, (x - PlayerShip.X) / distance,
+              x, y, sX, sY, deltaMillis);
+    }
+  }
+
+  private void shotDirectly(float soundScale, float pan,
+                           float x, float y, float sX, float sY, long deltaMillis
+  ) {
     final long newShotTime = TimeUtils.millis() - deltaMillis;
     final float delay = deltaMillis * 0.001f;
     if (turrets.size > 0 || (newShotTime - lastShotTime) < definition.shotInterval) {
@@ -179,11 +183,11 @@ public class Ship {
               sX, sY, generationId, delay);
       LasersRepository.addSimple(l);
     }
-    definition.laserDefinition.sound.play(soundScale);
+    definition.laserDefinition.sound.play(soundScale, 1, pan);
     this.lastShotTime = newShotTime;
   }
 
-  public void shot(float soundScale) {
+  protected void shot(float soundScale, float pan) {
     if (definition.lasersAmount < 1 && definition.turretDefinitions.size == 0) {
       return;
     }
@@ -197,7 +201,7 @@ public class Ship {
     if (distance < 0.1f) {
       GameScreen.enemiesProcessor.shot();
     }
-    shotDirectly(soundScale,
+    shotDirectly(soundScale, pan,
             this.body.getPosition().x,
             this.body.getPosition().y,
             this.body.getLinearVelocity().x,
@@ -206,7 +210,11 @@ public class Ship {
   }
 
   public void shot() {
-    shot(Math.max((130 - distance) / 131, 0) * ((130 - distance) / 135));
+    if (distance >= 140) {
+      this.shot(0, 0);
+    } else {
+      this.shot((140 - distance) / 141, (x - PlayerShip.X) / distance);
+    }
   }
 
   public void draw(Batch batch, float delta) {

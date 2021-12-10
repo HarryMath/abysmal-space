@@ -194,7 +194,8 @@ public class BotsProcessor implements EnemiesProcessor {
       }
       if (((ShipData) ship.body.getUserData()).health <= 0) {
         if (ship.distance < 100) {
-          ExplosionsRepository.addShipExplosion(ship.x, ship.y, 1 - ship.distance / 100);
+          ExplosionsRepository.addShipExplosion(ship.x, ship.y,
+                  1 - ship.distance * 0.01f, (ship.x - playerX) / ship.distance);
         }
         return false;
       }

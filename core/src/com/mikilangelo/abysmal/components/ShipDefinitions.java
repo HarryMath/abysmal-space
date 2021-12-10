@@ -82,7 +82,7 @@ public abstract class ShipDefinitions {
       laserDefinition.texture = new Sprite(TexturesRepository.get("ships/defender/laser.png"));
       laserDefinition.texture.setScale( 1.46f / laserDefinition.texture.getHeight() );
       laserDefinition.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-      laserDefinition.sound = Gdx.audio.newSound(Gdx.files.internal("ships/defender/shot.wav"));
+      laserDefinition.sound = Gdx.audio.newSound(Gdx.files.internal("ships/defender/shot.mp3"));
       laserDefinition.explosionTextures = new Array<>();
       laserDefinition.density = 1.9f;
     }
@@ -168,7 +168,7 @@ public abstract class ShipDefinitions {
       laserDefinition.texture = new Sprite(TexturesRepository.get("ships/invader/laser.png"));
       laserDefinition.texture.setScale( 1.46f / laserDefinition.texture.getHeight() );
       laserDefinition.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-      laserDefinition.sound = Gdx.audio.newSound(Gdx.files.internal("ships/defender/shot.wav"));
+      laserDefinition.sound = Gdx.audio.newSound(Gdx.files.internal("ships/defender/shot.mp3"));
       laserDefinition.explosionTextures = new Array<>();
       laserDefinition.density = 1.9f;
     }
@@ -220,10 +220,10 @@ public abstract class ShipDefinitions {
     alien.shieldRadius = 3.9f;
     // dynamic
     alien.speedPower = 347.7f;
-    alien.controlPower = 0.08f;
+    alien.controlPower = 0.6f;
     alien.controlResistanceOnSpeed = -0.00001f;
     alien.speedResistance = 0.0727f;
-    alien.rotationResistance = 0.014f;
+    alien.rotationResistance = 0.1f;
     // textures
     alien.bodyTexture = new Sprite(TexturesRepository.get("ships/alien/body.png"));
     alien.bodyTexture.setScale( alien.size / alien.bodyTexture.getHeight() );
@@ -244,7 +244,7 @@ public abstract class ShipDefinitions {
       laserDefinition.texture = new Sprite(TexturesRepository.get("ships/alien/laser.png"));
       laserDefinition.texture.setScale( 1.46f / laserDefinition.texture.getHeight() );
       laserDefinition.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-      laserDefinition.sound = Gdx.audio.newSound(Gdx.files.internal("ships/defender/shot.wav"));
+      laserDefinition.sound = Gdx.audio.newSound(Gdx.files.internal("ships/defender/shot.mp3"));
       laserDefinition.explosionTextures = new Array<>();
       laserDefinition.density = 1.9f;
     }
