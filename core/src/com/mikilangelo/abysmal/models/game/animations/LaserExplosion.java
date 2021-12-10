@@ -2,6 +2,7 @@ package com.mikilangelo.abysmal.models.game.animations;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 
 public class LaserExplosion extends Explosion {
@@ -14,6 +15,7 @@ public class LaserExplosion extends Explosion {
   public void draw(Batch batch, float delta) {
     move(delta);
     if (!ended) {
+      batch.setColor(0,1, 0, 1);
       textures.get(0).setCenter(x, y);
       textures.get(0).setAlpha(
               1f - Math.abs((textures.size - 1) / 2f - currentFrame + 1) /
@@ -30,6 +32,7 @@ public class LaserExplosion extends Explosion {
         textures.get(currentFrame).setAlpha(1);
         textures.get(currentFrame).draw(batch);
       }
+      batch.setColor(1,1, 1, 1);
     }
   }
 }

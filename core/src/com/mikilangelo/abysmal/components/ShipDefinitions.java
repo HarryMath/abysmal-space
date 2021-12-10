@@ -1,5 +1,6 @@
 package com.mikilangelo.abysmal.components;
 
+import com.badlogic.gdx.math.Vector3;
 import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.models.definitions.EngineDef;
 import com.mikilangelo.abysmal.models.definitions.LaserDef;
@@ -7,6 +8,7 @@ import com.mikilangelo.abysmal.models.definitions.ShipDef;
 import com.mikilangelo.abysmal.models.definitions.TurretDef;
 import com.mikilangelo.abysmal.models.game.extended.Asteroid;
 import com.mikilangelo.abysmal.tools.BodLLoader;
+import com.mikilangelo.abysmal.tools.Graphics;
 import com.mikilangelo.abysmal.ui.screens.GameScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -255,6 +257,10 @@ public abstract class ShipDefinitions {
       laserDefinition.explosionTextures.get(i)
               .setScale( 1.97f / laserDefinition.explosionTextures.get(i).getHeight() );
     }
+    laserDefinition.explosionTextures = Graphics.changeColor(
+            getShipDefinition("defender").laserDefinition.explosionTextures,
+            new Vector3(0.15f, 1, 0.05f)
+    );
     alien.laserDefinition = laserDefinition;
     alien.lasersAmount = 2;
     alien.lasersDistance = 1.06f;

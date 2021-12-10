@@ -53,7 +53,7 @@ public class GameScreen implements Screen {
   public static World world;
   private final PlayerShip ship;
   public static boolean screenUnderControl = false;
-  private final DestroyableObjectData shipData;
+  private DestroyableObjectData shipData;
   public static float cameraX = 0, cameraY = 0;
 
   public static int HEIGHT;
