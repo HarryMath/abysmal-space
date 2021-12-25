@@ -26,25 +26,29 @@ public class Indicator {
   private final Texture icon;
   private final Sprite bar;
   private final int maxValue;
+  private final byte maxValueLength;
   private final float r, g, b;
   private final float initX;
-  private float x, iconX, barX, height;
-  private static float ratio, y, barHeight, barY, barMaxWidth, bigFontSize, bigFontY, fontOffset,
-          smallFontSize, smallFontY, iconY, iconHeight, iconWidth, fullHeight, fullWidth;
+  private float x, iconX, barX, fontOffset, smallFontSize;
+  private static float ratio, y, barHeight, barY, barMaxWidth, bigFontSize, bigFontY,
+          smallFontY, iconY, iconHeight, iconWidth, fullHeight, fullWidth, fontScale;
   private final GlyphLayout maxText, currentText;
 
   public Indicator(String iconName, String barColor, Vector3 color, BitmapFont font, int max, float x, int screenHeight) {
     icon = TexturesRepository.get("UI/indicators/" + iconName + ".png");
     bar = new Sprite(TexturesRepository.get("UI/indicators/" + barColor + ".png"));
     r = color.x; g = color.y; b = color.z;
+    maxValueLength = (byte) String.valueOf(max).length();
     this.maxValue = max;
     this.initX = x;
+    fontScale = font.getScaleY() / font.getCapHeight();
     currentText = new GlyphLayout(font, String.valueOf(max));
     maxText = new GlyphLayout(font, String.valueOf(max));
     resize(screenHeight);
   }
 
   public void draw(Batch batch, BitmapFont font, float currentValue) {
+    if (currentValue < 0) currentValue = 0;
     batch.draw(background, x, y, fullWidth, fullHeight);
     bar.setAlpha(0.14f + 0.5f * currentValue / maxValue);
     bar.draw(batch);
@@ -55,10 +59,11 @@ public class Indicator {
     batch.draw(icon, iconX, iconY, iconWidth, iconHeight);
 
     font.setColor(r, g, b, 0.6f);
-    font.getData().setScale( smallFontSize / font.getCapHeight() * font.getScaleY());
+    font.getData().setScale(smallFontSize * fontScale * (0.5f + 1.0f / maxValueLength),
+            smallFontSize * fontScale);
     maxText.setText(font, "|" + maxValue);
     font.draw(batch, maxText, fontOffset - maxText.width, smallFontY);
-    font.getData().setScale( bigFontSize / font.getCapHeight() * font.getScaleY());
+    font.getData().setScale( bigFontSize * fontScale);
     currentText.setText(font, String.valueOf((int) currentValue));
     font.setColor(r, g, b, 1);
     font.draw(batch, currentText, fontOffset - maxText.width - 2 * ratio - currentText.width, bigFontY);
@@ -71,7 +76,6 @@ public class Indicator {
 
 
   public void resize(int h) {
-    height = h;
     ratio = (25 + 0.05f * h) / FULL_HEIGHT;
     fullHeight = FULL_HEIGHT * ratio;
     fullWidth = fullHeight * background.getWidth() / background.getHeight();
@@ -85,7 +89,7 @@ public class Indicator {
     bigFontY = y + fullHeight - BIG_FONT_START_Y * ratio;
     smallFontSize = SMALL_FONT_HEIGHT * ratio;
     smallFontY = y + fullHeight - SMALL_START_Y * ratio;
-    fontOffset = x + fullWidth - 6 * ratio;
+    fontOffset = x + fullWidth - 6 * ratio * (0.5f + 1.0f / maxValueLength);
     iconHeight = ICON_HEIGHT * ratio;
     iconX = x + ICON_START_X * ratio;
     iconY = y + fullHeight - ICON_START_Y * ratio - iconHeight;

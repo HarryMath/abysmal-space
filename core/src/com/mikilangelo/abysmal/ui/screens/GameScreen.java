@@ -125,7 +125,7 @@ public class GameScreen implements Screen {
             game.digits, (int) ship.definition.health, 6, HEIGHT);
     ammoIndicator = new Indicator("ammo", "yellow",
             new Vector3(0.9725f, 0.769f, 0.4f),
-            game.digits, (int) ship.definition.health, 12 + 64, HEIGHT);
+            game.digits, 1999, 12 + 64, HEIGHT);
 
     if (Settings.drawBackground) {
       generateHoles();
@@ -314,6 +314,7 @@ public class GameScreen implements Screen {
       enemiesProcessor.drawAtRadar(game.batchInterface, radar, cameraX, cameraY);
 			// game.customFont.getData().setScale(HEIGHT / 1400f);
 			healthIndicator.draw(game.batchInterface, game.digits, shipData.getHealth());
+      ammoIndicator.draw(game.batchInterface, game.digits, 803);
 			//game.simpleFont.draw(game.batchInterface, "FPS: " + FPS, 10, HEIGHT - 20);
 			//game.simpleFont.draw(game.batchInterface, "speed: " + Math.round(ship.body.getLinearVelocity().len()), 10, HEIGHT - 50);
 //			game.customFont.draw(game.batchInterface, "x: " + Math.round(cameraX) + ", y: " + Math.round(cameraY), 10, HEIGHT - 80);
