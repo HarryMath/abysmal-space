@@ -4,7 +4,7 @@ import static com.mikilangelo.abysmal.ui.screens.GameScreen.SCREEN_HEIGHT;
 import static com.mikilangelo.abysmal.ui.screens.GameScreen.SCREEN_WIDTH;
 
 import com.mikilangelo.abysmal.models.game.extended.Asteroid;
-import com.mikilangelo.abysmal.ui.Radar;
+import com.mikilangelo.abysmal.ui.gameElemets.Radar;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;

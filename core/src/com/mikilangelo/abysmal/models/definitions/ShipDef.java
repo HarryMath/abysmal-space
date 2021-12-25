@@ -27,7 +27,7 @@ public class ShipDef {
   public float controlResistanceOnSpeed;
   public float controlPower;
   public float speedPower;
-  public float maxSpeed = 13;
+  public float maxSpeed = 0;
 
   // texture
   public Sprite bodyTexture;

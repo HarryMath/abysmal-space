@@ -8,6 +8,7 @@ import com.mikilangelo.abysmal.components.ShipDefinitions;
 import com.mikilangelo.abysmal.components.repositories.SoundsRepository;
 import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.models.game.extended.Asteroid;
+import com.mikilangelo.abysmal.ui.gameElemets.Indicator;
 
 public class LoadingScreen implements Screen {
 
@@ -18,20 +19,15 @@ public class LoadingScreen implements Screen {
     this.game = abysmalSpace;
     camera = new OrthographicCamera();
     camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() );
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        SoundsRepository.init();
-        Gdx.app.postRunnable(new Runnable() {
-          @Override
-          public void run() {
-            TexturesRepository.init();
-            ShipDefinitions.init();
-            Asteroid.init();
-            launchMenu();
-          }
-        });
-      }
+    new Thread(() -> {
+      SoundsRepository.init();
+      Gdx.app.postRunnable(() -> {
+        TexturesRepository.init();
+        ShipDefinitions.init();
+        Asteroid.init();
+        Indicator.init();
+        launchMenu();
+      });
     }).start();
   }
 

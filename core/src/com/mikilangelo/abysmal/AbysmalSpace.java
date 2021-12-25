@@ -21,6 +21,7 @@ public class AbysmalSpace extends Game {
 	public SpriteBatch backgroundBatch;
 	public SpriteBatch objectsBatch;
 	public BitmapFont customFont;
+	public BitmapFont digits;
 	public BitmapFont simpleFont;
 	public final boolean isSensor;
 
@@ -37,10 +38,13 @@ public class AbysmalSpace extends Game {
 		cameraInterface.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		batchInterface.setProjectionMatrix(cameraInterface.combined);
 		customFont = new BitmapFont(Gdx.files.internal("fonts/Pixellari.fnt"));
+		digits = new BitmapFont(Gdx.files.internal("fonts/digits.fnt"));
 		simpleFont = new BitmapFont();
 		if (!isSensor) {
 			Gdx.graphics.setVSync(true);
+
 		}
+		// Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
 		simpleFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 		this.setScreen(new LoadingScreen(this));
 	}

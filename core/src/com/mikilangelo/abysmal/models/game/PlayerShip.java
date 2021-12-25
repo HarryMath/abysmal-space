@@ -20,6 +20,6 @@ public class PlayerShip extends Ship {
 
   @Override
   public void shot() {
-    this.shot(0.9f, 0);
+    this.shot(1, 0);
   }
 }

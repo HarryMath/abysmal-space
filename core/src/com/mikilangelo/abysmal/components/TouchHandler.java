@@ -4,9 +4,8 @@ import static com.mikilangelo.abysmal.ui.screens.GameScreen.HEIGHT;
 import static com.mikilangelo.abysmal.ui.screens.GameScreen.WIDTH;
 
 import com.mikilangelo.abysmal.models.game.Ship;
-import com.mikilangelo.abysmal.ui.Joystick;
-import com.mikilangelo.abysmal.ui.Shooter;
-import com.badlogic.gdx.graphics.g2d.Batch;
+import com.mikilangelo.abysmal.ui.gameElemets.Joystick;
+import com.mikilangelo.abysmal.ui.gameElemets.Shooter;
 
 public class TouchHandler {
 

@@ -6,7 +6,6 @@ import com.mikilangelo.abysmal.models.definitions.EngineDef;
 import com.mikilangelo.abysmal.models.definitions.LaserDef;
 import com.mikilangelo.abysmal.models.definitions.ShipDef;
 import com.mikilangelo.abysmal.models.definitions.TurretDef;
-import com.mikilangelo.abysmal.models.game.extended.Asteroid;
 import com.mikilangelo.abysmal.tools.BodLLoader;
 import com.mikilangelo.abysmal.tools.Graphics;
 import com.mikilangelo.abysmal.ui.screens.GameScreen;
@@ -34,8 +33,11 @@ public abstract class ShipDefinitions {
     generateAlien();
   }
 
-  public static ShipDef getShipDefinition(String shipName) {
+  public static ShipDef get(String shipName) {
     return shipDefinitions.get(shipNames.get(shipName));
+  }
+  public static ShipDef get(int index) {
+    return shipDefinitions.get(index);
   }
 
   public static void disposeAll() {
@@ -128,8 +130,7 @@ public abstract class ShipDefinitions {
     }
     defender.engineDefinitions = engines;
 
-    shipNames.put(defender.name, shipDefinitions.size);
-    shipDefinitions.add(defender);
+    addShip(defender);
   }
 
   private static void generateInvader() {
@@ -202,8 +203,7 @@ public abstract class ShipDefinitions {
     e.particleShipSpeedCoefficient = 0.9f; // -0.05f;
     invader.engineDefinitions = engines;
 
-    shipNames.put(invader.name, shipDefinitions.size);
-    shipDefinitions.add(invader);
+    addShip(invader);
   }
 
   private static void generateAlien() {
@@ -258,7 +258,7 @@ public abstract class ShipDefinitions {
               .setScale( 1.97f / laserDefinition.explosionTextures.get(i).getHeight() );
     }
     laserDefinition.explosionTextures = Graphics.changeColor(
-            getShipDefinition("defender").laserDefinition.explosionTextures,
+            get("defender").laserDefinition.explosionTextures,
             new Vector3(0.15f, 1, 0.05f)
     );
     alien.laserDefinition = laserDefinition;
@@ -290,8 +290,7 @@ public abstract class ShipDefinitions {
     }
     alien.engineDefinitions = engines;
 
-    shipNames.put(alien.name, shipDefinitions.size);
-    shipDefinitions.add(alien);
+    addShip(alien);
   }
 
   private static void generateHyperion() {
@@ -391,6 +390,11 @@ public abstract class ShipDefinitions {
 
     shipNames.put(hyperion.name, shipDefinitions.size);
     shipDefinitions.add(hyperion);
+  }
+
+  private static void addShip(ShipDef definition) {
+    shipNames.put(definition.name, shipDefinitions.size);
+    shipDefinitions.add(definition);
   }
 
 }

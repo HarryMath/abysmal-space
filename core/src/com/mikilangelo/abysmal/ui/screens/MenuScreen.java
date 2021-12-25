@@ -20,10 +20,9 @@ import com.mikilangelo.abysmal.components.ShipDefinitions;
 import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.enemies.EnemiesProcessor;
 import com.mikilangelo.abysmal.enemies.bots.BotsProcessor;
-import com.mikilangelo.abysmal.enemies.remote.UdpClient;
+import com.mikilangelo.abysmal.enemies.upd.UdpClient;
 import com.mikilangelo.abysmal.models.definitions.ShipDef;
 import com.mikilangelo.abysmal.models.game.PlayerShip;
-import com.mikilangelo.abysmal.models.game.Ship;
 import com.mikilangelo.abysmal.models.game.animations.EngineAnimation;
 import com.mikilangelo.abysmal.models.game.extended.Planet;
 import com.mikilangelo.abysmal.tools.Geometry;
@@ -129,12 +128,13 @@ public class MenuScreen implements Screen {
     dispose();
   }
 
+  @Deprecated
   public void setMultiplayer() {
     try {
       game.setScreen(new GameScreen(
               game,
               new PlayerShip(currentShip, 0, 0),
-              new UdpClient()));
+              new UdpClient(true)));
       dispose();
     } catch (Exception e) {
       this.message = "unavailable to join server";
@@ -162,7 +162,7 @@ public class MenuScreen implements Screen {
     prevShipIndex = currentShipIndex;
     currentShipIndex = i;
     previousShip = currentShip;
-    currentShip = ShipDefinitions.shipDefinitions.get(currentShipIndex);
+    currentShip = ShipDefinitions.get(currentShipIndex);
     currentShip.bodyTexture.setRotation(90);
     resizeShip(currentShip);
     prevShipY = currentShipY;

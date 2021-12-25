@@ -11,7 +11,7 @@ import com.mikilangelo.abysmal.models.game.Ship;
 import com.mikilangelo.abysmal.models.game.extended.Turret;
 import com.mikilangelo.abysmal.models.objectsData.ShipData;
 import com.mikilangelo.abysmal.tools.Geometry;
-import com.mikilangelo.abysmal.ui.Radar;
+import com.mikilangelo.abysmal.ui.gameElemets.Radar;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
@@ -104,10 +104,11 @@ public class BotsProcessor implements EnemiesProcessor {
   private void generateBotsGroup(float x, float y) {
     int amount = MathUtils.random(1, 2);
     for (byte i = 0; i < amount; i++) {
-      String defName = MathUtils.random(0, 21) % 11 == 0 ? "hyperion" :
+//      int def = MathUtils.random(0, ShipDefinitions.shipDefinitions.size);
+      String def = MathUtils.random(0, 21) % 11 == 0 ? "hyperion" :
               MathUtils.random(1, 11) % 4 == 0 ? "invader" : "defender";
       final Ship ship = new Ship(
-              ShipDefinitions.getShipDefinition(defName),
+              ShipDefinitions.get(def),
               x + MathUtils.random(-19.3f, 19.3f),
               y + MathUtils.random(-19.3f, 19.3f), false,
               playerX, playerY);

@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
@@ -33,17 +34,16 @@ import com.mikilangelo.abysmal.components.repositories.ParticlesRepository;
 import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.enemies.EnemiesProcessor;
 import com.mikilangelo.abysmal.models.game.PlayerShip;
-import com.mikilangelo.abysmal.models.game.Ship;
 import com.mikilangelo.abysmal.models.game.animations.Portal;
 import com.mikilangelo.abysmal.models.game.animations.Shine;
 import com.mikilangelo.abysmal.models.game.basic.StaticObject;
 import com.mikilangelo.abysmal.models.game.extended.Planet;
 import com.mikilangelo.abysmal.models.game.extended.Star;
 import com.mikilangelo.abysmal.models.objectsData.DestroyableObjectData;
-import com.mikilangelo.abysmal.ui.HealthIndicator;
-import com.mikilangelo.abysmal.ui.Joystick;
-import com.mikilangelo.abysmal.ui.Radar;
-import com.mikilangelo.abysmal.ui.Shooter;
+import com.mikilangelo.abysmal.ui.gameElemets.Indicator;
+import com.mikilangelo.abysmal.ui.gameElemets.Joystick;
+import com.mikilangelo.abysmal.ui.gameElemets.Radar;
+import com.mikilangelo.abysmal.ui.gameElemets.Shooter;
 
 
 public class GameScreen implements Screen {
@@ -76,7 +76,7 @@ public class GameScreen implements Screen {
   Box2DDebugRenderer debugRenderer;
   Texture background;
   Sound got = Gdx.audio.newSound(Gdx.files.internal("sounds/got.mp3"));
-  final HealthIndicator healthIndicator;
+  final Indicator healthIndicator, ammoIndicator;
 
   FrameBuffer frameBuffer;
   SpriteBatch shaderBatch;
@@ -119,7 +119,13 @@ public class GameScreen implements Screen {
     ExplosionsRepository.init();
     enemiesProcessor = processor;
     enemiesProcessor.generateEnemies(ship);
-    healthIndicator = new HealthIndicator(ship.definition.health, HEIGHT);
+
+    healthIndicator = new Indicator("health", "red",
+            new Vector3(0.925f, 0.365f, 0.435f),
+            game.digits, (int) ship.definition.health, 6, HEIGHT);
+    ammoIndicator = new Indicator("ammo", "yellow",
+            new Vector3(0.9725f, 0.769f, 0.4f),
+            game.digits, (int) ship.definition.health, 12 + 64, HEIGHT);
 
     if (Settings.drawBackground) {
       generateHoles();
@@ -176,10 +182,10 @@ public class GameScreen implements Screen {
     if (!game.isSensor) {
       ship.newAngle = ship.angle;
       if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
-        ship.applyImpulse(1, delta, true);
+        ship.applyImpulse(1, true);
       }
       if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-        ship.applyImpulse(-0.01f, delta, false);
+        ship.applyImpulse(-0.01f, false);
       }
       if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
         ship.rotate(0.7f, delta);
@@ -306,10 +312,10 @@ public class GameScreen implements Screen {
       radar.draw(game.batchInterface);
 			AsteroidsRepository.drawAtRadar(game.batchInterface, radar, cameraX, cameraY);
       enemiesProcessor.drawAtRadar(game.batchInterface, radar, cameraX, cameraY);
-			game.customFont.getData().setScale(HEIGHT / 1400f);
-			healthIndicator.draw(game.batchInterface, game.customFont, shipData.getHealth());
-			game.customFont.draw(game.batchInterface, "FPS: " + FPS, 10, HEIGHT - 20);
-			game.customFont.draw(game.batchInterface, "speed: " + Math.round(ship.body.getLinearVelocity().len()), 10, HEIGHT - 50);
+			// game.customFont.getData().setScale(HEIGHT / 1400f);
+			healthIndicator.draw(game.batchInterface, game.digits, shipData.getHealth());
+			//game.simpleFont.draw(game.batchInterface, "FPS: " + FPS, 10, HEIGHT - 20);
+			//game.simpleFont.draw(game.batchInterface, "speed: " + Math.round(ship.body.getLinearVelocity().len()), 10, HEIGHT - 50);
 //			game.customFont.draw(game.batchInterface, "x: " + Math.round(cameraX) + ", y: " + Math.round(cameraY), 10, HEIGHT - 80);
 //			game.customFont.draw(game.batchInterface, "health: " + ((ShipData)ship.body.getUserData()).health, 10, HEIGHT - 110);
 		}

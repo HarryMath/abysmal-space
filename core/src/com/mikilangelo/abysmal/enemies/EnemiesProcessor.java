@@ -2,7 +2,7 @@ package com.mikilangelo.abysmal.enemies;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.mikilangelo.abysmal.models.game.Ship;
-import com.mikilangelo.abysmal.ui.Radar;
+import com.mikilangelo.abysmal.ui.gameElemets.Radar;
 
 public interface EnemiesProcessor {
 

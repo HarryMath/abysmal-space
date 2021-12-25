@@ -18,7 +18,6 @@ import com.mikilangelo.abysmal.models.game.extended.Turret;
 import com.mikilangelo.abysmal.models.objectsData.ShieldData;
 import com.mikilangelo.abysmal.models.objectsData.ShipData;
 import com.mikilangelo.abysmal.tools.Geometry;
-import com.mikilangelo.abysmal.ui.Joystick;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
@@ -80,8 +79,8 @@ public class Ship {
     for (byte i = 0; i < definition.engineAnimation.size; i++) {
       definition.engineAnimation.get(i).setScale( definition.bodyTexture.getScaleY() );
     }
-    this.controlSpeedResistance = (0.998f - definition.speedResistance / 2);
-    this.simpleSpeedResistance = 0.9995f - definition.speedResistance * definition.speedResistance;
+    this.controlSpeedResistance = (0.9983f - definition.speedResistance / 2);
+    this.simpleSpeedResistance = 0.99955f - definition.speedResistance * definition.speedResistance;
     this.x = x; this.y = y;
     this.distance = isPlayer ? 0 : Geometry.distance(playerX, playerY, x, y);
     // shieldRadius = 0.63f * definition.size * (float) Math.hypot(1, definition.bodyTexture.getWidth() / definition.bodyTexture.getHeight());
@@ -91,7 +90,7 @@ public class Ship {
 
   public void control(float direction, float power, float delta) {
     newAngle = direction;
-    this.applyImpulse(power, delta, this.distance < SCREEN_WIDTH);
+    this.applyImpulse(power, this.distance < SCREEN_WIDTH);
 
     assert angle >= 0 && angle <= MathUtils.PI2;
     assert newAngle >= 0 && newAngle <= MathUtils.PI2;
@@ -112,10 +111,10 @@ public class Ship {
   }
 
   // power: [0, 1]
-  public void applyImpulse(float power, float delta, boolean withParticles) {
+  public void applyImpulse(float power, boolean withParticles) {
     primaryBody.applyLinearImpulse(
-            power * MathUtils.cos(angle) * definition.speedPower * (delta / 2 + 0.0083f),
-            power * MathUtils.sin(angle) * definition.speedPower * (delta / 2 + 0.0083f),
+            power * MathUtils.cos(angle) * definition.speedPower * 0.0135f,
+            power * MathUtils.sin(angle) * definition.speedPower * 0.0135f,
             primaryBody.getPosition().x,
             primaryBody.getPosition().y,
             true);
@@ -130,8 +129,8 @@ public class Ship {
     this.body.setAngularVelocity(this.body.getAngularVelocity() + direction * definition.controlPower / (0.99f + delta));
     if (!underControl) {
       primaryBody.setLinearVelocity(
-              body.getLinearVelocity().x * controlSpeedResistance,
-              body.getLinearVelocity().y * controlSpeedResistance);
+              primaryBody.getLinearVelocity().x * controlSpeedResistance,
+              primaryBody.getLinearVelocity().y * controlSpeedResistance);
     }
     this.body.setAngularVelocity(this.body.getAngularVelocity() * (0.999f - coef - definition.rotationResistance));
   }
@@ -146,9 +145,7 @@ public class Ship {
     y = primaryBody.getPosition().y;
     this.angle = Geometry.normalizeAngle(this.body.getAngle());
     this.body.setAngularVelocity(this.body.getAngularVelocity() * (1 - definition.rotationResistance));
-    primaryBody.setLinearVelocity(
-            primaryBody.getLinearVelocity().x * simpleSpeedResistance,
-            primaryBody.getLinearVelocity().y * simpleSpeedResistance);
+    primaryBody.setLinearVelocity(primaryBody.getLinearVelocity().scl(simpleSpeedResistance));
     primaryBody.setTransform(x, y, angle);
     secondaryBody.setTransform(x, y, angle);
     secondaryBody.setLinearVelocity(primaryBody.getLinearVelocity());
@@ -317,6 +314,11 @@ public class Ship {
     this.body.setUserData(data);
     primaryBody = body;
     createShield(world);
+    if (definition.maxSpeed == 0) {
+      final float resistance = controlSpeedResistance * simpleSpeedResistance;
+      definition.maxSpeed = 0.01351f * definition.speedPower * resistance /
+              body.getMass() / (1 - resistance);
+    }
   }
 
   private void createShield(World world) {
