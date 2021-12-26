@@ -99,7 +99,7 @@ public class GameScreen implements Screen {
     camera = new OrthographicCamera();
     HEIGHT = Gdx.graphics.getHeight();
     WIDTH = Gdx.graphics.getWidth();
-    radar = new Radar(ship.definition.radarPower);
+    radar = new Radar(ship.definition.radarPower, HEIGHT, WIDTH);
     SCREEN_WIDTH = (float) WIDTH / (float) HEIGHT * SCREEN_HEIGHT;
     cameraScreenCoefficient = HEIGHT / SCREEN_HEIGHT;
     camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -124,7 +124,7 @@ public class GameScreen implements Screen {
             new Vector3(0.925f, 0.365f, 0.435f),
             game.digits, (int) ship.definition.health, 6, HEIGHT);
     ammoIndicator = new Indicator("ammo", "yellow",
-            new Vector3(0.9725f, 0.769f, 0.4f),
+            new Vector3(215, 154, 84).scl(1 / 255f),
             game.digits, 1999, 12 + 64, HEIGHT);
 
     if (Settings.drawBackground) {
@@ -312,6 +312,7 @@ public class GameScreen implements Screen {
       radar.draw(game.batchInterface);
 			AsteroidsRepository.drawAtRadar(game.batchInterface, radar, cameraX, cameraY);
       enemiesProcessor.drawAtRadar(game.batchInterface, radar, cameraX, cameraY);
+      radar.drawOverlay(game.batchInterface, ship.angle);
 			// game.customFont.getData().setScale(HEIGHT / 1400f);
 			healthIndicator.draw(game.batchInterface, game.digits, shipData.getHealth());
       ammoIndicator.draw(game.batchInterface, game.digits, 803);
@@ -366,8 +367,10 @@ public class GameScreen implements Screen {
     game.batchInterface.setProjectionMatrix(game.cameraInterface.combined);
     joystick.handleResize(resizeCoefficient);
     shooter.handleResize(resizeCoefficient);
-    radar.handleResize(resizeCoefficient);
+    radar.resize(height, width);
+    Indicator.handleResize(height);
     healthIndicator.resize(height);
+    ammoIndicator.resize(height);
   }
 
   @Override
@@ -385,7 +388,6 @@ public class GameScreen implements Screen {
       shader.dispose();
     }
     joystick.dispose();
-    radar.dispose();
     got.dispose();
   }
 

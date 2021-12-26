@@ -33,6 +33,8 @@ public abstract class TexturesRepository {
             ".png");
     loadTextures("UI/indicators/", new String[]{
                     "ammo", "health", "border", "back", "red", "yellow"}, ".png");
+    loadTextures("UI/radar/", new String[]{
+            "asteroid", "enemy", "border", "back", "center", "overlay"}, ".png");
     loadTextures("", new String[]{"back", "backMenu", "starMenu", "star"}, ".png");
     loadTextures("planets/", new String[]{
             "Baren", "Eros", "Gelios", "Ice", "mud", "Tatuin", "moon", "Terra", "Vulcano"}, ".png");
