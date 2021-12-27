@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
+import com.mikilangelo.abysmal.tools.Geometry;
 import com.mikilangelo.abysmal.ui.screens.GameScreen;
 
 public class Radar extends InterfaceElement {
@@ -12,13 +13,15 @@ public class Radar extends InterfaceElement {
   private final Sprite center = new Sprite(TexturesRepository.get("UI/radar/center.png"));
   private final Texture border = TexturesRepository.get("UI/radar/border.png");
   private final Texture overlay = TexturesRepository.get("UI/radar/overlay.png");
-  private final Texture enemy = TexturesRepository.get("UI/radar/enemy.png");
-  private final Texture asteroid = TexturesRepository.get("UI/radar/asteroid.png");
+  private final Sprite enemy = new Sprite(TexturesRepository.get("UI/radar/enemy.png"));
+  private final Sprite asteroid = new Sprite(TexturesRepository.get("UI/radar/asteroid.png"));
   private float x, y;
   private int drawRadius;
   private final float detectRadius;
   private float fullHeight;
   private float time = 0;
+
+  private float dx, dy, distance;
 
   public Radar(float detectRadius, float screenHeight, float screenWidth) {
     this.detectRadius = detectRadius * 0.9f;
@@ -40,29 +43,40 @@ public class Radar extends InterfaceElement {
   }
 
   public void drawEnemy(Batch batch, float playerX, float playerY, float x, float y) {
-    if (Math.abs(playerX - x) < detectRadius && Math.abs(playerY - y) < detectRadius) {
-      batch.draw(this.enemy,
-              this.x + (x - playerX) / detectRadius * drawRadius * 0.9f,
-              this.y + (y - playerY) / detectRadius * drawRadius * 0.9f,
-              RATIO * 1.5f, RATIO * 1.5f);
-    }
+    drawObject(batch, enemy, playerX, playerY, x, y);
   }
 
   public void drawAsteroid(Batch batch, float playerX, float playerY, float x, float y) {
-    if (Math.abs(playerX - x) < detectRadius && Math.abs(playerY - y) < detectRadius) {
-      batch.draw(this.asteroid,
-              this.x + (x - playerX) / detectRadius * drawRadius * 0.9f,
-              this.y + (y - playerY) / detectRadius * drawRadius * 0.9f,
-              RATIO * 1.3f, RATIO * 1.3f);
+    drawObject(batch, asteroid, playerX, playerY, x, y);
+  }
+
+  private void drawObject(Batch batch, Sprite sprite, float playerX, float playerY, float x, float y) {
+    dx = Math.abs(playerX - x); dy = Math.abs(playerY - y);
+    if (dx < detectRadius && dy < detectRadius) {
+      sprite.setCenter(this.x + (x - playerX) / detectRadius * drawRadius * 0.92f,
+              this.y + (y - playerY) / detectRadius * drawRadius * 0.92f);
+      if (dx + dy > detectRadius * 0.2f) {
+        distance = (dx * dx + dy * dy) / (detectRadius * detectRadius * 2);
+        if (distance > 0.04f) {
+          sprite.setAlpha(1.04167f * (0.04f - distance) + 1);
+        } else {
+          sprite.setAlpha(1);
+        }
+      } else {
+        sprite.setAlpha(1);
+      }
+      sprite.draw(batch);
     }
   }
 
   public void resize(float h, float w) {
     fullHeight = 46 * RATIO;
     drawRadius = (int) (fullHeight * 0.5f);
-    this.x = w - 6 * RATIO - drawRadius;
-    this.y = h - 6 * RATIO - drawRadius;
-    this.center.setCenter(x, y);
-    this.center.setScale( 2.5f * RATIO / center.getHeight());
+    x = w - 6 * RATIO - drawRadius;
+    y = h - 6 * RATIO - drawRadius;
+    center.setCenter(x, y);
+    center.setScale( RATIO * 2.5f / center.getHeight());
+    asteroid.setScale( RATIO * 1.3f / asteroid.getHeight());
+    enemy.setScale( RATIO * 1.4f / enemy.getHeight());
   }
 }
