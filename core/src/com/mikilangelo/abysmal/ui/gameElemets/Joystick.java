@@ -11,7 +11,7 @@ public class Joystick {
   private float startX = 70;
   private float startY = 70;
   private float touchX, touchY;
-  private float directionAngle = 0;
+  private float directionAngle = 1.5708f;
   private float power = 0;
   private boolean controlled = false;
 

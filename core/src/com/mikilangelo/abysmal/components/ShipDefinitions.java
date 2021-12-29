@@ -209,7 +209,7 @@ public abstract class ShipDefinitions {
   private static void generateAlien() {
     ShipDef alien = new ShipDef();
     alien.name = "alien";
-    alien.health = 95;
+    alien.health = 995;
     alien.radarPower = 120;
     alien.maxZoom = 2.3f;
     // body

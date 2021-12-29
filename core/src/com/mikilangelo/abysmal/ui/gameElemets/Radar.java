@@ -77,6 +77,6 @@ public class Radar extends InterfaceElement {
     center.setCenter(x, y);
     center.setScale( RATIO * 2.5f / center.getHeight());
     asteroid.setScale( RATIO * 1.3f / asteroid.getHeight());
-    enemy.setScale( RATIO * 1.4f / enemy.getHeight());
+    enemy.setScale( RATIO * 1.42f / enemy.getHeight());
   }
 }

@@ -27,6 +27,11 @@ public abstract class Geometry {
     if (cos == 0 && sin == 0) {
       return angle;
     }
+    if (sin >= 1) {
+      return halfPI;
+    } else if (sin <= -1) {
+      return PI + halfPI;
+    }
     final float res = cos >= 0 ? MathUtils.asin(sin) : PI - MathUtils.asin(sin);
     return (res + PI2) % PI2;
   }

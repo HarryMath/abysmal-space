@@ -215,8 +215,8 @@ public class Ship {
   }
 
   public void draw(Batch batch, float delta) {
-    x = body.getPosition().x;
-    y = body.getPosition().y;
+    x = primaryBody.getPosition().x;
+    y = primaryBody.getPosition().y;
     if (shieldOn) {
       shieldTexture.setScale(shieldScale);
       shieldTexture.setCenter(x, y);
@@ -307,7 +307,7 @@ public class Ship {
     fixtureDef.friction = definition.friction;
     fixtureDef.restitution = definition.restitution;
     definition.bodyLoader.attachFixture(this.body, "Name", fixtureDef, definition.bodyScale);
-    body.setTransform(x, y, MathUtils.PI / 2);
+    body.setTransform(x, y, angle);
     ShipData data = new ShipData();
     data.id = generationId;
     data.health = definition.health;
