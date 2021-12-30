@@ -102,9 +102,9 @@ public class Ship {
         final float rotationLeft = (angle - newAngle + MathUtils.PI2) % MathUtils.PI2;
         final float rotationRight = (newAngle - angle + MathUtils.PI2) % MathUtils.PI2;
         if (rotationLeft < rotationRight) {
-          this.rotate(- rotationLeft / MathUtils.PI * 0.45f - 0.55f, delta);
+          this.rotate(- rotationLeft / MathUtils.PI * 0.55f - 0.45f, delta);
         } else {
-          this.rotate(rotationLeft / MathUtils.PI * 0.45f + 0.55f, delta);
+          this.rotate(rotationLeft / MathUtils.PI * 0.55f + 0.45f, delta);
         }
       }
     }
@@ -125,14 +125,13 @@ public class Ship {
   }
 
   public void rotate(float direction, float delta) {
-    final float coef = Math.min(primaryBody.getLinearVelocity().len() * definition.controlResistanceOnSpeed, 0.5f);
     this.body.setAngularVelocity(this.body.getAngularVelocity() + direction * definition.controlPower / (0.99f + delta));
     if (!underControl) {
       primaryBody.setLinearVelocity(
               primaryBody.getLinearVelocity().x * controlSpeedResistance,
               primaryBody.getLinearVelocity().y * controlSpeedResistance);
     }
-    this.body.setAngularVelocity(this.body.getAngularVelocity() * (0.999f - coef - definition.rotationResistance));
+    this.body.setAngularVelocity(this.body.getAngularVelocity() * (0.999f - definition.rotationResistance));
   }
 
   public void move(float delta, float playerX, float playerY) {
@@ -231,7 +230,7 @@ public class Ship {
     if (definition.decor != null) {
       definition.decor.setCenter(x, y);
       definition.decor.setRotation(this.angle * MathUtils.radiansToDegrees);
-      definition.decor.setAlpha(body.getLinearVelocity().len() / definition.maxSpeed);
+      definition.decor.setAlpha(Math.min(body.getLinearVelocity().len() / definition.maxSpeed, 1));
       definition.decor.draw(batch);
     }
     for (int i = 0; i < turrets.size; i++) {
@@ -316,7 +315,7 @@ public class Ship {
     createShield(world);
     if (definition.maxSpeed == 0) {
       final float resistance = controlSpeedResistance * simpleSpeedResistance;
-      definition.maxSpeed = 0.01351f * definition.speedPower * resistance /
+      definition.maxSpeed = 0.01352f * definition.speedPower * resistance /
               body.getMass() / (1 - resistance);
     }
   }

@@ -24,7 +24,6 @@ public class ShipDef {
   // dynamic
   public float speedResistance;
   public float rotationResistance;
-  public float controlResistanceOnSpeed;
   public float controlPower;
   public float speedPower;
   public float maxSpeed = 0;

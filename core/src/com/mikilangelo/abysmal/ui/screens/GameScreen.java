@@ -162,7 +162,7 @@ public class GameScreen implements Screen {
     updateCamera();
     drawBackground(delta);
     drawObjects(delta);
-    debugRenderer.render(world, camera.combined);
+    // debugRenderer.render(world, camera.combined);
     drawInterface(delta);
     if (shipData.getHealth() < 0) {
       dispose();

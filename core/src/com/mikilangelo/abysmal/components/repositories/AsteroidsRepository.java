@@ -56,11 +56,11 @@ public abstract class AsteroidsRepository {
       dx = Math.abs(ax - x);
       dy = Math.abs(ay - y);
       if ( !a.destroyed &&
-              Math.abs(ax - shipX) < SCREEN_WIDTH * 2 &&
-              Math.abs(ay - shipY) < SCREEN_HEIGHT * 2 &&
+              Math.abs(ax - shipX) < SCREEN_WIDTH * 3 &&
+              Math.abs(ay - shipY) < SCREEN_HEIGHT * 3 &&
               dx > 0.2f && dy > 0.2f
       ) {
-        power = 1000 / (dx * dx + dy * dy);
+        power = 800 / (dx * dx + dy * dy) * a.getSqrtMass();
         a.body.applyLinearImpulse(
                 power * (ax - x) / dx,
                 power * (ay - y) / dy,

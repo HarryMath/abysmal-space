@@ -30,6 +30,7 @@ public class Asteroid implements DynamicObject {
           1.55f,
           2.30f, 3.51f, 2.40f, 3.9f, 3, 3, 3.88f
   };
+  private static final  float[] sqrtmass = new float[bodyScales.length];
   private static final float textureScale = 0.0021f;
   public static final byte bigAmount = 7;
   public static final byte mediumAmount = 1;
@@ -52,6 +53,9 @@ public class Asteroid implements DynamicObject {
   public Asteroid(final int asteroidTypeId, final float x, final float y) {
     this.asteroidTypeId = asteroidTypeId;
     loadBody(x, y);
+    if (sqrtmass[asteroidTypeId] == 0) {
+      sqrtmass[asteroidTypeId] = (float) Math.sqrt(body.getMass());
+    }
   }
 
   public static void init() {
@@ -74,6 +78,10 @@ public class Asteroid implements DynamicObject {
       explosionSound = SoundsRepository.getSound("explosions/stone/sound.mp3");
       initialized = true;
     }
+  }
+
+  public float getSqrtMass() {
+    return sqrtmass[asteroidTypeId];
   }
 
   private static void loadBodies(byte amount, String type) {

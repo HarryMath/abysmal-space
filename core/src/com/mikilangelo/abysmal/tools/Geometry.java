@@ -23,6 +23,10 @@ public abstract class Geometry {
     return (res + PI2) % PI2;
   }
 
+  public static boolean getProbability(float p) {
+    return MathUtils.random(1f) <= p;
+  }
+
   public static float simpleDefineAngle(float cos, float sin, float angle) {
     if (cos == 0 && sin == 0) {
       return angle;

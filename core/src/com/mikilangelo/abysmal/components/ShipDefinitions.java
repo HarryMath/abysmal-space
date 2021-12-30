@@ -23,10 +23,14 @@ public abstract class ShipDefinitions {
 
   public static final Array<ShipDef> shipDefinitions = new Array<>();
   private static final Map<String, Integer> shipNames = new HashMap<>();
+  private static final Array<Sprite> grayExplosion = new Array<>();
 
   public static void init() {
     GameScreen.world = new World(new Vector2(0, 0), true);
-    GameScreen.world = new World(new Vector2(0, 0), true);
+    for (byte i = 0; i < 11; i++) {
+      grayExplosion.add(new Sprite(TexturesRepository.get("ships/defender/explosions/" + i + ".png")));
+      grayExplosion.get(i).setScale( 2f / grayExplosion.get(i).getHeight());
+    }
     generateDefender();
     generateHyperion();
     generateInvader();
@@ -43,6 +47,7 @@ public abstract class ShipDefinitions {
   public static void disposeAll() {
     shipDefinitions.clear();
     shipNames.clear();
+    grayExplosion.clear();
   }
 
   private static void generateDefender() {
@@ -62,7 +67,6 @@ public abstract class ShipDefinitions {
     // dynamic
     defender.speedPower = 32.7f;
     defender.controlPower = 0.39f;
-    defender.controlResistanceOnSpeed = 0.005f;
     defender.speedResistance = 0.0233f;
     defender.rotationResistance = 0.027f;
     // textures
@@ -90,13 +94,7 @@ public abstract class ShipDefinitions {
       laserDefinition.explosionTextures = new Array<>();
       laserDefinition.density = 1.9f;
     }
-
-    for (byte i = 0; i < 11; i++) {
-      laserDefinition.explosionTextures.add(new Sprite(TexturesRepository.get(
-              "ships/defender/explosions/" + i + ".png")));
-      laserDefinition.explosionTextures.get(i)
-              .setScale( 1.97f / laserDefinition.explosionTextures.get(i).getHeight() );
-    }
+    laserDefinition.explosionTextures = Graphics.changeColor(grayExplosion, new Vector3(1, 0.04f, 0.1f));
     defender.laserDefinition = laserDefinition;
     defender.lasersAmount = 2;
     defender.lasersDistance = 2.06f;
@@ -150,7 +148,6 @@ public abstract class ShipDefinitions {
     // dynamic
     invader.speedPower = 26.7f;
     invader.controlPower = 0.09f;
-    invader.controlResistanceOnSpeed = -0.00001f;
     invader.speedResistance = 0.0177f;
     invader.rotationResistance = 0.018f;
     // textures
@@ -176,11 +173,11 @@ public abstract class ShipDefinitions {
       laserDefinition.density = 1.9f;
     }
 
+    laserDefinition.explosionTextures = Graphics
+            .changeColor(grayExplosion, new Vector3(0.08f, 0.59f, 0.93f));
     for (byte i = 0; i < 11; i++) {
-      laserDefinition.explosionTextures.add(new Sprite(TexturesRepository.get(
-              "ships/hyperion/explosions/" + i + ".png")));
       laserDefinition.explosionTextures.get(i)
-              .setScale( 1.93f / laserDefinition.explosionTextures.get(i).getHeight() );
+              .setScale( 2.27f / laserDefinition.explosionTextures.get(i).getHeight() );
     }
     invader.laserDefinition = laserDefinition;
     invader.lasersAmount = 1;
@@ -209,7 +206,7 @@ public abstract class ShipDefinitions {
   private static void generateAlien() {
     ShipDef alien = new ShipDef();
     alien.name = "alien";
-    alien.health = 995;
+    alien.health = 95;
     alien.radarPower = 120;
     alien.maxZoom = 2.3f;
     // body
@@ -223,7 +220,6 @@ public abstract class ShipDefinitions {
     // dynamic
     alien.speedPower = 347.7f;
     alien.controlPower = 0.6f;
-    alien.controlResistanceOnSpeed = -0.00001f;
     alien.speedResistance = 0.0727f;
     alien.rotationResistance = 0.1f;
     // textures
@@ -251,16 +247,12 @@ public abstract class ShipDefinitions {
       laserDefinition.density = 1.9f;
     }
 
+    laserDefinition.explosionTextures = Graphics
+            .changeColor(grayExplosion, new Vector3(0.15f, 1, 0.05f));
     for (byte i = 0; i < 11; i++) {
-      laserDefinition.explosionTextures.add(new Sprite(TexturesRepository.get(
-              "ships/defender/explosions/" + i + ".png")));
       laserDefinition.explosionTextures.get(i)
-              .setScale( 1.97f / laserDefinition.explosionTextures.get(i).getHeight() );
+              .setScale( 2.47f / laserDefinition.explosionTextures.get(i).getHeight() );
     }
-    laserDefinition.explosionTextures = Graphics.changeColor(
-            get("defender").laserDefinition.explosionTextures,
-            new Vector3(0.15f, 1, 0.05f)
-    );
     alien.laserDefinition = laserDefinition;
     alien.lasersAmount = 2;
     alien.lasersDistance = 1.06f;
@@ -310,7 +302,6 @@ public abstract class ShipDefinitions {
     // dynamic
     hyperion.speedPower = 42.5f;
     hyperion.controlPower = 0.057f;
-    hyperion.controlResistanceOnSpeed = 0f;
     hyperion.speedResistance = 0.0019f;
     hyperion.rotationResistance = 0.042f;
     // textures

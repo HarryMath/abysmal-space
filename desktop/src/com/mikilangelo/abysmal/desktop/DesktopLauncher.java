@@ -20,7 +20,6 @@ public class DesktopLauncher {
 		Graphics.DisplayMode displayMode = Lwjgl3ApplicationConfiguration.getDisplayMode();
 		// config.setFullscreenMode(displayMode);
 		config.setDecorated(true);
-		System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
 		new Thread(() -> {
 			System.out.println("start thread");
 			try {
