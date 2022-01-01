@@ -5,12 +5,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.mikilangelo.abysmal.ui.screens.GameScreen;
 
 public class GameController implements GestureDetector.GestureListener {
-  private static boolean shot = false;
-  private final float maxZoom;
-
-  public GameController(float maxZoom) {
-    this.maxZoom = maxZoom;
-  }
 
   @Override
   public boolean touchDown(float x, float y, int pointer, int button) {
@@ -45,10 +39,10 @@ public class GameController implements GestureDetector.GestureListener {
   @Override
   public boolean zoom(float initialDistance, float distance) {
     if (!GameScreen.screenUnderControl) {
-      if (initialDistance > distance && GameScreen.initialZoomCoefficient < maxZoom) {
-        GameScreen.initialZoomCoefficient += 0.01;
-      } else if (initialDistance < distance && GameScreen.initialZoomCoefficient > 0.4f) {
-        GameScreen.initialZoomCoefficient -= 0.01;
+      if (initialDistance > distance) {
+        GameScreen.camera.zoomOut();
+      } else if (initialDistance < distance) {
+        GameScreen.camera.zoomIn();
       }
     }
     return false;

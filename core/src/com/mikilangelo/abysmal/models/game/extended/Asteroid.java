@@ -131,7 +131,7 @@ public class Asteroid implements DynamicObject {
         y = this.body.getPosition().y;
         ExplosionsRepository.addExplosion(new Explosion(stoneExplosion, x, y, 0.043f));
         if (asteroidTypeId >= smallAmount) {
-          final float distance = Geometry.distance(x, y, GameScreen.cameraX, GameScreen.cameraY);
+          final float distance = Geometry.distance(x, y, GameScreen.camera.X, GameScreen.camera.Y);
           if (distance < 50) {
             explosionSound.play(1 - distance / 50);
           }

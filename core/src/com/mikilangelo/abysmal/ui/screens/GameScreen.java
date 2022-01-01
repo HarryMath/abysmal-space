@@ -40,6 +40,8 @@ import com.mikilangelo.abysmal.models.game.basic.StaticObject;
 import com.mikilangelo.abysmal.models.game.extended.Planet;
 import com.mikilangelo.abysmal.models.game.extended.Star;
 import com.mikilangelo.abysmal.models.objectsData.DestroyableObjectData;
+import com.mikilangelo.abysmal.tools.Camera;
+import com.mikilangelo.abysmal.tools.Geometry;
 import com.mikilangelo.abysmal.ui.gameElemets.Indicator;
 import com.mikilangelo.abysmal.ui.gameElemets.Joystick;
 import com.mikilangelo.abysmal.ui.gameElemets.Radar;
@@ -54,16 +56,11 @@ public class GameScreen implements Screen {
   private final PlayerShip ship;
   public static boolean screenUnderControl = false;
   private DestroyableObjectData shipData;
-  public static float cameraX = 0, cameraY = 0;
 
   public static int HEIGHT;
   public static int WIDTH;
 
-  public static float cameraScreenCoefficient;
-  public static float initialZoomCoefficient;
-  public static float speedZoomCoefficient;
-  private float cameraBiasX, cameraBiasY;
-  static OrthographicCamera camera;
+  public static Camera camera;
 
 
   Joystick joystick;
@@ -96,16 +93,11 @@ public class GameScreen implements Screen {
   public GameScreen(final AbysmalSpace game, PlayerShip ship, EnemiesProcessor processor) {
     MusicPlayer.start("sounds/battle2.mp3", 0.5f);
     this.game = game;
-    camera = new OrthographicCamera();
     HEIGHT = Gdx.graphics.getHeight();
     WIDTH = Gdx.graphics.getWidth();
+    camera = new Camera(HEIGHT, WIDTH, ship.definition.maxZoom);
     radar = new Radar(ship.definition.radarPower, HEIGHT, WIDTH);
     SCREEN_WIDTH = (float) WIDTH / (float) HEIGHT * SCREEN_HEIGHT;
-    cameraScreenCoefficient = HEIGHT / SCREEN_HEIGHT;
-    camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
-    initialZoomCoefficient = 1f;
-    speedZoomCoefficient = 1.5f;
-    camera.zoom = initialZoomCoefficient * speedZoomCoefficient;
     world = new World(new Vector2(0, 0), true);
     world.setContactListener(new CollisionHandler());
     debugRenderer = new Box2DDebugRenderer();
@@ -139,6 +131,10 @@ public class GameScreen implements Screen {
     touch2Handler = new TouchHandler(ship);
   }
 
+  public static void shakeCamera(float power) {
+    camera.shake(power);
+  }
+
   private void generatePlanets() {
     nearObjects.add(new Planet("Terra", 4.1f, 100, 100, 0.84f));
     nearObjects.add(new Planet("moon", 2.8f, 103, 97, 0.75f));
@@ -159,7 +155,7 @@ public class GameScreen implements Screen {
       e.printStackTrace();
     }
     handleControls(delta);
-    updateCamera();
+    camera.update(ship, game.objectsBatch, game.backgroundBatch, shaderBatch);
     drawBackground(delta);
     drawObjects(delta);
     // debugRenderer.render(world, camera.combined);
@@ -194,14 +190,10 @@ public class GameScreen implements Screen {
         ship.rotate(-0.7f, delta);
       }
       if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-        if (initialZoomCoefficient < ship.definition.maxZoom) {
-          initialZoomCoefficient += 0.01;
-        }
+        camera.zoomOut();
       }
       if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
-        if (initialZoomCoefficient > 0.4) {
-          initialZoomCoefficient -= 0.01;
-        }
+        camera.zoomIn();
       }
     }
 
@@ -221,36 +213,14 @@ public class GameScreen implements Screen {
       }
   }
 
-  private void updateCamera() {
-    speedZoomCoefficient = (ship.body.getLinearVelocity().len() * 0.06f + speedZoomCoefficient * 39f) / 40f;
-    if (Settings.fixedPosition) {
-      cameraBiasX = cameraBiasY = 0;
-    } else {
-      cameraBiasX = (cameraBiasX * 87 + MathUtils.cos(ship.newAngle) * speedZoomCoefficient * 7) / 88f;
-      cameraBiasY = (cameraBiasY * 87 + MathUtils.sin(ship.newAngle) * speedZoomCoefficient * 7) / 88f;
-    }
-    cameraX = ship.body.getPosition().x + cameraBiasX;
-    cameraY = ship.body.getPosition().y + cameraBiasY;
-    camera.position.set(cameraX, cameraY, 0);
-    camera.zoom = (speedZoomCoefficient + 1) * (initialZoomCoefficient + 1) * 0.5f - 0.5f;
-    camera.update();
-    game.objectsBatch.setProjectionMatrix(camera.combined);
-    if (Settings.drawBackground) {
-      game.backgroundBatch.setProjectionMatrix(camera.combined);
-      if (Settings.showBlackHoles) {
-        shaderBatch.setProjectionMatrix(camera.combined);
-      }
-    }
-  }
-
   private void drawObjects(float delta) {
     game.objectsBatch.begin(); {
       if (Settings.drawBackground) {
         for (StaticObject p : nearObjects) {
-          p.draw(game.objectsBatch, cameraX, cameraY, camera.zoom * 1.2f);
+          p.draw(game.objectsBatch, camera.X, camera.Y, camera.zoom * 1.2f);
         }
       }
-      portal.draw(game.objectsBatch, delta, cameraX, cameraY, camera.zoom);
+      portal.draw(game.objectsBatch, delta, camera.X, camera.Y, camera.zoom);
       ParticlesRepository.drawAll(game.objectsBatch, delta);
       LasersRepository.drawSimple(game.objectsBatch, delta);
       enemiesProcessor.process(ship, delta);
@@ -268,6 +238,7 @@ public class GameScreen implements Screen {
     if (!Settings.drawBackground) {
       return;
     }
+    game.backgroundBatch.setProjectionMatrix(camera.camera.combined);
     if (Settings.showBlackHoles) {
       frameBuffer.begin(); {
         drawBackgroundAt(shaderBatch, delta, 1.2f);
@@ -275,12 +246,12 @@ public class GameScreen implements Screen {
       frameBuffer.end();
       TextureRegion backgroundTexture = new TextureRegion(frameBuffer.getColorBufferTexture());
       game.backgroundBatch.begin(); {
-        HolesRepository.setUpShader(shader, cameraX, cameraY, camera.zoom);
+        HolesRepository.setUpShader(shader, camera.X, camera.Y, camera.zoom);
         game.backgroundBatch.draw(backgroundTexture,
-                cameraX - WIDTH / 1.6667f * camera.zoom / cameraScreenCoefficient,
-                cameraY + HEIGHT / 1.6667f * camera.zoom / cameraScreenCoefficient,
-                WIDTH * 1.2f * camera.zoom / cameraScreenCoefficient,
-                - HEIGHT * 1.2f * camera.zoom / cameraScreenCoefficient);
+                camera.X - WIDTH / 1.6667f * camera.zoom / camera.screenCoefficient,
+                camera.Y + HEIGHT / 1.6667f * camera.zoom / camera.screenCoefficient,
+                WIDTH * 1.2f * camera.zoom / camera.screenCoefficient,
+                - HEIGHT * 1.2f * camera.zoom / camera.screenCoefficient);
       }
       game.backgroundBatch.end();
     } else {
@@ -291,16 +262,16 @@ public class GameScreen implements Screen {
   private void drawBackgroundAt(Batch batch, float delta, float scale) {
     batch.begin();
     batch.draw(background,
-            cameraX - WIDTH / 2f * camera.zoom * scale / cameraScreenCoefficient,
-            cameraY - HEIGHT / 2f * camera.zoom * scale / cameraScreenCoefficient,
-            WIDTH * camera.zoom * scale / cameraScreenCoefficient,
-            HEIGHT * camera.zoom * scale / cameraScreenCoefficient);
-    shine.draw(batch, delta, cameraX, cameraY, camera.zoom);
+            camera.X - WIDTH / 2f * camera.zoom * scale / camera.screenCoefficient,
+            camera.Y - HEIGHT / 2f * camera.zoom * scale / camera.screenCoefficient,
+            WIDTH * camera.zoom * scale / camera.screenCoefficient,
+            HEIGHT * camera.zoom * scale / camera.screenCoefficient);
+    shine.draw(batch, delta, camera.X, camera.Y, camera.zoom);
     for (StaticObject o: farObjects) {
-      o.draw(batch, cameraX, cameraY, camera.zoom * scale);
+      o.draw(batch, camera.X, camera.Y, camera.zoom * scale);
     }
     for (Star s : stars) {
-      s.draw(batch, cameraX, cameraY, camera.zoom * scale);
+      s.draw(batch, camera.X, camera.Y, camera.zoom * scale);
     }
     batch.end();
   }
@@ -310,8 +281,8 @@ public class GameScreen implements Screen {
 		  shooter.draw(game.batchInterface);
 		  joystick.draw(game.batchInterface);
       radar.draw(game.batchInterface);
-			AsteroidsRepository.drawAtRadar(game.batchInterface, radar, cameraX, cameraY);
-      enemiesProcessor.drawAtRadar(game.batchInterface, radar, cameraX, cameraY);
+			AsteroidsRepository.drawAtRadar(game.batchInterface, radar, camera.X, camera.Y);
+      enemiesProcessor.drawAtRadar(game.batchInterface, radar, camera.X, camera.Y);
       radar.drawOverlay(game.batchInterface, ship.angle);
 			// game.customFont.getData().setScale(HEIGHT / 1400f);
 			healthIndicator.draw(game.batchInterface, game.digits, shipData.getHealth());
@@ -361,8 +332,7 @@ public class GameScreen implements Screen {
     float resizeCoefficient = height / (float) HEIGHT;
     WIDTH = width; HEIGHT = height;
     SCREEN_WIDTH = (float) WIDTH / (float) HEIGHT * SCREEN_HEIGHT;
-    cameraScreenCoefficient = HEIGHT / SCREEN_HEIGHT;
-    camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
+    camera.resize(height, width);
     game.cameraInterface.setToOrtho(false, width, height);
     game.batchInterface.setProjectionMatrix(game.cameraInterface.combined);
     joystick.handleResize(resizeCoefficient);
@@ -394,7 +364,7 @@ public class GameScreen implements Screen {
   @Override
   public void show() {
     System.out.println("show method called");
-    Gdx.input.setInputProcessor(new GestureDetector(new GameController(ship.definition.maxZoom)));
+    Gdx.input.setInputProcessor(new GestureDetector(new GameController()));
   }
 
   @Override

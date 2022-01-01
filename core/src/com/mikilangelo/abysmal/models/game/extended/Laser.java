@@ -58,7 +58,7 @@ public class Laser implements DynamicObject {
     if (!ended) {
       if (l.collision != null) {
         ExplosionsRepository.addLaserExplosion(new LaserExplosion(
-                definition.explosionTextures, l.collision.x, l.collision.y, 0.015f
+                definition.explosionTextures, l.collision.x, l.collision.y, 0.017f
         ));
         l.collision = null;
         if (l.contactsCounter < definition.touches) {

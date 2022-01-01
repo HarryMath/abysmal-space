@@ -29,7 +29,7 @@ public abstract class ShipDefinitions {
     GameScreen.world = new World(new Vector2(0, 0), true);
     for (byte i = 0; i < 11; i++) {
       grayExplosion.add(new Sprite(TexturesRepository.get("ships/defender/explosions/" + i + ".png")));
-      grayExplosion.get(i).setScale( 2f / grayExplosion.get(i).getHeight());
+      grayExplosion.get(i).setScale( 2.2f / grayExplosion.get(i).getHeight());
     }
     generateDefender();
     generateHyperion();
@@ -240,7 +240,7 @@ public abstract class ShipDefinitions {
       laserDefinition.damage = 7;
       laserDefinition.touches = 2;
       laserDefinition.texture = new Sprite(TexturesRepository.get("ships/alien/laser.png"));
-      laserDefinition.texture.setScale( 1.46f / laserDefinition.texture.getHeight() );
+      laserDefinition.texture.setScale( 0.9f / laserDefinition.texture.getHeight() );
       laserDefinition.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
       laserDefinition.sound = Gdx.audio.newSound(Gdx.files.internal("ships/defender/shot.mp3"));
       laserDefinition.explosionTextures = new Array<>();

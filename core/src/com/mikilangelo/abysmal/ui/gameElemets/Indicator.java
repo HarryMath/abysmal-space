@@ -60,7 +60,7 @@ public class Indicator extends InterfaceElement {
     bar.draw(batch);
     batch.draw(bar, barX, barY, barMaxWidth * shownValue / maxValue, barHeight);
     batch.draw(bar, barX + barMaxWidth * shownValue / maxValue - RATIO * 0.005f,
-            barY + RATIO, RATIO * 1.01f, barHeight / 2);
+            barY + barHeight * 0.25f, RATIO * 1.01f, barHeight * 0.5f);
     batch.draw(border, x, y, fullWidth, fullHeight);
     batch.draw(icon, iconX, iconY, iconWidth, iconHeight);
 

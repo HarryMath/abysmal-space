@@ -15,10 +15,11 @@ public abstract class ExplosionsRepository {
   private static final Array<Sprite> shipExplosion = new Array<>();
   private static final Array<Sprite> greenExplosion = new Array<>();
   private static Sound sheepExplosionSound;
-  private static Sound shieldHit = SoundsRepository.getSound("sounds/shieldHit.wav");
+  private static Sound shieldHit;
 
   public static void init() {
     sheepExplosionSound = SoundsRepository.getSound("explosions/ship/sound.mp3");
+    shieldHit = SoundsRepository.getSound("sounds/shieldHit.wav");
     for (byte i = 0; i < 27; i++) {
       Sprite frame = new Sprite(TexturesRepository.get("explosions/big/" + i + ".png"));
       frame.setScale( GameScreen.SCREEN_HEIGHT * 0.45f / frame.getHeight());
@@ -35,6 +36,7 @@ public abstract class ExplosionsRepository {
     sheepExplosionSound.play(soundScale, 1, pan);
     explosions.add(new Explosion(shipExplosion, x, y, 0.035f));
     AsteroidsRepository.applyImpulse(x, y);
+    GameScreen.shakeCamera(2.5f * soundScale);
   }
 
   public static void shieldHid(float distance) {

@@ -19,9 +19,10 @@ class Bot {
     this.ship = ship;
     final String name = ship.definition.name.toLowerCase(Locale.ROOT);
     if (name.contains("defender")) {
-      this.strategy = Geometry.getProbability(0.5f) ?
-              new StrategyHitAndRun() : Geometry.getProbability(0.4f) ?
-              new StrategyKamikaze() : new StrategySniper();
+      this.strategy =
+              Geometry.getProbability(0.5f) ? new StrategyHitAndRun() :
+              Geometry.getProbability(0.3f) ? new StrategyWave() :
+              Geometry.getProbability(0.4f) ? new StrategyKamikaze() : new StrategySniper();
     } else if (name.contains("invader")) {
       this.strategy = Geometry.getProbability(0.4f) ?
               new StrategySniper() : new StrategyKamikaze();
@@ -52,8 +53,8 @@ class Bot {
       return false;
     }
     ship.move(delta);
-    if (ship.distance > SCREEN_WIDTH * ship.definition.radarPower) {
-      ship.control((ship.angle + MathUtils.random(-0.001f, 0.01f)) % MathUtils.PI2, 0.7f, delta);
+    if (ship.distance > ship.definition.radarPower) {
+      ship.control((ship.angle + MathUtils.random(-0.0009f, 0.003f)) % MathUtils.PI2, 0.8f, delta);
       return true;
     }
     strategy.perform(ship, playerX, playerY, playerAngle, delta);
