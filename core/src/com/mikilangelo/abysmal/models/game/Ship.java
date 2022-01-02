@@ -53,6 +53,7 @@ public class Ship {
   private float shieldTimeLeft = 0;
   public boolean underControl = false;
   public boolean shieldOn = false;
+  public int ammo;
 
   private final float controlSpeedResistance;
   private final float simpleSpeedResistance;
@@ -86,6 +87,7 @@ public class Ship {
     // shieldRadius = 0.63f * definition.size * (float) Math.hypot(1, definition.bodyTexture.getWidth() / definition.bodyTexture.getHeight());
     shieldSize = definition.shieldRadius * 2 / shieldTexture.getHeight();
     shieldScale = shieldSize;
+    ammo = definition.ammo;
   }
 
   public void control(float direction, float power, float delta) {
@@ -180,11 +182,12 @@ public class Ship {
       LasersRepository.addSimple(l);
     }
     definition.laserDefinition.sound.play(soundScale, 1, pan);
+    this.ammo -= definition.lasersAmount;
     this.lastShotTime = newShotTime;
   }
 
   protected void shot(float soundScale, float pan) {
-    if (definition.lasersAmount < 1 && definition.turretDefinitions.size == 0) {
+    if (ammo <= definition.lasersAmount || (definition.lasersAmount < 1 && definition.turretDefinitions.size == 0)) {
       return;
     }
     for (byte i = 0; i < turrets.size; i++) {
@@ -194,7 +197,7 @@ public class Ship {
     if (turrets.size > 0 || (newShotTime - lastShotTime) < definition.shotInterval) {
       return;
     }
-    if (distance < 0.1f) {
+    if (distance < 0.01f) {
       GameScreen.enemiesProcessor.shot();
     }
     shotDirectly(soundScale, pan,

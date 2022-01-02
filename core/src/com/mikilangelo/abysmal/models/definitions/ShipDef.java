@@ -9,7 +9,7 @@ public class ShipDef {
   // basic
   public String name;
   public float health;
-  public float maxZoom;
+  public float maxZoom, minZoom = 0.5f;
   public float radarPower;
 
   // body
@@ -39,6 +39,7 @@ public class ShipDef {
   public byte lasersAmount;
   public float lasersDistance;
   public float shotInterval;
+  public int ammo;
 
   // turrets
   public Array<TurretDef> turretDefinitions;

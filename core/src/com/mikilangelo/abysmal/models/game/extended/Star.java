@@ -1,5 +1,6 @@
 package com.mikilangelo.abysmal.models.game.extended;
 
+import com.mikilangelo.abysmal.components.Settings;
 import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.models.game.basic.StaticObject;
 import com.mikilangelo.abysmal.ui.screens.GameScreen;
@@ -18,10 +19,16 @@ public class Star implements StaticObject {
   float opacity; // form 1 to 0 (invisible)
 
   public Star(float layer, float opacity) {
-    this.x = MathUtils.random(0, GameScreen.SCREEN_WIDTH * (1.9f - layer)) / (1.000001f - layer);
-    this.y = MathUtils.random(0, GameScreen.SCREEN_HEIGHT * (1.9f - layer)) / (1.000001f - layer);
-    this.rangeX = GameScreen.SCREEN_WIDTH * (1.9f - layer);
-    this.rangeY = GameScreen.SCREEN_HEIGHT * (1.9f - layer);
+    if (Settings.cameraRotation) {
+      this.x = MathUtils.random(0, GameScreen.SCREEN_WIDTH * 1.41f * (1.9f - layer)) / (1.000001f - layer);
+      this.y = MathUtils.random(0, GameScreen.SCREEN_WIDTH * 1.41f * (1.9f - layer)) / (1.000001f - layer);
+      this.rangeX = this.rangeY = GameScreen.SCREEN_WIDTH * 1.41f * (1.9f - layer);
+    } else {
+      this.x = MathUtils.random(0, GameScreen.SCREEN_WIDTH * (1.9f - layer)) / (1.000001f - layer);
+      this.y = MathUtils.random(0, GameScreen.SCREEN_HEIGHT * (1.9f - layer)) / (1.000001f - layer);
+      this.rangeX = GameScreen.SCREEN_WIDTH * (1.9f - layer);
+      this.rangeY = GameScreen.SCREEN_HEIGHT * (1.9f - layer);
+    }
     this.layer = layer;
     this.opacity = opacity;
     this.scale = GameScreen.SCREEN_HEIGHT * 0.028f * (1.03f - (float) Math.pow(layer, 0.31f));

@@ -23,7 +23,7 @@ public abstract class ExplosionsRepository {
   private static Sound shieldHit;
 
   public static void init() {
-    sheepExplosionSound = SoundsRepository.getSound("explosions/ship/sound.mp3");
+    sheepExplosionSound = SoundsRepository.getSound("explosions/simple/sound.mp3");
     shieldHit = SoundsRepository.getSound("sounds/shieldHit.wav");
     spark = new Sprite(TexturesRepository.get("explosions/animated/spark.png"));
     smoke = new Sprite(TexturesRepository.get("explosions/animated/smoke.png"));

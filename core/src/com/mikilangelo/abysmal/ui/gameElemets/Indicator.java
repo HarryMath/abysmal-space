@@ -10,7 +10,7 @@ import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
 
 public class Indicator extends InterfaceElement {
 
-  private static final byte FULL_HEIGHT = 25,
+  private static final byte FULL_HEIGHT = 24,
           INDICATOR_START_X = 3, INDICATOR_START_Y = 19, INDICATOR_MAX_WIDTH = 54,
           ICON_START_X = 6, ICON_START_Y = 6, ICON_HEIGHT = 7,
           BIG_FONT_HEIGHT = 9, BIG_FONT_START_Y = 5,
@@ -60,7 +60,7 @@ public class Indicator extends InterfaceElement {
     bar.draw(batch);
     batch.draw(bar, barX, barY, barMaxWidth * shownValue / maxValue, barHeight);
     batch.draw(bar, barX + barMaxWidth * shownValue / maxValue - RATIO * 0.005f,
-            barY + barHeight * 0.25f, RATIO * 1.01f, barHeight * 0.5f);
+            barY + barHeight * 0.25f, RATIO * 0.9f, barHeight * 0.5f);
     batch.draw(border, x, y, fullWidth, fullHeight);
     batch.draw(icon, iconX, iconY, iconWidth, iconHeight);
 
@@ -98,7 +98,7 @@ public class Indicator extends InterfaceElement {
   public void resize(int h) {
     x = initX * RATIO;
     y = h - FULL_HEIGHT * RATIO - 4 * RATIO;
-    barHeight = 4.2f * RATIO;
+    barHeight = 3.1f * RATIO;
     barX = x + INDICATOR_START_X * RATIO;
     barY = y + fullHeight - INDICATOR_START_Y * RATIO - barHeight;
     barMaxWidth = INDICATOR_MAX_WIDTH * RATIO;

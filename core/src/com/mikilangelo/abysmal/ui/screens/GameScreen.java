@@ -95,7 +95,7 @@ public class GameScreen implements Screen {
     this.game = game;
     HEIGHT = Gdx.graphics.getHeight();
     WIDTH = Gdx.graphics.getWidth();
-    camera = new Camera(HEIGHT, WIDTH, ship.definition.maxZoom);
+    camera = new Camera(HEIGHT, WIDTH, ship.definition.minZoom, ship.definition.maxZoom);
     radar = new Radar(ship.definition.radarPower, HEIGHT, WIDTH);
     SCREEN_WIDTH = (float) WIDTH / (float) HEIGHT * SCREEN_HEIGHT;
     world = new World(new Vector2(0, 0), true);
@@ -113,11 +113,11 @@ public class GameScreen implements Screen {
     enemiesProcessor.generateEnemies(ship);
 
     healthIndicator = new Indicator("health", "red",
-            new Vector3(0.925f, 0.365f, 0.435f),
+            new Vector3(179, 65, 80).scl(1 / 255f),
             game.digits, (int) ship.definition.health, 6, HEIGHT);
     ammoIndicator = new Indicator("ammo", "yellow",
-            new Vector3(215, 154, 84).scl(1 / 255f),
-            game.digits, 1999, 12 + 64, HEIGHT);
+            new Vector3(186, 117, 67).scl(1 / 255f),
+            game.digits, ship.definition.ammo, 12 + 64, HEIGHT);
 
     if (Settings.drawBackground) {
       generateHoles();
@@ -238,7 +238,6 @@ public class GameScreen implements Screen {
     if (!Settings.drawBackground) {
       return;
     }
-    game.backgroundBatch.setProjectionMatrix(camera.camera.combined);
     if (Settings.showBlackHoles) {
       frameBuffer.begin(); {
         drawBackgroundAt(shaderBatch, delta, 1.2f);
@@ -261,11 +260,39 @@ public class GameScreen implements Screen {
 
   private void drawBackgroundAt(Batch batch, float delta, float scale) {
     batch.begin();
-    batch.draw(background,
-            camera.X - WIDTH / 2f * camera.zoom * scale / camera.screenCoefficient,
-            camera.Y - HEIGHT / 2f * camera.zoom * scale / camera.screenCoefficient,
-            WIDTH * camera.zoom * scale / camera.screenCoefficient,
-            HEIGHT * camera.zoom * scale / camera.screenCoefficient);
+    if (Settings.cameraRotation) {
+      batch.draw(background,
+              camera.X - WIDTH * 0.5f * camera.zoom * scale / camera.screenCoefficient,
+              camera.Y - HEIGHT * 0.5f * camera.zoom * scale / camera.screenCoefficient,
+              WIDTH * camera.zoom * scale / camera.screenCoefficient,
+              HEIGHT * camera.zoom * scale / camera.screenCoefficient);
+      batch.draw(background,
+              camera.X + WIDTH * 0.5f * camera.zoom * scale / camera.screenCoefficient,
+              camera.Y - HEIGHT * 0.5f * camera.zoom * scale / camera.screenCoefficient,
+              WIDTH * camera.zoom * scale / camera.screenCoefficient,
+              HEIGHT * camera.zoom * scale / camera.screenCoefficient);
+      batch.draw(background,
+              camera.X - WIDTH * 0.5f * camera.zoom * scale / camera.screenCoefficient,
+              camera.Y + HEIGHT * 0.5f * camera.zoom * scale / camera.screenCoefficient,
+              WIDTH * camera.zoom * scale / camera.screenCoefficient,
+              HEIGHT * camera.zoom * scale / camera.screenCoefficient);
+      batch.draw(background,
+              camera.X - WIDTH * 1.5f * camera.zoom * scale / camera.screenCoefficient,
+              camera.Y - HEIGHT * 0.5f * camera.zoom * scale / camera.screenCoefficient,
+              WIDTH * camera.zoom * scale / camera.screenCoefficient,
+              HEIGHT * camera.zoom * scale / camera.screenCoefficient);
+      batch.draw(background,
+              camera.X - WIDTH * 0.5f * camera.zoom * scale / camera.screenCoefficient,
+              camera.Y - HEIGHT * 1.5f * camera.zoom * scale / camera.screenCoefficient,
+              WIDTH * camera.zoom * scale / camera.screenCoefficient,
+              HEIGHT * camera.zoom * scale / camera.screenCoefficient);
+    } else {
+      batch.draw(background,
+              camera.X - WIDTH / 2f * camera.zoom * scale / camera.screenCoefficient,
+              camera.Y - HEIGHT / 2f * camera.zoom * scale / camera.screenCoefficient,
+              WIDTH * camera.zoom * scale / camera.screenCoefficient,
+              HEIGHT * camera.zoom * scale / camera.screenCoefficient);
+    }
     shine.draw(batch, delta, camera.X, camera.Y, camera.zoom);
     for (StaticObject o: farObjects) {
       o.draw(batch, camera.X, camera.Y, camera.zoom * scale);
@@ -286,7 +313,7 @@ public class GameScreen implements Screen {
       radar.drawOverlay(game.batchInterface, ship.angle);
 			// game.customFont.getData().setScale(HEIGHT / 1400f);
 			healthIndicator.draw(game.batchInterface, game.digits, shipData.getHealth());
-      ammoIndicator.draw(game.batchInterface, game.digits, 803);
+      ammoIndicator.draw(game.batchInterface, game.digits, ship.ammo);
 			//game.simpleFont.draw(game.batchInterface, "FPS: " + FPS, 10, HEIGHT - 20);
 			//game.simpleFont.draw(game.batchInterface, "speed: " + Math.round(ship.body.getLinearVelocity().len()), 10, HEIGHT - 50);
 //			game.customFont.draw(game.batchInterface, "x: " + Math.round(cameraX) + ", y: " + Math.round(cameraY), 10, HEIGHT - 80);

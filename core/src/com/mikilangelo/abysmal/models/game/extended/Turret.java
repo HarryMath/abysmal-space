@@ -60,6 +60,7 @@ public class Turret {
   }
 
   public void shot(Ship ship, float soundScale) {
+    ship.ammo -= definition.lasersAmount;
     final long newShotTime = TimeUtils.millis();
     if (newShotTime - lastShotTime < definition.shotInterval) {
       return;

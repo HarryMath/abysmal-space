@@ -10,8 +10,9 @@ public class Camera {
 
   public float zoom = 1;
   private final float maxZoom;
+  private final float minZoom;
 
-  public final OrthographicCamera camera;
+  private final OrthographicCamera camera;
   public float X = 0, Y = 0;
   private float shakeRotation = 0, shakePower = 0;
   private boolean isShaken = false, shakeDirect = false;
@@ -20,12 +21,13 @@ public class Camera {
   public float speedZoomCoefficient;
   private float cameraBiasX, cameraBiasY;
 
-  public Camera(int h, int w, float maxZoom) {
+  public Camera(int h, int w, float minZoom, float maxZoom) {
     camera = new OrthographicCamera();
     resize(h, w);
-    initialZoomCoefficient = 1f;
+    initialZoomCoefficient = (1 + minZoom + maxZoom) / 3f;
     speedZoomCoefficient = 1.5f;
     camera.zoom = initialZoomCoefficient * speedZoomCoefficient;
+    this.minZoom = minZoom;
     this.maxZoom = maxZoom;
   }
 
@@ -43,14 +45,27 @@ public class Camera {
         shakeRotation = shakeRotation > 0 ? shakePower : -shakePower;
       }
       if (shakePower <= 0f || (shakePower < 0.006f && shakeRotation <= shakePower)) {
-        camera.up.x = 0;
-        camera.up.y = 1;
+        if (Settings.cameraRotation) {
+          camera.up.x = MathUtils.cos(ship.angle);
+          camera.up.y = MathUtils.sin(ship.angle);
+        } else {
+          camera.up.x = 0;
+          camera.up.y = 1;
+        }
         isShaken = false;
       } else {
         shakeRotation += shakeDirect ? (0.01f + shakePower * 0.333f) : -(0.01f + shakePower * 0.333f);
-        camera.up.x = MathUtils.sin(shakeRotation);
-        camera.up.y = MathUtils.cos(shakeRotation);
+        if (Settings.cameraRotation) {
+          camera.up.x = MathUtils.cos(ship.angle + shakeRotation);
+          camera.up.y = MathUtils.sin(ship.angle +shakeRotation);
+        } else {
+          camera.up.x = MathUtils.sin(shakeRotation);
+          camera.up.y = MathUtils.cos(shakeRotation);
+        }
       }
+    } else if (Settings.cameraRotation) {
+      camera.up.x = MathUtils.cos(ship.angle);
+      camera.up.y = MathUtils.sin(ship.angle);
     }
     speedZoomCoefficient = (ship.body.getLinearVelocity().len() * 0.06f + speedZoomCoefficient * 39f) / 40f;
     if (Settings.fixedPosition) {

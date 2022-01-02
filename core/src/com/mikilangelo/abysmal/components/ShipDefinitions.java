@@ -1,6 +1,7 @@
 package com.mikilangelo.abysmal.components;
 
 import com.badlogic.gdx.math.Vector3;
+import com.mikilangelo.abysmal.components.repositories.SoundsRepository;
 import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.models.definitions.EngineDef;
 import com.mikilangelo.abysmal.models.definitions.LaserDef;
@@ -28,7 +29,7 @@ public abstract class ShipDefinitions {
   public static void init() {
     GameScreen.world = new World(new Vector2(0, 0), true);
     for (byte i = 0; i < 11; i++) {
-      grayExplosion.add(new Sprite(TexturesRepository.get("ships/defender/explosions/" + i + ".png")));
+      grayExplosion.add(new Sprite(TexturesRepository.get("explosions/laser/" + i + ".png")));
       grayExplosion.get(i).setScale( 2.2f / grayExplosion.get(i).getHeight());
     }
     generateDefender();
@@ -53,6 +54,7 @@ public abstract class ShipDefinitions {
   private static void generateDefender() {
     ShipDef defender = new ShipDef();
     defender.name = "defender";
+    defender.ammo = 100;
     defender.health = 45;
     defender.radarPower = 95;
     defender.maxZoom = 1.4f;
@@ -90,7 +92,7 @@ public abstract class ShipDefinitions {
       laserDefinition.texture = new Sprite(TexturesRepository.get("ships/defender/laser.png"));
       laserDefinition.texture.setScale( 1.46f / laserDefinition.texture.getHeight() );
       laserDefinition.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-      laserDefinition.sound = Gdx.audio.newSound(Gdx.files.internal("ships/defender/shot.mp3"));
+      laserDefinition.sound = SoundsRepository.getSound( "ships/defender/shot.mp3");
       laserDefinition.explosionTextures = new Array<>();
       laserDefinition.density = 1.9f;
     }
@@ -135,6 +137,7 @@ public abstract class ShipDefinitions {
     ShipDef invader = new ShipDef();
     invader.name = "invader";
     invader.health = 65;
+    invader.ammo = 110;
     invader.radarPower = 120;
     invader.maxZoom = 2.3f;
     // body
@@ -168,7 +171,7 @@ public abstract class ShipDefinitions {
       laserDefinition.texture = new Sprite(TexturesRepository.get("ships/invader/laser.png"));
       laserDefinition.texture.setScale( 1.46f / laserDefinition.texture.getHeight() );
       laserDefinition.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-      laserDefinition.sound = Gdx.audio.newSound(Gdx.files.internal("ships/defender/shot.mp3"));
+      laserDefinition.sound = SoundsRepository.getSound( "ships/invader/shot.mp3");
       laserDefinition.explosionTextures = new Array<>();
       laserDefinition.density = 1.9f;
     }
@@ -207,6 +210,7 @@ public abstract class ShipDefinitions {
     ShipDef alien = new ShipDef();
     alien.name = "alien";
     alien.health = 95;
+    alien.ammo = 450;
     alien.radarPower = 120;
     alien.maxZoom = 2.3f;
     // body
@@ -242,7 +246,7 @@ public abstract class ShipDefinitions {
       laserDefinition.texture = new Sprite(TexturesRepository.get("ships/alien/laser.png"));
       laserDefinition.texture.setScale( 0.9f / laserDefinition.texture.getHeight() );
       laserDefinition.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-      laserDefinition.sound = Gdx.audio.newSound(Gdx.files.internal("ships/defender/shot.mp3"));
+      laserDefinition.sound = SoundsRepository.getSound( "ships/alien/shot.mp3");
       laserDefinition.explosionTextures = new Array<>();
       laserDefinition.density = 1.9f;
     }
@@ -289,8 +293,10 @@ public abstract class ShipDefinitions {
     ShipDef hyperion = new ShipDef();
     hyperion.name = "hyperion";
     hyperion.health = 100f;
+    hyperion.ammo = 5900;
     hyperion.radarPower = 70;
-    hyperion.maxZoom = 1.7f;
+    hyperion.maxZoom = 1.9f;
+    hyperion.minZoom = 1f;
             // body
     hyperion.size = 4.15f;
     hyperion.density = 1.9f;
@@ -327,24 +333,21 @@ public abstract class ShipDefinitions {
       mainLaser.texture = new Sprite(TexturesRepository.get("ships/hyperion/laser.png"));
       mainLaser.texture.setScale( 0.63f / mainLaser.texture.getHeight() );
       mainLaser.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-      mainLaser.sound = Gdx.audio.newSound(Gdx.files.internal("ships/hyperion/Laser2.wav"));
-      mainLaser.explosionTextures = new Array<>();
+      mainLaser.sound = SoundsRepository.getSound( "ships/hyperion/shot.mp3");
+      mainLaser.explosionTextures = Graphics.changeColor(grayExplosion, new Vector3(0.09f, 0.02f, 1f));
       for (byte i = 0; i < 11; i++) {
-        mainLaser.explosionTextures.add(new Sprite(TexturesRepository.get(
-                "ships/hyperion/explosions/" + i + ".png")));
         mainLaser.explosionTextures.get(i)
                 .setScale( 1.87f / mainLaser.explosionTextures.get(i).getHeight() );
       }
     }
     LaserDef smallLaser = new LaserDef(); {
       smallLaser.lifeTime = 1.7f;
-      smallLaser.damage = 0.05f;
+      smallLaser.damage = 0.2f; // 0.05f;
       smallLaser.touches = 1;
-      smallLaser.density = 0.06f;
-      smallLaser.impulse = 0.055f;
+      smallLaser.density = 0.05f;
+      smallLaser.impulse = 0.058f;
       smallLaser.texture = new Sprite(TexturesRepository.get("ships/hyperion/laser.png"));
-      smallLaser.texture.setScale( 0.37f / mainLaser.texture.getHeight() );
-      smallLaser.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+      smallLaser.texture.setScale( 0.39f / mainLaser.texture.getHeight() );
       smallLaser.sound = mainLaser.sound;
       smallLaser.explosionTextures = mainLaser.explosionTextures;
     }
@@ -366,9 +369,9 @@ public abstract class ShipDefinitions {
       smallTurret.isAutomatic = true;
       smallTurret.positionX = -0.69f;
       smallTurret.positionY = i % 2 == 0 ? 0.83f : - 0.83f;
-      smallTurret.lasersAmount = 2;
+      smallTurret.lasersAmount = 1; // 2;
       smallTurret.rotationSpeed = 0.057f;
-      smallTurret.lasersDistance = 0.1f;
+      smallTurret.lasersDistance = 0f; //0.1f;
       smallTurret.shotInterval = 127f;
       smallTurret.size = 0.33f;
       smallTurret.texture = new Sprite(TexturesRepository.get("ships/hyperion/turretSmall.png"));

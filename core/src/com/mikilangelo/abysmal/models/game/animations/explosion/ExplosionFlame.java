@@ -9,8 +9,8 @@ import com.badlogic.gdx.utils.Array;
 public class ExplosionFlame {
   private final float stepSize;
   private float direction, x, y, directionSpeed;
-  private final static int lifeTime = 65;
-  private final int framesAmount = 40;
+  private final static int lifeTime = 70;
+  private final int framesAmount = 50;
   private final float maxSize;
   private int framesPassed = 0;
   private final Sprite spark, smoke;

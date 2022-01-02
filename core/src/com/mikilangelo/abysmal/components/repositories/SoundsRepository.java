@@ -22,15 +22,15 @@ public abstract class SoundsRepository {
     }
   }
 
-  private static void loadSounds(String prefix, Array<String> pathsList) {
+  private static void loadSounds(String prefix, Array<String> pathsList, String postfix) {
     for (String path: pathsList) {
-      soundsPaths.put(prefix + path, sounds.size);
-      sounds.add(Gdx.audio.newSound(Gdx.files.internal(prefix + path)));
+      soundsPaths.put(prefix + path + postfix, sounds.size);
+      sounds.add(Gdx.audio.newSound(Gdx.files.internal(prefix + path + postfix)));
     }
   }
 
-  private static void loadSounds(String prefix, String[] pathsList) {
-    loadSounds(prefix, new Array<>(pathsList));
+  private static void loadSounds(String prefix, String[] pathsList, String postfix) {
+    loadSounds(prefix, new Array<>(pathsList), postfix);
   }
 
   private static void loadTracks(String prefix, String[] pathsList) {
@@ -41,7 +41,8 @@ public abstract class SoundsRepository {
     loadTracks("sounds/", new String[]{
             "menu.mp3", "music.mp3", "battle2.mp3", "radar.mp3"});
     loadSounds("", new String[]{
-            "explosions/ship/sound.mp3", "explosions/stone/sound.mp3", "sounds/shieldHit.wav"});
+            "explosions/simple/sound.mp3", "explosions/stone/sound.mp3", "sounds/shieldHit.wav"}, "");
+    loadSounds("ships/", new String[]{"alien", "defender", "hyperion", "invader"}, "/shot.mp3");
   }
 
   public static Music getMusic(String path) {

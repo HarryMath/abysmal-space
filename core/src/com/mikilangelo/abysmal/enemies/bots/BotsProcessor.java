@@ -45,7 +45,7 @@ public class BotsProcessor implements EnemiesProcessor {
     playerX = ship.x; playerY = ship.y;
     if (Settings.debug) {
       final Ship bot = new Ship(
-              ShipDefinitions.get("defender"),
+              ShipDefinitions.get("invader"),
               playerX + MathUtils.random(-19.3f, 19.3f),
               playerY + MathUtils.random(-19.3f, 19.3f), false,
               playerX, playerY);

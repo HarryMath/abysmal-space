@@ -38,19 +38,16 @@ public abstract class TexturesRepository {
     loadTextures("", new String[]{"back", "backMenu", "starMenu", "star"}, ".png");
     loadTextures("planets/", new String[]{
             "Baren", "Eros", "Gelios", "Ice", "mud", "Tatuin", "moon", "Terra", "Vulcano"}, ".png");
-    loadTextures("planets/nebula/", range(1, 61), ".png");
     loadTextures("planets/Magrateya", range(5), ".png");
     loadTextures("things/spawn/", range(24), ".png");
     loadTextures("things/", new String[] {"shield", "shieldTouch"}, ".png");
     loadTextures("ships/defender/", new String[] {
             "body", "kak0", "kak1", "laser", "engine0", "engine1", "engine2", "engine3"}, ".png");
-    loadTextures("ships/defender/explosions/", range(11), ".png");
     loadTextures("ships/hyperion/", new String[] {
             "body", "laser", "engine0", "engine1", "engine2", "turret", "turretSmall"}, ".png");
     loadTextures("ships/invader/", new String[] {"body", "kak", "laser"}, ".png");
     loadTextures("ships/alien/", new String[] {"body", "kak", "laser", "decor"}, ".png");
-    loadTextures("ships/hyperion/explosions/", range(11), ".png");
-    loadTextures("explosions/ship/", range(13), ".png");
+    loadTextures("explosions/laser/", range(11), ".png");
     loadTextures("explosions/big/", range(27), ".png");
     loadTextures("explosions/green/FX_6_", range(7), ".png");
     loadTextures("explosions/stone/", range(4), ".png");
