@@ -65,14 +65,14 @@ public class Asteroid implements DynamicObject {
       loadBodies(smallAmount, "small");
       loadBodies(mediumAmount, "medium");
       loadBodies(bigAmount, "big");
-      for (byte i = 1; i < 7; i++) {
-        Sprite s = new Sprite(TexturesRepository.get("explosions/asteroid/" + i + ".png"));
+      for (byte i = 0; i < 6; i++) {
+        Sprite s = new Sprite(TexturesRepository.get("explosions/small/" + i + ".png"));
         s.setScale( GameScreen.SCREEN_HEIGHT * textureScale * 0.41f);
         explosion.add(s);
       }
       for (byte i = 0; i < 4; i++) {
         Sprite s = new Sprite(TexturesRepository.get("explosions/stone/" + i + ".png"));
-        s.setScale( GameScreen.SCREEN_HEIGHT * textureScale * 0.9f);
+        s.setScale( GameScreen.SCREEN_HEIGHT * textureScale * 1.1f);
         stoneExplosion.add(s);
       }
       explosionSound = SoundsRepository.getSound("explosions/stone/sound.mp3");
@@ -129,14 +129,14 @@ public class Asteroid implements DynamicObject {
         destroyed = true;
         x = this.body.getPosition().x;
         y = this.body.getPosition().y;
-        ExplosionsRepository.addExplosion(new Explosion(stoneExplosion, x, y, 0.043f));
+        ExplosionsRepository.addExplosion(new Explosion(stoneExplosion, x, y, 0.05f));
         if (asteroidTypeId >= smallAmount) {
           final float distance = Geometry.distance(x, y, GameScreen.camera.X, GameScreen.camera.Y);
           if (distance < 50) {
             explosionSound.play(1 - distance / 50);
           }
           final Vector2 speed = this.body.getLinearVelocity();
-          final int amount = 4 + MathUtils.random(-1, 2);
+          final int amount = 4 + MathUtils.random(1, 4);
           for (byte i = 0; i < amount; i++) {
             final float xSkew = MathUtils.random(-7.33f, 7.33f);
             final float ySkew = MathUtils.random(-7.33f, 7.33f);
@@ -144,12 +144,12 @@ public class Asteroid implements DynamicObject {
             Asteroid newAsteroid = new Asteroid(type, x, y);
             newAsteroid.body.applyAngularImpulse(MathUtils.random(-1.1f, 1.1f), true);
             newAsteroid.body.applyLinearImpulse(
-                    (MathUtils.random(-0.013f, 0.013f) + speed.x / 113 + xSkew / 53) / 17,
-                    (MathUtils.random(-0.013f, 0.013f) + speed.y / 113 + ySkew / 53) / 17,
+                    (MathUtils.random(-0.013f, 0.013f) + speed.x * 0.0088f + xSkew * 0.017f) * 0.059f,
+                    (MathUtils.random(-0.013f, 0.013f) + speed.y * 0.0088f + ySkew * 0.017f) * 0.059f,
                     x + xSkew, y + ySkew, true);
             AsteroidsRepository.add(newAsteroid);
           }
-          ExplosionsRepository.addExplosion(new Explosion(explosion, x, y, 0.033f));
+          // ExplosionsRepository.addExplosion(new Explosion(explosion, x, y, 0.033f));
         }
       }
     }

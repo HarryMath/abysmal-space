@@ -54,10 +54,13 @@ public abstract class TexturesRepository {
     loadTextures("explosions/big/", range(27), ".png");
     loadTextures("explosions/green/FX_6_", range(7), ".png");
     loadTextures("explosions/stone/", range(4), ".png");
-    loadTextures("explosions/asteroid/", range(1, 7), ".png");
+    loadTextures("explosions/simple/", range(1, 7), ".png");
+    loadTextures("explosions/small/", range(6), ".png");
     loadTextures("asteroids/small/", range(5), "/texture.png");
     loadTextures("asteroids/medium/", range(1), "/texture.png");
     loadTextures("asteroids/big/", range(11), "/texture.png");
+    loadTextures("explosions/animated/", new String[] {"spark", "smoke"}, ".png");
+
   }
 
   private static String[] range(int start, int end) {

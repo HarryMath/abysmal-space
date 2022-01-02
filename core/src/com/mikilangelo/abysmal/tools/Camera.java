@@ -13,7 +13,7 @@ public class Camera {
 
   public final OrthographicCamera camera;
   public float X = 0, Y = 0;
-  private float shakeRotation = 0, cameraRotation = 0, shakePower = 0;
+  private float shakeRotation = 0, shakePower = 0;
   private boolean isShaken = false, shakeDirect = false;
   public float screenCoefficient;
   public float initialZoomCoefficient;
@@ -31,7 +31,7 @@ public class Camera {
 
   public void shake(float power) {
     isShaken = true;
-    shakePower = power;
+    shakePower = power * MathUtils.degreesToRadians;
     shakeDirect = !shakeDirect;
   }
 
@@ -39,19 +39,17 @@ public class Camera {
     if (isShaken) {
       if (Math.abs(shakeRotation) > shakePower) {
         shakeDirect = !shakeDirect;
-        shakePower = shakePower * 0.9f - 0.05f;
+        shakePower = shakePower * 0.9f - 0.003f;
         shakeRotation = shakeRotation > 0 ? shakePower : -shakePower;
-        System.out.println(shakePower);
       }
-      if (shakePower <= 0f || (shakePower < 0.1f && cameraRotation <= shakePower)) {
-        System.out.println(cameraRotation);
-//        camera.rotate(-Geometry.defineAngle(camera.up.x, camera.up.y, -cameraRotation));
-        camera.rotate(-cameraRotation);
+      if (shakePower <= 0f || (shakePower < 0.006f && shakeRotation <= shakePower)) {
+        camera.up.x = 0;
+        camera.up.y = 1;
         isShaken = false;
       } else {
-        shakeRotation += shakeDirect ? (0.13f + shakePower * 0.333f) : -(0.13f + shakePower * 0.333f);
-        camera.rotate(shakeRotation - cameraRotation);
-        cameraRotation = shakeRotation;
+        shakeRotation += shakeDirect ? (0.01f + shakePower * 0.333f) : -(0.01f + shakePower * 0.333f);
+        camera.up.x = MathUtils.sin(shakeRotation);
+        camera.up.y = MathUtils.cos(shakeRotation);
       }
     }
     speedZoomCoefficient = (ship.body.getLinearVelocity().len() * 0.06f + speedZoomCoefficient * 39f) / 40f;

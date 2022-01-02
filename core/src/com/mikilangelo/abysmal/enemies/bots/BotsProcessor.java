@@ -4,6 +4,7 @@ import static com.mikilangelo.abysmal.ui.screens.GameScreen.SCREEN_HEIGHT;
 import static com.mikilangelo.abysmal.ui.screens.GameScreen.SCREEN_WIDTH;
 import static com.mikilangelo.abysmal.ui.screens.GameScreen.world;
 
+import com.mikilangelo.abysmal.components.Settings;
 import com.mikilangelo.abysmal.components.ShipDefinitions;
 import com.mikilangelo.abysmal.enemies.EnemiesProcessor;
 import com.mikilangelo.abysmal.models.game.Ship;
@@ -42,31 +43,37 @@ public class BotsProcessor implements EnemiesProcessor {
   @Override
   public void generateEnemies(Ship ship) {
     playerX = ship.x; playerY = ship.y;
-    final Thread botsThread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        startRangeX = playerX - SCREEN_WIDTH * 8;
-        endRangeX = playerX + SCREEN_WIDTH * 8;
-        startRangeY = playerY - SCREEN_HEIGHT * 8;
-        endRangeY = playerY + SCREEN_HEIGHT * 8;
-        generateBotsIn(startRangeX, (startRangeX + playerX) / 2, startRangeY, endRangeY);
-        generateBotsIn(endRangeX, (endRangeX + playerX) / 2, startRangeY, endRangeY);
-        generateBotsIn((startRangeX + playerX) / 2, (endRangeX + playerX) / 2, startRangeY, (startRangeY + playerY) / 2);
-        generateBotsIn((startRangeX + playerX) / 2, (endRangeX + playerX) / 2, endRangeY, (endRangeY + playerY) / 2);
-        while (threadWorking) {
-          botsProcessed = false;
-          updateBots();
-          botsProcessed = true;
-          try {
-            Thread.sleep(50);
-          } catch (InterruptedException e) {
-            e.printStackTrace();
-          }
+    if (Settings.debug) {
+      final Ship bot = new Ship(
+              ShipDefinitions.get("defender"),
+              playerX + MathUtils.random(-19.3f, 19.3f),
+              playerY + MathUtils.random(-19.3f, 19.3f), false,
+              playerX, playerY);
+      bot.angle = bot.newAngle = MathUtils.random(6.28f);
+      newShips.add(bot);
+    }
+    final Thread botsThread = new Thread(() -> {
+      startRangeX = playerX - SCREEN_WIDTH * 8;
+      endRangeX = playerX + SCREEN_WIDTH * 8;
+      startRangeY = playerY - SCREEN_HEIGHT * 8;
+      endRangeY = playerY + SCREEN_HEIGHT * 8;
+      generateBotsIn(startRangeX, (startRangeX + playerX) / 2, startRangeY, endRangeY);
+      generateBotsIn(endRangeX, (endRangeX + playerX) / 2, startRangeY, endRangeY);
+      generateBotsIn((startRangeX + playerX) / 2, (endRangeX + playerX) / 2, startRangeY, (startRangeY + playerY) / 2);
+      generateBotsIn((startRangeX + playerX) / 2, (endRangeX + playerX) / 2, endRangeY, (endRangeY + playerY) / 2);
+      while (threadWorking) {
+        botsProcessed = false;
+        updateBots();
+        botsProcessed = true;
+        try {
+          Thread.sleep(50);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
         }
       }
     });
-    botsThread.setPriority(Thread.MIN_PRIORITY);
-    // botsThread.start();
+    //botsThread.setPriority(Thread.MIN_PRIORITY);
+    //botsThread.start();
   }
 
   private void updateBots() {
