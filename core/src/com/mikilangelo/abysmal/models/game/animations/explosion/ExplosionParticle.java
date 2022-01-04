@@ -9,19 +9,22 @@ public class ExplosionParticle {
   private int iterationsLeft;
   private final float x, y;
   private final float size;
-  private final boolean isSmoke;
+  private boolean isSmoke;
+  private final float darkness;
 
   public ExplosionParticle(Sprite sprite, float size, float x, float y, int lifeTime) {
-    this(sprite, size, x, y, lifeTime, false);
+    this(sprite, size, x, y, lifeTime, 0);
+    isSmoke = false;
   }
 
-  public ExplosionParticle(Sprite sprite, float size, float x, float y, int lifeTime, boolean isSmoke) {
+  public ExplosionParticle(Sprite sprite, float size, float x, float y, int lifeTime, float darkness) {
     this.texture = sprite;
     this.iterationsLeft = totalFrames = lifeTime;
     this.size = size;
     this.x = x;
     this.y = y;
-    this.isSmoke = isSmoke;
+    this.darkness = 0.5f + (1 - darkness) * 0.5f;
+    this.isSmoke = true;
   }
 
   /**
@@ -32,8 +35,8 @@ public class ExplosionParticle {
     texture.setCenter(x, y);
     if (isSmoke) {
       float lightness = 0.9f * iterationsLeft / totalFrames;
-      if (lightness > 0.8f) {
-        lightness = lightness * 1.25f - 0.8f;
+      if (lightness > 0.68f) {
+        lightness = (lightness - 0.8f) * 5 * darkness;
       } else {
         lightness = 0;
       }

@@ -25,7 +25,7 @@ public class AnimatedExplosion {
     for (int i = 0; i < smallFlames; i++) {
       flames.add(new ExplosionFlame(
               sparkTexture, smokeTexture,
-              size * MathUtils.random(0.2f, 0.5f),
+              size * MathUtils.random(0.21f, 0.4f),
               i * MathUtils.PI2 / smallFlames + MathUtils.random(-0.5f, 0.5f),
               x, y));
     }

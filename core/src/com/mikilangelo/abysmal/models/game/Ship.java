@@ -169,13 +169,13 @@ public class Ship {
   ) {
     final long newShotTime = TimeUtils.millis() - deltaMillis;
     final float delay = deltaMillis * 0.001f;
-    if (turrets.size > 0 || (newShotTime - lastShotTime) < definition.shotInterval) {
+    if (definition.lasersAmount > ammo || turrets.size > 0 || (newShotTime - lastShotTime) < definition.shotInterval) {
       return;
     }
-    float maxLeftLaser = -definition.lasersDistance * definition.lasersAmount / 2f + definition.lasersDistance / 2f;
+    final float maxLeftLaser = -definition.lasersDistance * definition.lasersAmount / 2f + definition.lasersDistance / 2f;
     for (byte i = 0; i < definition.lasersAmount; i++) {
-      float addCos = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.cos(this.angle + MathUtils.PI / 2);
-      float addSin = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.sin(this.angle + MathUtils.PI / 2);
+      final float addCos = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.cos(angle + 1.5708f);
+      final float addSin = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.sin(angle + 1.57078f);
       Laser l = new Laser(definition.laserDefinition,
               x + addCos, y + addSin, this.angle,
               sX, sY, generationId, delay);
@@ -187,7 +187,7 @@ public class Ship {
   }
 
   protected void shot(float soundScale, float pan) {
-    if (ammo <= definition.lasersAmount || (definition.lasersAmount < 1 && definition.turretDefinitions.size == 0)) {
+    if (definition.lasersAmount < 1 && definition.turretDefinitions.size == 0) {
       return;
     }
     for (byte i = 0; i < turrets.size; i++) {

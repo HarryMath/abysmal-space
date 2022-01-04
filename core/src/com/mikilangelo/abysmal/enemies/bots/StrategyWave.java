@@ -36,7 +36,7 @@ public class StrategyWave implements BotStrategy {
           biasAngle -= biasSpeed;
         }
       }
-      bot.control((targetAngle + biasAngle * (0.2f + bot.distance / bot.definition.radarPower / 0.4f * 0.8f)) % MathUtils.PI2, 1, delta);
+      bot.control((MathUtils.PI2 + targetAngle + biasAngle * (0.2f + bot.distance / bot.definition.radarPower / 0.4f * 0.8f)) % MathUtils.PI2, 1, delta);
     }
 
     if (bot.distance < SCREEN_WIDTH * 0.4f * bot.definition.maxZoom) {

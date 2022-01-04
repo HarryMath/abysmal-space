@@ -15,7 +15,7 @@ public abstract class ExplosionsRepository {
   private static final Array<AnimatedExplosion> animatedExplosions = new Array<>();
   private static final Array<Explosion> explosions = new Array<>();
   private static final Array<Sprite> bigExplosion = new Array<>();
-  private static final Array<Sprite> shipExposion = new Array<>();
+  private static final Array<Sprite> shipExplosion = new Array<>();
   private static final Array<Sprite> greenExplosion = new Array<>();
   private static Sprite spark;
   private static Sprite smoke;
@@ -35,7 +35,7 @@ public abstract class ExplosionsRepository {
     for (byte i = 1; i < 7; i++) {
       Sprite frame = new Sprite(TexturesRepository.get("explosions/simple/" + i + ".png"));
       frame.setScale( GameScreen.SCREEN_HEIGHT * 0.2f / frame.getHeight());
-      shipExposion.add(frame);
+      shipExplosion.add(frame);
     }
     for (byte i = 0; i < 7; i++) {
       Sprite frame = new Sprite(TexturesRepository.get("explosions/green/FX_6_" + i + ".png"));
@@ -46,7 +46,7 @@ public abstract class ExplosionsRepository {
 
   public static void addShipExplosion(float x, float y, float soundScale, float pan) {
     sheepExplosionSound.play(soundScale, 1, pan);
-    explosions.add(new Explosion(shipExposion, x, y, 0.04f));
+    explosions.add(new Explosion(shipExplosion, x, y, 0.05f));
     animatedExplosions.add(new AnimatedExplosion(spark, smoke, 8f, x, y));
     AsteroidsRepository.applyImpulse(x, y);
     GameScreen.shakeCamera(2.5f * soundScale);
@@ -94,8 +94,12 @@ public abstract class ExplosionsRepository {
   }
 
   public static void clear() {
-    laserExplosions.clear();
-    explosions.clear();
+    greenExplosion.clear();
+    shipExplosion.clear();
     bigExplosion.clear();
+
+    animatedExplosions.clear();
+    explosions.clear();
+    laserExplosions.clear();
   }
 }

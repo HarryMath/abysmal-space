@@ -60,15 +60,18 @@ public class Turret {
   }
 
   public void shot(Ship ship, float soundScale) {
+    if (ship.ammo < definition.lasersAmount) {
+      return;
+    }
     ship.ammo -= definition.lasersAmount;
     final long newShotTime = TimeUtils.millis();
     if (newShotTime - lastShotTime < definition.shotInterval) {
       return;
     }
-    float maxLeftLaser = -definition.lasersDistance * definition.lasersAmount / 2f + definition.lasersDistance / 2f;
+    final float maxLeftLaser = -(definition.lasersDistance * definition.lasersAmount + definition.lasersDistance) * 0.5f;
     for (byte i = 0; i < definition.lasersAmount; i++) {
-      float addCos = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.cos(this.angle + ship.angle + MathUtils.PI / 2);
-      float addSin = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.sin(this.angle + ship.angle + MathUtils.PI / 2);
+      final float addCos = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.cos(angle + ship.angle + 1.57078f);
+      final float addSin = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.sin(angle + ship.angle + 1.57078f);
       Laser l = new Laser(
               definition.laserDefinition, x + addCos, y + addSin,
               angle + ship.angle,
@@ -78,10 +81,10 @@ public class Turret {
       LasersRepository.addTurret(l);
     }
     definition.laserDefinition.sound.play(soundScale);
-    ship.body.applyLinearImpulse(
-            -1 * MathUtils.cos(angle + ship.angle),
-            -1 * MathUtils.sin(angle + ship.angle),
-            x, y, true);
+//    ship.body.applyLinearImpulse(
+//            -1 * MathUtils.cos(angle + ship.angle),
+//            -1 * MathUtils.sin(angle + ship.angle),
+//            x, y, true);
     this.lastShotTime = newShotTime;
   }
 }
