@@ -24,22 +24,23 @@ public class Indicator extends InterfaceElement {
   }
 
   private final Texture icon;
-  private final Sprite bar;
+  private final PartIndicator bar;
+  //private final Sprite bar;
   private final int maxValue;
   private final byte maxValueLength;
   private final float r, g, b;
   private final float initX;
-  private float x, iconX, barX, shownValue, smallFontSize, iconWidth, alphaModulation;
-  private static float y, barHeight, barY, barMaxWidth, bigFontSize, bigFontY,
+  private float x, iconX, smallFontSize, iconWidth, alphaModulation;
+  private static float y, bigFontSize, bigFontY,
           smallFontY, iconY, iconHeight, fullHeight, fullWidth, fontScale;
 
   public Indicator(String iconName, String barColor, Vector3 color, BitmapFont font, int max, float x, int screenHeight) {
     icon = TexturesRepository.get("UI/indicators/" + iconName + ".png");
-    bar = new Sprite(TexturesRepository.get("UI/indicators/" + barColor + ".png"));
+    // bar = new Sprite(TexturesRepository.get("UI/indicators/" + barColor + ".png"));
+    bar = new PartIndicator(barColor, max, 0, 0, 0, 0);
     r = color.x; g = color.y; b = color.z;
     maxValueLength = (byte) String.valueOf(max).length();
     this.maxValue = max;
-    this.shownValue = 0;
     this.initX = x;
     alphaModulation = 0;
     fontScale = font.getScaleY() / font.getCapHeight();
@@ -48,19 +49,13 @@ public class Indicator extends InterfaceElement {
   }
 
   public void draw(Batch batch, BitmapFont font, float currentValue) {
-    if (currentValue < 0) {
-      currentValue = 0;
-    } else if (currentValue > maxValue) {
-      currentValue = maxValue;
-    }
-    shownValue = shownValue * 0.9f + currentValue * 0.1f;
-
     batch.draw(background, x, y, fullWidth, fullHeight);
-    bar.setAlpha(0.25f + 0.45f * shownValue / maxValue);
-    bar.draw(batch);
-    batch.draw(bar, barX, barY, barMaxWidth * shownValue / maxValue, barHeight);
-    batch.draw(bar, barX + barMaxWidth * shownValue / maxValue - RATIO * 0.005f,
-            barY + barHeight * 0.25f, RATIO * 0.9f, barHeight * 0.5f);
+    bar.draw(batch, currentValue);
+//    bar.setAlpha(0.25f + 0.45f * shownValue / maxValue);
+//    bar.draw(batch);
+//    batch.draw(bar, barX, barY, barMaxWidth * shownValue / maxValue, barHeight);
+//    batch.draw(bar, barX + barMaxWidth * shownValue / maxValue - RATIO * 0.005f,
+//            barY + barHeight * 0.25f, RATIO * 0.9f, barHeight * 0.5f);
     batch.draw(border, x, y, fullWidth, fullHeight);
     batch.draw(icon, iconX, iconY, iconWidth, iconHeight);
 
@@ -98,10 +93,9 @@ public class Indicator extends InterfaceElement {
   public void resize(int h) {
     x = initX * RATIO;
     y = h - FULL_HEIGHT * RATIO - 4 * RATIO;
-    barHeight = 3.1f * RATIO;
-    barX = x + INDICATOR_START_X * RATIO;
-    barY = y + fullHeight - INDICATOR_START_Y * RATIO - barHeight;
-    barMaxWidth = INDICATOR_MAX_WIDTH * RATIO;
+    bar.resize(INDICATOR_MAX_WIDTH * RATIO, 3.1f * RATIO,
+            x + INDICATOR_START_X * RATIO,
+            y + fullHeight - INDICATOR_START_Y * RATIO - 3.1f * RATIO);
     bigFontSize = BIG_FONT_HEIGHT * RATIO;
     bigFontY = y + fullHeight - BIG_FONT_START_Y * RATIO;
     smallFontSize = SMALL_FONT_HEIGHT * RATIO;
@@ -110,7 +104,5 @@ public class Indicator extends InterfaceElement {
     iconX = x + ICON_START_X * RATIO;
     iconY = y + fullHeight - ICON_START_Y * RATIO - iconHeight;
     iconWidth = iconHeight * icon.getWidth() / icon.getHeight();
-    bar.setCenter(barX + barMaxWidth / 2, barY + 2 * RATIO);
-    bar.setScale(barMaxWidth + RATIO, 2.2f * RATIO);
   }
 }

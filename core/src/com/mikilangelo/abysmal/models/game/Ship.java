@@ -133,7 +133,7 @@ public class Ship {
               primaryBody.getLinearVelocity().x * controlSpeedResistance,
               primaryBody.getLinearVelocity().y * controlSpeedResistance);
     }
-    this.body.setAngularVelocity(this.body.getAngularVelocity() * (0.999f - definition.rotationResistance));
+    this.body.setAngularVelocity(this.body.getAngularVelocity() * definition.rotationControlResistance);
   }
 
   public void move(float delta, float playerX, float playerY) {
@@ -145,7 +145,7 @@ public class Ship {
     x = primaryBody.getPosition().x;
     y = primaryBody.getPosition().y;
     this.angle = Geometry.normalizeAngle(this.body.getAngle());
-    this.body.setAngularVelocity(this.body.getAngularVelocity() * (1 - definition.rotationResistance));
+    this.body.setAngularVelocity(this.body.getAngularVelocity() * definition.rotationResistance);
     primaryBody.setLinearVelocity(primaryBody.getLinearVelocity().scl(simpleSpeedResistance));
     primaryBody.setTransform(x, y, angle);
     secondaryBody.setTransform(x, y, angle);

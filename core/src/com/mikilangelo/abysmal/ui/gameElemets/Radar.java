@@ -5,8 +5,6 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
-import com.mikilangelo.abysmal.tools.Geometry;
-import com.mikilangelo.abysmal.ui.screens.GameScreen;
 
 public class Radar extends InterfaceElement {
   private final Texture back = TexturesRepository.get("UI/radar/back.png");
@@ -18,28 +16,33 @@ public class Radar extends InterfaceElement {
   private float x, y;
   private int drawRadius;
   private final float detectRadius;
-  private float fullHeight;
+  private final PartIndicator speedIndicator;
+  private final float maxSpeed;
+  private float fullWidth, fullHeight;
   private float time = 0;
 
   private float dx, dy, distance;
 
-  public Radar(float detectRadius, float screenHeight, float screenWidth) {
+  public Radar(float detectRadius, float maxSpeed, float screenHeight, float screenWidth) {
     this.detectRadius = detectRadius * 0.9f;
+    this.maxSpeed = maxSpeed;
+    speedIndicator = new PartIndicator("blue", maxSpeed, 0, 0, 0, 0);
     resize(screenHeight, screenWidth);
   }
 
-  public void draw(Batch batch) {
-    batch.draw(this.back, this.x - drawRadius, this.y - drawRadius, fullHeight, fullHeight);
+  public void drawBack(Batch batch) {
+    batch.draw(this.back, this.x - drawRadius, this.y - drawRadius, fullWidth, fullHeight);
   }
 
-  public void drawOverlay(Batch batch, float angle) {
+  public void draw(Batch batch, float angle, float currentSpeed) {
     this.center.setRotation(angle * MathUtils.radiansToDegrees);
     this.center.draw(batch);
     time = (time + 0.2f) % 6;
     batch.draw(this.overlay, this.x - drawRadius,
             this.y - drawRadius - Math.round(time) * 0.5f * RATIO,
-            fullHeight, fullHeight);
-    batch.draw(this.border, this.x - drawRadius, this.y - drawRadius, fullHeight, fullHeight);
+            fullWidth, fullWidth);
+    speedIndicator.draw(batch, currentSpeed);
+    batch.draw(this.border, this.x - drawRadius, this.y - fullHeight + drawRadius, fullWidth, fullHeight);
   }
 
   public void drawEnemy(Batch batch, float playerX, float playerY, float x, float y) {
@@ -70,10 +73,14 @@ public class Radar extends InterfaceElement {
   }
 
   public void resize(float h, float w) {
-    fullHeight = 46 * RATIO;
-    drawRadius = (int) (fullHeight * 0.5f);
+    fullWidth = 46 * RATIO;
+    fullHeight = 50 * RATIO;
+    drawRadius = (int) (fullWidth * 0.5f);
     x = w - 6 * RATIO - drawRadius;
     y = h - 6 * RATIO - drawRadius;
+    speedIndicator.resize(fullWidth - 4 * RATIO, 2.1f * RATIO,
+            w - 6 * RATIO - fullWidth + 2 * RATIO,
+            h - 6 * RATIO - fullHeight + 2 * RATIO);
     center.setCenter(x, y);
     center.setScale( RATIO * 2.5f / center.getHeight());
     asteroid.setScale( RATIO * 1.3f / asteroid.getHeight());

@@ -68,9 +68,10 @@ public abstract class ShipDefinitions {
     defender.shieldRadius = 2;
     // dynamic
     defender.speedPower = 32.7f;
-    defender.controlPower = 0.39f;
+    defender.controlPower = 0.4f;
     defender.speedResistance = 0.0233f;
-    defender.rotationResistance = 0.027f;
+    defender.rotationControlResistance = 0.94f;
+    defender.rotationResistance = 0.98f;
     // textures
     defender.bodyTexture = new Sprite(TexturesRepository.get("ships/defender/body.png"));
     defender.bodyTexture.setScale( defender.size / defender.bodyTexture.getHeight() );
@@ -152,7 +153,8 @@ public abstract class ShipDefinitions {
     invader.speedPower = 26.7f;
     invader.controlPower = 0.09f;
     invader.speedResistance = 0.0177f;
-    invader.rotationResistance = 0.018f;
+    invader.rotationControlResistance = 0.982f;
+    invader.rotationResistance = 0.982f;
     // textures
     invader.bodyTexture = new Sprite(TexturesRepository.get("ships/invader/body.png"));
     invader.bodyTexture.setScale( invader.size / invader.bodyTexture.getHeight() );
@@ -225,7 +227,8 @@ public abstract class ShipDefinitions {
     alien.speedPower = 347.7f;
     alien.controlPower = 0.6f;
     alien.speedResistance = 0.0727f;
-    alien.rotationResistance = 0.1f;
+    alien.rotationControlResistance = 0.9f;
+    alien.rotationResistance = 0.911f;
     // textures
     alien.bodyTexture = new Sprite(TexturesRepository.get("ships/alien/body.png"));
     alien.bodyTexture.setScale( alien.size / alien.bodyTexture.getHeight() );
@@ -309,7 +312,8 @@ public abstract class ShipDefinitions {
     hyperion.speedPower = 42.5f;
     hyperion.controlPower = 0.057f;
     hyperion.speedResistance = 0.0019f;
-    hyperion.rotationResistance = 0.042f;
+    hyperion.rotationControlResistance = 0.958f;
+    hyperion.rotationResistance = 0.96f;
     // textures
     hyperion.bodyTexture = new Sprite(TexturesRepository.get("ships/hyperion/body.png"));
     hyperion.bodyTexture.setScale( hyperion.size / hyperion.bodyTexture.getHeight() );
