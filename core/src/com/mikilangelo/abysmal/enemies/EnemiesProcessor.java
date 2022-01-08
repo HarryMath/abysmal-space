@@ -14,7 +14,7 @@ public interface EnemiesProcessor {
 
   void drawAll(Batch objectsBatch, float delta);
 
-  void drawAtRadar(Batch batch, Radar radar, float playerX, float playerY);
+  void drawAtRadar(Batch batch, Radar radar);
 
   void dispose();
 

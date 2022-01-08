@@ -2,9 +2,11 @@ package com.mikilangelo.abysmal.ui.gameElemets;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
+import com.mikilangelo.abysmal.models.game.PlayerShip;
 
 public class Radar extends InterfaceElement {
   private final Texture back = TexturesRepository.get("UI/radar/back.png");
@@ -22,6 +24,7 @@ public class Radar extends InterfaceElement {
   private float time = 0;
 
   private float dx, dy, distance;
+  private int playerX, playerY;
 
   public Radar(float detectRadius, float maxSpeed, float screenHeight, float screenWidth) {
     this.detectRadius = detectRadius * 0.9f;
@@ -31,25 +34,54 @@ public class Radar extends InterfaceElement {
   }
 
   public void drawBack(Batch batch) {
-    batch.draw(this.back, this.x - drawRadius, this.y - drawRadius, fullWidth, fullHeight);
+    batch.draw(this.back, this.x - drawRadius, this.y - fullHeight + drawRadius, fullWidth, fullHeight);
   }
 
-  public void draw(Batch batch, float angle, float currentSpeed) {
+  public void draw(Batch batch, BitmapFont digitsFont, BitmapFont lettersFont, float angle) {
+    playerX = (int) PlayerShip.X;
+    playerY = (int) PlayerShip.Y;
     this.center.setRotation(angle * MathUtils.radiansToDegrees);
     this.center.draw(batch);
     time = (time + 0.2f) % 6;
-    batch.draw(this.overlay, this.x - drawRadius,
-            this.y - drawRadius - Math.round(time) * 0.5f * RATIO,
+    batch.draw(this.overlay, x - drawRadius,
+            y - drawRadius - Math.round(time) * 0.5f * RATIO,
             fullWidth, fullWidth);
-    speedIndicator.draw(batch, currentSpeed);
-    batch.draw(this.border, this.x - drawRadius, this.y - fullHeight + drawRadius, fullWidth, fullHeight);
+    speedIndicator.draw(batch, PlayerShip.SPEED);
+    batch.draw(this.border, x - drawRadius, y - fullHeight + drawRadius, fullWidth, fullHeight);
+    digitsFont.getData().setScale(44 * RATIO / 9 / (digitsFont.getCapHeight() / digitsFont.getScaleY() * 4 / 5 ));
+    lettersFont.getData().setScale(42 * RATIO / 9 / (lettersFont.getCapHeight() / lettersFont.getScaleY() * 4 / 5 ));
+    float drawX = x - drawRadius + 2 * RATIO;
+    float drawY = y + drawRadius - fullHeight - RATIO;
+    // TODO draw speed
+    byte length = (byte) String.valueOf(playerX).length();
+    String zeros = " 000000".substring(0, 7 - length);
+    drawX = x - drawRadius + 2 * RATIO;
+    drawY -= digitsFont.getLineHeight() + RATIO * 0.5f;
+    drawX += drawWithShadow(batch, lettersFont, "X:", drawX, drawY, 0.8f);
+    drawX += drawWithShadow(batch, digitsFont, zeros, drawX, drawY, 0.1f) + digitsFont.getCapHeight() / 5;
+    drawWithShadow(batch, digitsFont, String.valueOf(playerX), drawX, drawY, 1f);
+    drawX = x - drawRadius + 2 * RATIO;
+    drawY -= digitsFont.getLineHeight() + RATIO * 0.5f;
+    length = (byte) String.valueOf(playerY).length();
+    zeros = " 000000".substring(0, 7 - length);
+    drawX += drawWithShadow(batch, lettersFont, "Y:", drawX, drawY, 0.8f);
+    drawX += drawWithShadow(batch, digitsFont, zeros, drawX, drawY, 0.1f) + digitsFont.getCapHeight() / 5;
+    drawWithShadow(batch, digitsFont, String.valueOf(playerY), drawX, drawY, 1f);
   }
 
-  public void drawEnemy(Batch batch, float playerX, float playerY, float x, float y) {
+  private float drawWithShadow(Batch batch, BitmapFont font, String text, float x, float y, float a) {
+    font.setColor(0, 0, 0,  0.5f * a);
+    font.draw(batch, text, x + 0.5f * RATIO, y - 0.5f * RATIO);
+    font.draw(batch, text, x - 0.5f * RATIO, y + 0.5f * RATIO);
+    font.setColor(0.65f, 0.75f, 0.85f, a);
+    return font.draw(batch, text, x, y).width;
+  }
+
+  public void drawEnemy(Batch batch, float x, float y) {
     drawObject(batch, enemy, playerX, playerY, x, y);
   }
 
-  public void drawAsteroid(Batch batch, float playerX, float playerY, float x, float y) {
+  public void drawAsteroid(Batch batch, float x, float y) {
     drawObject(batch, asteroid, playerX, playerY, x, y);
   }
 

@@ -162,9 +162,9 @@ public class UdpClient implements EnemiesProcessor {
   }
 
   @Override
-  public void drawAtRadar(Batch batch, Radar radar, float playerX, float playerY) {
+  public void drawAtRadar(Batch batch, Radar radar) {
     for (int i = 0; i < players.size; i++) {
-      radar.drawEnemy(batch, playerX, playerY, players.get(i).ship.x, players.get(i).ship.y);
+      radar.drawEnemy(batch, players.get(i).ship.x, players.get(i).ship.y);
     }
   }
 

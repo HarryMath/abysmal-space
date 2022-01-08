@@ -157,9 +157,9 @@ public class BotsProcessor implements EnemiesProcessor {
   }
 
   @Override
-  public void drawAtRadar(Batch batch, Radar radar, float playerX, float playerY) {
+  public void drawAtRadar(Batch batch, Radar radar) {
     for (Bot b : bots) {
-      radar.drawEnemy(batch, playerX, playerY, b.ship.x, b.ship.y);
+      radar.drawEnemy(batch, b.ship.x, b.ship.y);
     }
   }
 

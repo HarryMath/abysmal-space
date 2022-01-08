@@ -32,10 +32,10 @@ public abstract class AsteroidsRepository {
       a.draw(batch);
     });
   }
-  public static void drawAtRadar(Batch batch, Radar radar, float playerX, float playerY) {
+  public static void drawAtRadar(Batch batch, Radar radar) {
     for (Asteroid a : asteroids) {
       if (a.asteroidTypeId > 4) {
-        radar.drawAsteroid(batch, playerX, playerY, a.x, a.y);
+        radar.drawAsteroid(batch, a.x, a.y);
       }
     }
   }

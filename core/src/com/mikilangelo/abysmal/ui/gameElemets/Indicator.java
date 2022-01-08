@@ -51,11 +51,6 @@ public class Indicator extends InterfaceElement {
   public void draw(Batch batch, BitmapFont font, float currentValue) {
     batch.draw(background, x, y, fullWidth, fullHeight);
     bar.draw(batch, currentValue);
-//    bar.setAlpha(0.25f + 0.45f * shownValue / maxValue);
-//    bar.draw(batch);
-//    batch.draw(bar, barX, barY, barMaxWidth * shownValue / maxValue, barHeight);
-//    batch.draw(bar, barX + barMaxWidth * shownValue / maxValue - RATIO * 0.005f,
-//            barY + barHeight * 0.25f, RATIO * 0.9f, barHeight * 0.5f);
     batch.draw(border, x, y, fullWidth, fullHeight);
     batch.draw(icon, iconX, iconY, iconWidth, iconHeight);
 

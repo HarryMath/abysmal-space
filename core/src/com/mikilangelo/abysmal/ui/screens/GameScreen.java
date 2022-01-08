@@ -306,16 +306,14 @@ public class GameScreen implements Screen {
 		  shooter.draw(game.batchInterface);
 		  joystick.draw(game.batchInterface);
       radar.drawBack(game.batchInterface);
-			AsteroidsRepository.drawAtRadar(game.batchInterface, radar, camera.X, camera.Y);
-      enemiesProcessor.drawAtRadar(game.batchInterface, radar, camera.X, camera.Y);
-      radar.draw(game.batchInterface, ship.angle, PlayerShip.SPEED);
+			AsteroidsRepository.drawAtRadar(game.batchInterface, radar);
+      enemiesProcessor.drawAtRadar(game.batchInterface, radar);
+      radar.draw(game.batchInterface, game.digits, game.customFont, ship.angle);
 			// game.customFont.getData().setScale(HEIGHT / 1400f);
 			healthIndicator.draw(game.batchInterface, game.digits, shipData.getHealth());
       ammoIndicator.draw(game.batchInterface, game.digits, ship.ammo);
 			//game.simpleFont.draw(game.batchInterface, "FPS: " + FPS, 10, HEIGHT - 20);
-			//game.simpleFont.draw(game.batchInterface, "speed: " + Math.round(ship.body.getLinearVelocity().len()), 10, HEIGHT - 50);
 //			game.customFont.draw(game.batchInterface, "x: " + Math.round(cameraX) + ", y: " + Math.round(cameraY), 10, HEIGHT - 80);
-//			game.customFont.draw(game.batchInterface, "health: " + ((ShipData)ship.body.getUserData()).health, 10, HEIGHT - 110);
 		}
 		game.batchInterface.end();
 	}
