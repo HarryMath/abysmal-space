@@ -34,6 +34,7 @@ public class CollisionHandler implements ContactListener {
       String shipBId = (bodyBData instanceof IdentityData) ?
               ((IdentityData) bodyBData).getId() : null;
       if (shipAId != null && shipAId.equalsIgnoreCase(shipBId)) {
+        System.out.println("ignored contact");
         contact.setEnabled(false);
         return;
       }

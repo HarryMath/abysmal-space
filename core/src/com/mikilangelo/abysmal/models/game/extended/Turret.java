@@ -77,7 +77,7 @@ public class Turret {
               angle + ship.angle,
               ship.body.getLinearVelocity().x,
               ship.body.getLinearVelocity().y,
-              generationId);
+              generationId, ship.bodyId);
       LasersRepository.addTurret(l);
     }
     definition.laserDefinition.sound.play(soundScale);

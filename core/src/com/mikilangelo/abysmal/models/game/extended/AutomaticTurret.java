@@ -42,6 +42,7 @@ public class AutomaticTurret extends Turret {
     this.target = GameScreen.enemiesProcessor.getNearestEnemy(shipX, shipY);
   }
 
+  @Deprecated
   private void autoShot(float shipAngle) {
     final long newShotTime = TimeUtils.millis();
     if (newShotTime - lastShotTime < definition.shotInterval) {
@@ -52,7 +53,7 @@ public class AutomaticTurret extends Turret {
       float addCos = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.cos(this.angle + shipAngle + MathUtils.PI / 2);
       float addSin = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.sin(this.angle + shipAngle + MathUtils.PI / 2);
       Laser l = new Laser(definition.laserDefinition, x + addCos, y + addSin,
-              angle + shipAngle, 0, 0, generationId);
+              angle + shipAngle, 0, 0, generationId, (short) (-1));
       LasersRepository.addTurret(l);
     }
     definition.laserDefinition.sound.play(1);

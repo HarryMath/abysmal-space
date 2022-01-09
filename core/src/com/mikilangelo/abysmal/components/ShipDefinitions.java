@@ -68,9 +68,9 @@ public abstract class ShipDefinitions {
     defender.shieldRadius = 2;
     // dynamic
     defender.speedPower = 32.7f;
-    defender.controlPower = 0.4f;
+    defender.controlPower = 0.901f;
     defender.speedResistance = 0.0233f;
-    defender.rotationControlResistance = 0.94f;
+    defender.rotationControlResistance = 0.91f;
     defender.rotationResistance = 0.98f;
     // textures
     defender.bodyTexture = new Sprite(TexturesRepository.get("ships/defender/body.png"));
@@ -296,7 +296,7 @@ public abstract class ShipDefinitions {
     ShipDef hyperion = new ShipDef();
     hyperion.name = "hyperion";
     hyperion.health = 100f;
-    hyperion.ammo = 5900;
+    hyperion.ammo = 9900;
     hyperion.radarPower = 70;
     hyperion.maxZoom = 1.9f;
     hyperion.minZoom = 1f;
@@ -368,14 +368,14 @@ public abstract class ShipDefinitions {
       mainTurret.laserDefinition = mainLaser;
       hyperion.turretDefinitions.add(mainTurret);
     }
-    for (byte i = 0; i < 2; i++) {
+    for (byte i = 0; i < 4; i++) {
       TurretDef smallTurret = new TurretDef();
       smallTurret.isAutomatic = true;
-      smallTurret.positionX = -0.69f;
+      smallTurret.positionX = i > 1 ? -0.69f : 1.3f;
       smallTurret.positionY = i % 2 == 0 ? 0.83f : - 0.83f;
       smallTurret.lasersAmount = 1; // 2;
       smallTurret.rotationSpeed = 0.057f;
-      smallTurret.lasersDistance = 0f; //0.1f;
+      smallTurret.lasersDistance = 0; //0.1f;
       smallTurret.shotInterval = 127f;
       smallTurret.size = 0.33f;
       smallTurret.texture = new Sprite(TexturesRepository.get("ships/hyperion/turretSmall.png"));

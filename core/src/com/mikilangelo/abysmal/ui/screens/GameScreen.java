@@ -53,7 +53,6 @@ public class GameScreen implements Screen {
   public static World world;
   private final PlayerShip ship;
   public static boolean screenUnderControl = false;
-  private DestroyableObjectData shipData;
 
   public static int HEIGHT;
   public static int WIDTH;
@@ -102,7 +101,6 @@ public class GameScreen implements Screen {
     ship.createBody(world);
     ship.activateShield();
     radar = new Radar(ship.definition.radarPower, ship.definition.maxSpeed, HEIGHT, WIDTH);
-    shipData = ((DestroyableObjectData) ship.body.getUserData());
     joystick = new Joystick(HEIGHT / 8);
     shooter = new Shooter(ship.turrets.size > 0);
     AsteroidsRepository.generateAsteroids(ship.x, ship.y);
@@ -158,7 +156,7 @@ public class GameScreen implements Screen {
     drawObjects(delta);
     // debugRenderer.render(world, camera.combined);
     drawInterface(delta);
-    if (shipData.getHealth() < 0) {
+    if (ship.bodyData.getHealth() < 0) {
       dispose();
       game.setScreen(new MenuScreen(game));
     }
@@ -310,9 +308,9 @@ public class GameScreen implements Screen {
       enemiesProcessor.drawAtRadar(game.batchInterface, radar);
       radar.draw(game.batchInterface, game.digits, game.customFont, ship.angle);
 			// game.customFont.getData().setScale(HEIGHT / 1400f);
-			healthIndicator.draw(game.batchInterface, game.digits, shipData.getHealth());
+			healthIndicator.draw(game.batchInterface, game.digits, ship.bodyData.getHealth());
       ammoIndicator.draw(game.batchInterface, game.digits, ship.ammo);
-			//game.simpleFont.draw(game.batchInterface, "FPS: " + FPS, 10, HEIGHT - 20);
+			game.simpleFont.draw(game.batchInterface, "FPS: " + FPS, 10, HEIGHT - 20);
 //			game.customFont.draw(game.batchInterface, "x: " + Math.round(cameraX) + ", y: " + Math.round(cameraY), 10, HEIGHT - 80);
 		}
 		game.batchInterface.end();

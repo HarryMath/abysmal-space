@@ -15,6 +15,7 @@ import com.mikilangelo.abysmal.models.game.extended.AutomaticTurret;
 import com.mikilangelo.abysmal.models.game.extended.EngineParticle;
 import com.mikilangelo.abysmal.models.game.extended.Laser;
 import com.mikilangelo.abysmal.models.game.extended.Turret;
+import com.mikilangelo.abysmal.models.objectsData.DestroyableObjectData;
 import com.mikilangelo.abysmal.models.objectsData.ShieldData;
 import com.mikilangelo.abysmal.models.objectsData.ShipData;
 import com.mikilangelo.abysmal.tools.Geometry;
@@ -32,13 +33,15 @@ import com.mikilangelo.abysmal.ui.screens.GameScreen;
 
 public class Ship {
 
-  private static int totalShips = 0;
+  private static short totalShips = 0;
+  public final short bodyId;
 
   public ShipDef definition;
   public String generationId;
   public Body body;
   public Body shield;
-  public ShieldData shieldData;
+  private ShieldData shieldData;
+  public DestroyableObjectData bodyData;
   private Body primaryBody;
   private Body secondaryBody;
   public Array<Turret> turrets;
@@ -51,7 +54,8 @@ public class Ship {
   private long lastShotTime = 0;
   private long lastShieldOnTime = 0;
   private float shieldTimeLeft = 0;
-  public boolean underControl = false;
+  public boolean isPowerApplied = false;
+  private boolean isUnderControl = false;
   public boolean shieldOn = false;
   public int ammo;
 
@@ -65,6 +69,7 @@ public class Ship {
 
   public Ship(ShipDef def, float x, float y, boolean isPlayer, float playerX, float playerY) {
     totalShips++;
+    bodyId = (short)(-totalShips);
     this.generationId = def.name + (totalShips % 10) + MathUtils.random(0, 9) +
             String.valueOf(System.currentTimeMillis()).substring(5);
     this.definition = def;
@@ -114,6 +119,7 @@ public class Ship {
 
   // power: [0, 1]
   public void applyImpulse(float power, boolean withParticles) {
+    isPowerApplied = isUnderControl = true;
     primaryBody.applyLinearImpulse(
             power * MathUtils.cos(angle) * definition.speedPower * 0.0135f,
             power * MathUtils.sin(angle) * definition.speedPower * 0.0135f,
@@ -127,13 +133,13 @@ public class Ship {
   }
 
   public void rotate(float direction, float delta) {
+    isUnderControl = true;
     this.body.setAngularVelocity(this.body.getAngularVelocity() + direction * definition.controlPower / (0.99f + delta));
-    if (!underControl) {
+    if (!isPowerApplied) {
       primaryBody.setLinearVelocity(
               primaryBody.getLinearVelocity().x * controlSpeedResistance,
               primaryBody.getLinearVelocity().y * controlSpeedResistance);
     }
-    this.body.setAngularVelocity(this.body.getAngularVelocity() * definition.rotationControlResistance);
   }
 
   public void move(float delta, float playerX, float playerY) {
@@ -152,6 +158,10 @@ public class Ship {
     secondaryBody.setLinearVelocity(primaryBody.getLinearVelocity());
     for (Turret t : turrets) {
       t.move(angle, x, y, delta);
+    }
+    if (isUnderControl) {
+      this.body.setAngularVelocity(this.body.getAngularVelocity() * definition.rotationControlResistance);
+      isUnderControl = false;
     }
   }
 
@@ -178,7 +188,7 @@ public class Ship {
       final float addSin = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.sin(angle + 1.57078f);
       Laser l = new Laser(definition.laserDefinition,
               x + addCos, y + addSin, this.angle,
-              sX, sY, generationId, delay);
+              sX, sY, generationId, bodyId, delay);
       LasersRepository.addSimple(l);
     }
     definition.laserDefinition.sound.play(soundScale, 1, pan);
@@ -283,7 +293,6 @@ public class Ship {
   }
 
   public void kak() {
-    underControl = true;
     if ( Settings.withParticles) {
       for (EngineDef e : definition.engineDefinitions) {
         float screwX = e.positionY * MathUtils.cos(this.angle + MathUtils.PI / 2);
@@ -308,11 +317,13 @@ public class Ship {
     fixtureDef.density = definition.density;
     fixtureDef.friction = definition.friction;
     fixtureDef.restitution = definition.restitution;
+    fixtureDef.filter.groupIndex = bodyId;
     definition.bodyLoader.attachFixture(this.body, "Name", fixtureDef, definition.bodyScale);
     body.setTransform(x, y, angle);
     ShipData data = new ShipData();
     data.id = generationId;
     data.health = definition.health;
+    bodyData = data;
     this.body.setUserData(data);
     primaryBody = body;
     createShield(world);
@@ -334,6 +345,7 @@ public class Ship {
     fixtureDef.friction = definition.friction * 0.2f;
     fixtureDef.restitution = (1 + definition.restitution) * 0.5f;
     fixtureDef.shape = shape;
+    fixtureDef.filter.groupIndex = bodyId;
     shield = world.createBody(bodyDef);
     shield.createFixture(fixtureDef);
     shape.dispose();

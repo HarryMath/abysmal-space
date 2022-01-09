@@ -142,8 +142,8 @@ public class UdpClient implements EnemiesProcessor {
       state.angularSpeed = player.body.getAngularVelocity();
       state.angle = player.angle;
       state.timestamp = TimeUtils.millis();
-      state.isUnderControl = player.underControl;
-      player.underControl = false;
+      state.isUnderControl = player.isPowerApplied;
+      player.isPowerApplied = false;
       state.health = ((DestroyableObjectData) player.body.getUserData()).getHealth();
       sendingThread.sendStateData();
     }
@@ -200,7 +200,7 @@ public class UdpClient implements EnemiesProcessor {
 
   private class Player {
     private final String generationId;
-    private boolean underControl = false;
+    private boolean isPowerApplied = false;
     private int badPackages = 10;
     private PlayerState lastState;
     private boolean isDead = false;
@@ -220,8 +220,9 @@ public class UdpClient implements EnemiesProcessor {
       ship.distance = Geometry.distance(playerX, playerY, ship.x, ship.y);
       if (ship.distance < 50 && !world.isLocked()) {
         ship.move(delta);
-        if (underControl) {
+        if (isPowerApplied) {
           ship.kak();
+          isPowerApplied = false;
         }
       }
       if (((ShipData) ship.body.getUserData()).health <= -30) {
@@ -243,7 +244,7 @@ public class UdpClient implements EnemiesProcessor {
 //            final float deltaTime = TimeUtils.millis() - data.t / 1000f;
           final float deltaTime = (data.timestamp - lastState.timestamp) / 1000f;
           final float compareTime = 0.3f + deltaTime * 1.5f;
-          underControl = data.isUnderControl;
+          isPowerApplied = data.isUnderControl;
           if (badPackages < 5 && data.health != 0) {
             if (Geometry.distance(lastState.x + lastState.speedX * deltaTime,
                     lastState.y + lastState.speedY * deltaTime,

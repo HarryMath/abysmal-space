@@ -20,9 +20,9 @@ public class Laser implements DynamicObject {
   public float angle;
   public float opacity = 1f;
   public boolean ended = false;
-  final LaserData l;
+  private final LaserData l;
 
-  public Laser(LaserDef def, float x, float y, float angle, float speedX, float speedY, String shipId, float delay) {
+  public Laser(LaserDef def, float x, float y, float angle, float speedX, float speedY, String shipId, short bodyId, float delay) {
     this.definition = def;
     this.angle = angle;
     BodyDef bodyDef = new BodyDef();
@@ -34,12 +34,18 @@ public class Laser implements DynamicObject {
     fixtureDef.friction = 0.5f;
     fixtureDef.restitution = 0.5f;
     fixtureDef.shape = shape;
+    fixtureDef.filter.groupIndex = bodyId;
     body = GameScreen.world.createBody(bodyDef);
     body.createFixture(fixtureDef);
     final float impulseX = def.impulse * MathUtils.cos(angle) + speedX/27f * def.density;
     final float impulseY = def.impulse * MathUtils.sin(angle) + speedY/27f * def.density;
-    body.setTransform(x + impulseX * delay, y + impulseY * delay, 0);
-    body.applyLinearImpulse(impulseX, impulseY,body.getPosition().x, body.getPosition().y, true);
+    if (delay > 0) {
+      final float mass = body.getMass();
+      x += impulseX / mass * delay;
+      y += impulseY / mass * delay;
+    }
+    body.setTransform(x, y, 0);
+    body.applyLinearImpulse(impulseX, impulseY, x, y, true);
     l = new LaserData();
     l.shipId = shipId;
     l.damage = definition.damage;
@@ -49,8 +55,8 @@ public class Laser implements DynamicObject {
     shape.dispose();
   }
 
-  public Laser(LaserDef def, float x, float y, float angle, float impulseX, float impulseY, String shipId) {
-    this(def, x, y, angle, impulseX, impulseY, shipId, 0);
+  public Laser(LaserDef def, float x, float y, float angle, float impulseX, float impulseY, String shipId, Short bodyId) {
+    this(def, x, y, angle, impulseX, impulseY, shipId, bodyId,0);
   }
 
   @Override

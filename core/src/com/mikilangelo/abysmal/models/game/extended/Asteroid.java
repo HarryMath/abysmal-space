@@ -48,11 +48,12 @@ public class Asteroid implements DynamicObject {
   private boolean bodyLoaded = false;
   public boolean destroyed = false;
   public Body body;
+  private final AsteroidData bodyData;
   public float x, y;
 
   public Asteroid(final int asteroidTypeId, final float x, final float y) {
     this.asteroidTypeId = asteroidTypeId;
-    loadBody(x, y);
+    bodyData = loadBody(x, y);
     if (sqrtmass[asteroidTypeId] == 0) {
       sqrtmass[asteroidTypeId] = (float) Math.sqrt(body.getMass());
     }
@@ -93,9 +94,9 @@ public class Asteroid implements DynamicObject {
     }
   }
 
-  public void loadBody(float x, float y) {
+  public AsteroidData loadBody(float x, float y) {
     if (!initialized) {
-      return;
+      return null;
     }
     this.x = x; this.y = y;
     BodyDef bodyDef = new BodyDef();
@@ -112,6 +113,7 @@ public class Asteroid implements DynamicObject {
     asteroidData.health = healthWeight * (float) Math.pow(body.getMass(), 0.6f) * MathUtils.random(1.1f, 3f);
     body.setUserData(asteroidData);
     bodyLoaded = true;
+    return asteroidData;
   }
 
   public void destroyBody() {
@@ -124,8 +126,7 @@ public class Asteroid implements DynamicObject {
     if (this.bodyLoaded && !destroyed) {
       this.body.setAngularVelocity(this.body.getAngularVelocity() * 0.987f);
       body.setLinearVelocity(body.getLinearVelocity().x * 0.997f, body.getLinearVelocity().y * 0.997f);
-      AsteroidData data = (AsteroidData) this.body.getUserData();
-      if (data.health <= 0) {
+      if (bodyData.health <= 0) {
         destroyed = true;
         x = this.body.getPosition().x;
         y = this.body.getPosition().y;

@@ -48,7 +48,7 @@ public class EngineParticle implements DynamicObject {
       } else {
         this.opacity += 0.1;
       }
-    } else {
+    } else if (opacity > 0) {
       opacity -= dyingSpeed;
       if (opacity <= 0) {
         this.opacity = 0;

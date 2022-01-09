@@ -10,6 +10,7 @@ import com.mikilangelo.abysmal.models.game.PlayerShip;
 
 public class Radar extends InterfaceElement {
   private final Texture back = TexturesRepository.get("UI/radar/back.png");
+  private final Texture speedIcon = TexturesRepository.get("UI/indicators/speed.png");
   private final Sprite center = new Sprite(TexturesRepository.get("UI/radar/center.png"));
   private final Texture border = TexturesRepository.get("UI/radar/border.png");
   private final Texture overlay = TexturesRepository.get("UI/radar/overlay.png");
@@ -24,7 +25,8 @@ public class Radar extends InterfaceElement {
   private float time = 0;
 
   private float dx, dy, distance;
-  private int playerX, playerY;
+  private int playerX;
+  private int playerY;
 
   public Radar(float detectRadius, float maxSpeed, float screenHeight, float screenWidth) {
     this.detectRadius = detectRadius * 0.9f;
@@ -49,14 +51,11 @@ public class Radar extends InterfaceElement {
     speedIndicator.draw(batch, PlayerShip.SPEED);
     batch.draw(this.border, x - drawRadius, y - fullHeight + drawRadius, fullWidth, fullHeight);
     digitsFont.getData().setScale(44 * RATIO / 9 / (digitsFont.getCapHeight() / digitsFont.getScaleY() * 4 / 5 ));
-    lettersFont.getData().setScale(42 * RATIO / 9 / (lettersFont.getCapHeight() / lettersFont.getScaleY() * 4 / 5 ));
-    float drawX = x - drawRadius + 2 * RATIO;
-    float drawY = y + drawRadius - fullHeight - RATIO;
-    // TODO draw speed
+    lettersFont.getData().setScale(42 * RATIO / 9 / (lettersFont.getCapHeight() / lettersFont.getScaleY() * 4 / 5 ));;
     byte length = (byte) String.valueOf(playerX).length();
     String zeros = " 000000".substring(0, 7 - length);
-    drawX = x - drawRadius + 2 * RATIO;
-    drawY -= digitsFont.getLineHeight() + RATIO * 0.5f;
+    float drawX = x - drawRadius + 2 * RATIO;
+    float drawY = y + drawRadius - fullHeight - RATIO;
     drawX += drawWithShadow(batch, lettersFont, "X:", drawX, drawY, 0.8f);
     drawX += drawWithShadow(batch, digitsFont, zeros, drawX, drawY, 0.1f) + digitsFont.getCapHeight() / 5;
     drawWithShadow(batch, digitsFont, String.valueOf(playerX), drawX, drawY, 1f);
@@ -70,7 +69,7 @@ public class Radar extends InterfaceElement {
   }
 
   private float drawWithShadow(Batch batch, BitmapFont font, String text, float x, float y, float a) {
-    font.setColor(0, 0, 0,  0.5f * a);
+    font.setColor(0, 0, 0,  0.2f + 0.7f * a);
     font.draw(batch, text, x + 0.5f * RATIO, y - 0.5f * RATIO);
     font.draw(batch, text, x - 0.5f * RATIO, y + 0.5f * RATIO);
     font.setColor(0.65f, 0.75f, 0.85f, a);

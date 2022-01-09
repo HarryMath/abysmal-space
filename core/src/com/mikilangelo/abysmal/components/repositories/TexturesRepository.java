@@ -32,7 +32,7 @@ public abstract class TexturesRepository {
             "radar_scanner", "shot", "arrow"},
             ".png");
     loadTextures("UI/indicators/", new String[]{
-                    "ammo", "health", "border", "back", "red", "yellow", "blue"}, ".png");
+                    "ammo", "health", "border", "back", "red", "yellow", "blue", "speed"}, ".png");
     loadTextures("UI/radar/", new String[]{
             "asteroid", "enemy", "border", "back", "center", "overlay"}, ".png");
     loadTextures("", new String[]{"back", "backMenu", "starMenu", "star"}, ".png");
