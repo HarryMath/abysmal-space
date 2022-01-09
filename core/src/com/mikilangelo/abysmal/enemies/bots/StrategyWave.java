@@ -19,7 +19,7 @@ public class StrategyWave implements BotStrategy {
   @Override
   public void perform(Ship bot, float playerX, float playerY, float playerAngle, float delta) {
     targetAngle = Geometry.simpleDefineAngle((playerX - bot.x) / bot.distance, (playerY - bot.y) / bot.distance, targetAngle);
-    if (bot.distance > bot.definition.radarPower * 0.7f) {
+    if (bot.distance > bot.def.radarPower * 0.7f) {
       bot.control(targetAngle, 1, delta);
       biasAngle = 0;
     } else {
@@ -36,10 +36,10 @@ public class StrategyWave implements BotStrategy {
           biasAngle -= biasSpeed;
         }
       }
-      bot.control((MathUtils.PI2 + targetAngle + biasAngle * (0.2f + bot.distance / bot.definition.radarPower / 0.4f * 0.8f)) % MathUtils.PI2, 1, delta);
+      bot.control((MathUtils.PI2 + targetAngle + biasAngle * (0.2f + bot.distance / bot.def.radarPower / 0.4f * 0.8f)) % MathUtils.PI2, 1, delta);
     }
 
-    if (bot.distance < SCREEN_WIDTH * 0.4f * bot.definition.maxZoom) {
+    if (bot.distance < SCREEN_WIDTH * 0.4f * bot.def.maxZoom) {
       boolean needToShotTurrets = false;
       for (Turret t : bot.turrets) {
         t.control(targetAngle);

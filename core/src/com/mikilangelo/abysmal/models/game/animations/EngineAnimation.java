@@ -32,10 +32,9 @@ public class EngineAnimation {
       textures.get(previous).setRotation(angle * MathUtils.radiansToDegrees);
       textures.get(previous).setCenter(x, y);
       textures.get(previous).setAlpha(0.4f);
-      textures.get(previous).draw(batch);
       textures.get(current).setRotation(angle * MathUtils.radiansToDegrees);
       textures.get(current).setCenter(x, y);
-      textures.get(current).setAlpha(0.8f);
+      textures.get(current).setAlpha(1);
       textures.get(current).draw(batch);
     }
   }

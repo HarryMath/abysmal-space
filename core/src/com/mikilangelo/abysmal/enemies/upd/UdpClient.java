@@ -76,7 +76,7 @@ public class UdpClient implements EnemiesProcessor {
   @Override
   public void generateEnemies(Ship ship) {
     state.generationId = ship.generationId;
-    state.shipName = ship.definition.name;
+    state.shipName = ship.def.name;
     playerX = state.x = ship.x;
     playerY = state.y = ship.y;
     state.health = 999;

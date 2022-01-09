@@ -2,6 +2,7 @@ package com.mikilangelo.abysmal.models.game;
 
 import static com.mikilangelo.abysmal.ui.screens.GameScreen.SCREEN_WIDTH;
 
+import com.badlogic.gdx.math.Vector2;
 import com.mikilangelo.abysmal.components.Settings;
 import com.mikilangelo.abysmal.components.repositories.ExplosionsRepository;
 import com.mikilangelo.abysmal.components.repositories.LasersRepository;
@@ -36,7 +37,7 @@ public class Ship {
   private static short totalShips = 0;
   public final short bodyId;
 
-  public ShipDef definition;
+  public ShipDef def;
   public String generationId;
   public Body body;
   public Body shield;
@@ -45,12 +46,16 @@ public class Ship {
   private Body primaryBody;
   private Body secondaryBody;
   public Array<Turret> turrets;
-  public float angle = MathUtils.PI / 2;
   public float newAngle = MathUtils.PI / 2;
-  EngineAnimation engineAnimation;
+  private final EngineAnimation engineAnimation;
+
   public float x;
   public float y;
+  public float angle = MathUtils.PI / 2;
+  public Vector2 velocity;
+  public float speed;
   public float distance;
+
   private long lastShotTime = 0;
   private long lastShieldOnTime = 0;
   private float shieldTimeLeft = 0;
@@ -67,32 +72,32 @@ public class Ship {
   private final Sprite shieldTouchTexture = new Sprite(TexturesRepository.get("things/shieldTouch.png"));
   private final Array<ShieldTouch> shieldTouches = new Array<>();
 
-  public Ship(ShipDef def, float x, float y, boolean isPlayer, float playerX, float playerY) {
+  public Ship(ShipDef definition, float x, float y, boolean isPlayer, float playerX, float playerY) {
     totalShips++;
     bodyId = (short)(-totalShips);
-    this.generationId = def.name + (totalShips % 10) + MathUtils.random(0, 9) +
+    this.generationId = definition.name + (totalShips % 10) + MathUtils.random(0, 9) +
             String.valueOf(System.currentTimeMillis()).substring(5);
-    this.definition = def;
-    engineAnimation = new EngineAnimation(def.engineAnimation, def.frameFrequency);
+    this.def = definition;
+    engineAnimation = new EngineAnimation(definition.engineAnimation, definition.frameFrequency);
     this.turrets = new Array<>();
-    for (TurretDef t : def.turretDefinitions) {
+    for (TurretDef t : definition.turretDefinitions) {
       final Turret turret = t.isAutomatic && isPlayer ?
               new AutomaticTurret(t, generationId) :
               new Turret(t, generationId);
       this.turrets.add(turret);
     }
-    this.definition.bodyTexture.setScale( definition.size / definition.bodyTexture.getHeight() );
-    for (byte i = 0; i < definition.engineAnimation.size; i++) {
-      definition.engineAnimation.get(i).setScale( definition.bodyTexture.getScaleY() );
+    this.def.bodyTexture.setScale( this.def.size / this.def.bodyTexture.getHeight() );
+    for (byte i = 0; i < this.def.engineAnimation.size; i++) {
+      this.def.engineAnimation.get(i).setScale( this.def.bodyTexture.getScaleY() );
     }
-    this.controlSpeedResistance = (0.9983f - definition.speedResistance / 2);
-    this.simpleSpeedResistance = 0.99955f - definition.speedResistance * definition.speedResistance;
+    this.controlSpeedResistance = (0.9983f - this.def.speedResistance / 2);
+    this.simpleSpeedResistance = 0.99955f - this.def.speedResistance * this.def.speedResistance;
     this.x = x; this.y = y;
     this.distance = isPlayer ? 0 : Geometry.distance(playerX, playerY, x, y);
     // shieldRadius = 0.63f * definition.size * (float) Math.hypot(1, definition.bodyTexture.getWidth() / definition.bodyTexture.getHeight());
-    shieldSize = definition.shieldRadius * 2 / shieldTexture.getHeight();
+    shieldSize = this.def.shieldRadius * 2 / shieldTexture.getHeight();
     shieldScale = shieldSize;
-    ammo = definition.ammo;
+    ammo = this.def.ammo;
   }
 
   public void control(float direction, float power, float delta) {
@@ -103,7 +108,7 @@ public class Ship {
     assert newAngle >= 0 && newAngle <= MathUtils.PI2;
 
     if (angle != newAngle) {
-      if (angle <= newAngle + definition.controlPower / 5f && angle >= newAngle - definition.controlPower / 5f) {
+      if (angle <= newAngle + def.controlPower / 5f && angle >= newAngle - def.controlPower / 5f) {
         this.body.setAngularVelocity(this.body.getAngularVelocity() * 0.82f);
       } else {
         final float rotationLeft = (angle - newAngle + MathUtils.PI2) % MathUtils.PI2;
@@ -121,24 +126,25 @@ public class Ship {
   public void applyImpulse(float power, boolean withParticles) {
     isPowerApplied = isUnderControl = true;
     primaryBody.applyLinearImpulse(
-            power * MathUtils.cos(angle) * definition.speedPower * 0.0135f,
-            power * MathUtils.sin(angle) * definition.speedPower * 0.0135f,
+            power * MathUtils.cos(angle) * def.speedPower * 0.0135f,
+            power * MathUtils.sin(angle) * def.speedPower * 0.0135f,
             primaryBody.getPosition().x,
             primaryBody.getPosition().y,
             true);
+    velocity = primaryBody.getLinearVelocity();
     primaryBody.setLinearVelocity(
-            primaryBody.getLinearVelocity().x * controlSpeedResistance,
-            primaryBody.getLinearVelocity().y * controlSpeedResistance);
+            velocity.x * controlSpeedResistance,
+            velocity.y * controlSpeedResistance);
     if (withParticles) kak();
   }
 
   public void rotate(float direction, float delta) {
     isUnderControl = true;
-    this.body.setAngularVelocity(this.body.getAngularVelocity() + direction * definition.controlPower / (0.99f + delta));
+    this.body.setAngularVelocity(this.body.getAngularVelocity() + direction * def.controlPower / (0.99f + delta));
     if (!isPowerApplied) {
       primaryBody.setLinearVelocity(
-              primaryBody.getLinearVelocity().x * controlSpeedResistance,
-              primaryBody.getLinearVelocity().y * controlSpeedResistance);
+              velocity.x * controlSpeedResistance,
+              velocity.y * controlSpeedResistance);
     }
   }
 
@@ -150,17 +156,19 @@ public class Ship {
   public void move(float delta) {
     x = primaryBody.getPosition().x;
     y = primaryBody.getPosition().y;
-    this.angle = Geometry.normalizeAngle(this.body.getAngle());
-    this.body.setAngularVelocity(this.body.getAngularVelocity() * definition.rotationResistance);
-    primaryBody.setLinearVelocity(primaryBody.getLinearVelocity().scl(simpleSpeedResistance));
+    velocity = primaryBody.getLinearVelocity();
+    angle = Geometry.normalizeAngle(this.body.getAngle());
+    this.body.setAngularVelocity(this.body.getAngularVelocity() * def.rotationResistance);
+    primaryBody.setLinearVelocity(velocity.scl(simpleSpeedResistance));
     primaryBody.setTransform(x, y, angle);
     secondaryBody.setTransform(x, y, angle);
-    secondaryBody.setLinearVelocity(primaryBody.getLinearVelocity());
+    secondaryBody.setLinearVelocity(velocity);
+    speed = (float) Math.hypot(velocity.x, velocity.y);
     for (Turret t : turrets) {
       t.move(angle, x, y, delta);
     }
     if (isUnderControl) {
-      this.body.setAngularVelocity(this.body.getAngularVelocity() * definition.rotationControlResistance);
+      this.body.setAngularVelocity(this.body.getAngularVelocity() * def.rotationControlResistance);
       isUnderControl = false;
     }
   }
@@ -179,32 +187,32 @@ public class Ship {
   ) {
     final long newShotTime = TimeUtils.millis() - deltaMillis;
     final float delay = deltaMillis * 0.001f;
-    if (definition.lasersAmount > ammo || turrets.size > 0 || (newShotTime - lastShotTime) < definition.shotInterval) {
+    if (def.lasersAmount > ammo || turrets.size > 0 || (newShotTime - lastShotTime) < def.shotInterval) {
       return;
     }
-    final float maxLeftLaser = -definition.lasersDistance * definition.lasersAmount / 2f + definition.lasersDistance / 2f;
-    for (byte i = 0; i < definition.lasersAmount; i++) {
-      final float addCos = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.cos(angle + 1.5708f);
-      final float addSin = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.sin(angle + 1.57078f);
-      Laser l = new Laser(definition.laserDefinition,
+    final float maxLeftLaser = -def.lasersDistance * def.lasersAmount / 2f + def.lasersDistance / 2f;
+    for (byte i = 0; i < def.lasersAmount; i++) {
+      final float addCos = (maxLeftLaser + def.lasersDistance * i) * MathUtils.cos(angle + 1.5708f);
+      final float addSin = (maxLeftLaser + def.lasersDistance * i) * MathUtils.sin(angle + 1.57078f);
+      Laser l = new Laser(def.laserDefinition,
               x + addCos, y + addSin, this.angle,
               sX, sY, generationId, bodyId, delay);
       LasersRepository.addSimple(l);
     }
-    definition.laserDefinition.sound.play(soundScale, 1, pan);
-    this.ammo -= definition.lasersAmount;
+    def.laserDefinition.sound.play(soundScale, 1, pan);
+    this.ammo -= def.lasersAmount;
     this.lastShotTime = newShotTime;
   }
 
   protected void shot(float soundScale, float pan) {
-    if (definition.lasersAmount < 1 && definition.turretDefinitions.size == 0) {
+    if (def.lasersAmount < 1 && def.turretDefinitions.size == 0) {
       return;
     }
     for (byte i = 0; i < turrets.size; i++) {
       turrets.get(i).shot(this, soundScale);
     }
     final long newShotTime = TimeUtils.millis();
-    if (turrets.size > 0 || (newShotTime - lastShotTime) < definition.shotInterval) {
+    if (turrets.size > 0 || (newShotTime - lastShotTime) < def.shotInterval) {
       return;
     }
     if (distance < 0.01f) {
@@ -213,9 +221,7 @@ public class Ship {
     shotDirectly(soundScale, pan,
             this.body.getPosition().x,
             this.body.getPosition().y,
-            this.body.getLinearVelocity().x,
-            this.body.getLinearVelocity().y,
-            0);
+            velocity.x, velocity.y, 0);
   }
 
   public void shot() {
@@ -237,14 +243,14 @@ public class Ship {
       shieldTexture.draw(batch);
     }
     engineAnimation.draw(batch, delta, x, y, angle);
-    definition.bodyTexture.setRotation(this.angle * MathUtils.radiansToDegrees);
-    definition.bodyTexture.setCenter(x, y);
-    definition.bodyTexture.draw(batch);
-    if (definition.decor != null) {
-      definition.decor.setCenter(x, y);
-      definition.decor.setRotation(this.angle * MathUtils.radiansToDegrees);
-      definition.decor.setAlpha(Math.min(body.getLinearVelocity().len() / definition.maxSpeed, 1));
-      definition.decor.draw(batch);
+    def.bodyTexture.setRotation(this.angle * MathUtils.radiansToDegrees);
+    def.bodyTexture.setCenter(x, y);
+    def.bodyTexture.draw(batch);
+    if (def.decor != null) {
+      def.decor.setCenter(x, y);
+      def.decor.setRotation(this.angle * MathUtils.radiansToDegrees);
+      def.decor.setAlpha(Math.min(speed / def.maxSpeed, 1));
+      def.decor.draw(batch);
     }
     for (int i = 0; i < turrets.size; i++) {
       turrets.get(i).draw(batch, angle);
@@ -274,8 +280,8 @@ public class Ship {
       shieldTexture.setAlpha(0.65f);
       if (shieldTimeLeft < 3) {
         shieldTexture.setAlpha(0.65f * shieldTimeLeft / 3);
-      } else if (definition.shieldLifeTime - shieldTimeLeft < 0.5f) {
-        shieldScale = shieldSize * (definition.shieldLifeTime - shieldTimeLeft) * 2;
+      } else if (def.shieldLifeTime - shieldTimeLeft < 0.5f) {
+        shieldScale = shieldSize * (def.shieldLifeTime - shieldTimeLeft) * 2;
       } else {
         shieldScale = shieldSize;
       }
@@ -294,15 +300,14 @@ public class Ship {
 
   public void kak() {
     if ( Settings.withParticles) {
-      for (EngineDef e : definition.engineDefinitions) {
+      for (EngineDef e : def.engineDefinitions) {
         float screwX = e.positionY * MathUtils.cos(this.angle + MathUtils.PI / 2);
         float screwY = e.positionY * MathUtils.sin(this.angle + MathUtils.PI / 2);
         float posX = x + e.positionX * MathUtils.cos(this.angle);
         float posY = y + e.positionX * MathUtils.sin(this.angle);
         ParticlesRepository.add(new EngineParticle(
                 e, posX + screwX, posY + screwY,
-                body.getLinearVelocity().x,
-                body.getLinearVelocity().y
+                velocity.x, velocity.y
         ), e.isTopLayer);
       }
     }
@@ -314,22 +319,23 @@ public class Ship {
     bodyDef.position.x = x; bodyDef.position.y = y;
     this.body = world.createBody(bodyDef);
     FixtureDef fixtureDef = new FixtureDef();
-    fixtureDef.density = definition.density;
-    fixtureDef.friction = definition.friction;
-    fixtureDef.restitution = definition.restitution;
+    fixtureDef.density = def.density;
+    fixtureDef.friction = def.friction;
+    fixtureDef.restitution = def.restitution;
     fixtureDef.filter.groupIndex = bodyId;
-    definition.bodyLoader.attachFixture(this.body, "Name", fixtureDef, definition.bodyScale);
+    def.bodyLoader.attachFixture(this.body, "Name", fixtureDef, def.bodyScale);
     body.setTransform(x, y, angle);
     ShipData data = new ShipData();
     data.id = generationId;
-    data.health = definition.health;
+    data.health = def.health;
     bodyData = data;
     this.body.setUserData(data);
     primaryBody = body;
+    velocity = primaryBody.getLinearVelocity();
     createShield(world);
-    if (definition.maxSpeed == 0) {
+    if (def.maxSpeed == 0) {
       final float resistance = controlSpeedResistance * simpleSpeedResistance;
-      definition.maxSpeed = 0.01352f * definition.speedPower * resistance /
+      def.maxSpeed = 0.01352f * def.speedPower * resistance /
               body.getMass() / (1 - resistance);
     }
   }
@@ -339,11 +345,11 @@ public class Ship {
     bodyDef.type = BodyDef.BodyType.DynamicBody;
     bodyDef.position.x = x; bodyDef.position.y = y;
     CircleShape shape = new CircleShape();
-    shape.setRadius(definition.shieldRadius);
+    shape.setRadius(def.shieldRadius);
     FixtureDef fixtureDef = new FixtureDef();
-    fixtureDef.density = body.getMass() / (definition.shieldRadius * definition.shieldRadius * MathUtils.PI);
-    fixtureDef.friction = definition.friction * 0.2f;
-    fixtureDef.restitution = (1 + definition.restitution) * 0.5f;
+    fixtureDef.density = body.getMass() / (def.shieldRadius * def.shieldRadius * MathUtils.PI);
+    fixtureDef.friction = def.friction * 0.2f;
+    fixtureDef.restitution = (1 + def.restitution) * 0.5f;
     fixtureDef.shape = shape;
     fixtureDef.filter.groupIndex = bodyId;
     shield = world.createBody(bodyDef);
@@ -361,14 +367,15 @@ public class Ship {
 
   public void activateShield() {
     final long currentTime = TimeUtils.millis();
-    if (currentTime - lastShieldOnTime > definition.shieldRechargeTime) {
+    if (currentTime - lastShieldOnTime > def.shieldRechargeTime) {
       shieldOn = true;
       primaryBody = shield;
       secondaryBody = body;
       shield.setActive(true);
       shield.setAwake(true);
       lastShieldOnTime = currentTime;
-      shieldTimeLeft = definition.shieldLifeTime;
+      shieldTimeLeft = def.shieldLifeTime;
+      velocity = primaryBody.getLinearVelocity();
     }
   }
 
@@ -376,6 +383,7 @@ public class Ship {
     shieldOn = false;
     primaryBody = body;
     secondaryBody = shield;
+    velocity = primaryBody.getLinearVelocity();
     shield.setActive(false);
     shield.setAwake(false);
   }

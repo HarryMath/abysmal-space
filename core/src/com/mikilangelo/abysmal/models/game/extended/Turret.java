@@ -75,8 +75,8 @@ public class Turret {
       Laser l = new Laser(
               definition.laserDefinition, x + addCos, y + addSin,
               angle + ship.angle,
-              ship.body.getLinearVelocity().x,
-              ship.body.getLinearVelocity().y,
+              ship.velocity.x,
+              ship.velocity.y,
               generationId, ship.bodyId);
       LasersRepository.addTurret(l);
     }

@@ -67,7 +67,7 @@ public class Camera {
       camera.up.x = MathUtils.cos(ship.angle);
       camera.up.y = MathUtils.sin(ship.angle);
     }
-    speedZoomCoefficient = (ship.body.getLinearVelocity().len() * 0.06f + speedZoomCoefficient * 39f) / 40f;
+    speedZoomCoefficient = (ship.speed * 0.06f + speedZoomCoefficient * 39f) / 40f;
     if (Settings.fixedPosition) {
       cameraBiasX = cameraBiasY = 0;
     } else {

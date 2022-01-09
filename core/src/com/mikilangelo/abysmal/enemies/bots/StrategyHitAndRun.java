@@ -26,7 +26,7 @@ public class StrategyHitAndRun implements BotStrategy {
         leavingAngle = 0;
       }
     } else {
-      if (bot.distance > bot.definition.radarPower * 0.33f ||
+      if (bot.distance > bot.def.radarPower * 0.33f ||
               (bot.distance > 11 && leavingAngle >= MathUtils.PI * 0.4f)
       ) {
         isAttacking = true;
@@ -37,7 +37,7 @@ public class StrategyHitAndRun implements BotStrategy {
       bot.control((leavingAngle + targetAngle) % MathUtils.PI2, 1, delta);
     }
     // try shot
-    if (bot.distance < SCREEN_WIDTH * 0.4f * bot.definition.maxZoom) {
+    if (bot.distance < SCREEN_WIDTH * 0.4f * bot.def.maxZoom) {
       boolean needToShotTurrets = false;
       for (Turret t : bot.turrets) {
         t.control(targetAngle);

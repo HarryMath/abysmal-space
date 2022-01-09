@@ -17,7 +17,7 @@ class Bot {
 
   public Bot(Ship ship) {
     this.ship = ship;
-    final String name = ship.definition.name.toLowerCase(Locale.ROOT);
+    final String name = ship.def.name.toLowerCase(Locale.ROOT);
     if (name.contains("defender")) {
       this.strategy =
               Geometry.getProbability(0.5f) ? new StrategyHitAndRun() :
@@ -53,7 +53,7 @@ class Bot {
       return false;
     }
     ship.move(delta);
-    if (ship.distance > ship.definition.radarPower) {
+    if (ship.distance > ship.def.radarPower) {
       ship.control((ship.angle + MathUtils.random(-0.0009f, 0.003f)) % MathUtils.PI2, 0.8f, delta);
       return true;
     }

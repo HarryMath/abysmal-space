@@ -24,7 +24,7 @@ public class StrategySniper implements BotStrategy {
             bot.distance > attackDistance * 2 ? 1 : bot.distance > attackDistance ?
                     (bot.distance - attackDistance) / attackDistance : 0,
             delta);
-    if (bot.distance < SCREEN_WIDTH * 0.4f * bot.definition.maxZoom) {
+    if (bot.distance < SCREEN_WIDTH * 0.4f * bot.def.maxZoom) {
       boolean needToShotTurrets = false;
       for (Turret t : bot.turrets) {
         t.control(targetAngle);

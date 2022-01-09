@@ -38,7 +38,6 @@ import com.mikilangelo.abysmal.models.game.animations.Shine;
 import com.mikilangelo.abysmal.models.game.basic.StaticObject;
 import com.mikilangelo.abysmal.models.game.extended.Planet;
 import com.mikilangelo.abysmal.models.game.extended.Star;
-import com.mikilangelo.abysmal.models.objectsData.DestroyableObjectData;
 import com.mikilangelo.abysmal.tools.Camera;
 import com.mikilangelo.abysmal.ui.gameElemets.Indicator;
 import com.mikilangelo.abysmal.ui.gameElemets.Joystick;
@@ -93,14 +92,14 @@ public class GameScreen implements Screen {
     this.ship = ship;
     HEIGHT = Gdx.graphics.getHeight();
     WIDTH = Gdx.graphics.getWidth();
-    camera = new Camera(HEIGHT, WIDTH, ship.definition.minZoom, ship.definition.maxZoom);
+    camera = new Camera(HEIGHT, WIDTH, ship.def.minZoom, ship.def.maxZoom);
     SCREEN_WIDTH = (float) WIDTH / (float) HEIGHT * SCREEN_HEIGHT;
     world = new World(new Vector2(0, 0), true);
     world.setContactListener(new CollisionHandler());
     debugRenderer = new Box2DDebugRenderer();
     ship.createBody(world);
     ship.activateShield();
-    radar = new Radar(ship.definition.radarPower, ship.definition.maxSpeed, HEIGHT, WIDTH);
+    radar = new Radar(ship.def.radarPower, ship.def.maxSpeed, HEIGHT, WIDTH);
     joystick = new Joystick(HEIGHT / 8);
     shooter = new Shooter(ship.turrets.size > 0);
     AsteroidsRepository.generateAsteroids(ship.x, ship.y);
@@ -110,10 +109,10 @@ public class GameScreen implements Screen {
 
     healthIndicator = new Indicator("health", "red",
             new Vector3(179, 65, 80).scl(1 / 255f),
-            game.digits, (int) ship.definition.health, 6, HEIGHT);
+            game.digits, (int) ship.def.health, 6, HEIGHT);
     ammoIndicator = new Indicator("ammo", "yellow",
             new Vector3(186, 117, 67).scl(1 / 255f),
-            game.digits, ship.definition.ammo, 12 + 64, HEIGHT);
+            game.digits, ship.def.ammo, 12 + 64, HEIGHT);
 
     if (Settings.drawBackground) {
       generateHoles();

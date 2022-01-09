@@ -43,7 +43,7 @@ public class StrategyKamikaze implements BotStrategy {
       // bot.control((aimAngle + 0.5f / (0.1f + bot.distance - attackDistance)) % MathUtils.PI2, 1, delta);
       bot.control(aimAngle, 1, delta);
     }
-    if (bot.distance < SCREEN_WIDTH * 0.4f * bot.definition.maxZoom) {
+    if (bot.distance < SCREEN_WIDTH * 0.4f * bot.def.maxZoom) {
       targetAngle = Geometry.simpleDefineAngle((playerX - bot.x) / bot.distance, (playerY - bot.y) / bot.distance, targetAngle);
       if (bot.distance < attackDistance) {
         bot.control(targetAngle, 1, delta);

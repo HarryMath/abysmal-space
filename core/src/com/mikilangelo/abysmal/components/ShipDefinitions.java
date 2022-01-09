@@ -35,6 +35,7 @@ public abstract class ShipDefinitions {
     generateDefender();
     generateHyperion();
     generateInvader();
+    generateXWing();
     generateAlien();
   }
 
@@ -49,6 +50,66 @@ public abstract class ShipDefinitions {
     shipDefinitions.clear();
     shipNames.clear();
     grayExplosion.clear();
+  }
+
+
+  private static void generateXWing() {
+    ShipDef xWing = new ShipDef();
+    xWing.name = "X-Wing";
+    xWing.ammo = 100;
+    xWing.health = 45;
+    xWing.radarPower = 95;
+    xWing.maxZoom = 1.4f;
+    // body
+    xWing.size = 2.263f;
+    xWing.density = 1.5f;
+    xWing.friction = 0.3f;
+    xWing.restitution = 0.85f;
+    xWing.bodyLoader = new BodLLoader(Gdx.files.internal("ships/defender/body.json"));
+    xWing.bodyScale = 2.3f;
+    xWing.shieldRadius = 2;
+    // dynamic
+    xWing.speedPower = 32.7f;
+    xWing.controlPower = 0.901f;
+    xWing.speedResistance = 0.0233f;
+    xWing.rotationControlResistance = 0.91f;
+    xWing.rotationResistance = 0.98f;
+    // textures
+    xWing.bodyTexture = new Sprite(TexturesRepository.get("ships/x-wing/body.png"));
+    xWing.bodyTexture.setScale( xWing.size / xWing.bodyTexture.getHeight() );
+    xWing.engineAnimation = new Array<>();
+    for (byte i = 0; i < 4; i++) {
+      xWing.engineAnimation.add(new Sprite(TexturesRepository.get("ships/x-wing/" + i + ".png")));
+      xWing.engineAnimation.get(i).setScale( xWing.size / xWing.engineAnimation.get(i).getHeight() );
+    }
+    xWing.engineAnimation.add(xWing.engineAnimation.get(2));
+    xWing.engineAnimation.add(xWing.engineAnimation.get(1));
+    xWing.engineAnimation.add(xWing.engineAnimation.get(0));
+    xWing.frameFrequency = 0.09f;
+    // lasers
+    LaserDef laserDefinition = new LaserDef(); {
+      laserDefinition.impulse = 2.3f;
+      laserDefinition.lifeTime = 3;
+      laserDefinition.damage = 13;
+      laserDefinition.touches = 2;
+      laserDefinition.texture = new Sprite(TexturesRepository.get("ships/defender/laser.png"));
+      laserDefinition.texture.setScale( 1.46f / laserDefinition.texture.getHeight() );
+      laserDefinition.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+      laserDefinition.sound = SoundsRepository.getSound( "ships/defender/shot.mp3");
+      laserDefinition.explosionTextures = new Array<>();
+      laserDefinition.density = 1.9f;
+    }
+    laserDefinition.explosionTextures = Graphics.changeColor(grayExplosion, new Vector3(1, 0.04f, 0.1f));
+    xWing.laserDefinition = laserDefinition;
+    xWing.lasersAmount = 2;
+    xWing.lasersDistance = 2.06f;
+    xWing.shotInterval = 311f;
+    // turrets
+    xWing.turretDefinitions = new Array<>();
+    // engines
+    xWing.engineDefinitions = new Array<>();
+
+    addShip(xWing);
   }
 
   private static void generateDefender() {
