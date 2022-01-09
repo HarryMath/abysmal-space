@@ -3,6 +3,7 @@ package com.mikilangelo.abysmal.tools;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 import com.mikilangelo.abysmal.components.Settings;
 import com.mikilangelo.abysmal.models.game.Ship;
 
@@ -104,5 +105,9 @@ public class Camera {
   public void resize(int height, int width) {
     screenCoefficient = height / 25f;
     camera.setToOrtho(false, 25f * width / height, 25f);
+  }
+
+  public Matrix4 combined() {
+    return camera.combined;
   }
 }

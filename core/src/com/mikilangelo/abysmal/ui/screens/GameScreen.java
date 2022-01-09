@@ -153,7 +153,7 @@ public class GameScreen implements Screen {
     camera.update(ship, game.objectsBatch, game.backgroundBatch, shaderBatch);
     drawBackground(delta);
     drawObjects(delta);
-    // debugRenderer.render(world, camera.combined);
+    //debugRenderer.render(world, camera.combined());
     drawInterface(delta);
     if (ship.bodyData.getHealth() < 0) {
       dispose();
@@ -216,6 +216,7 @@ public class GameScreen implements Screen {
         }
       }
       portal.draw(game.objectsBatch, delta, camera.X, camera.Y, camera.zoom);
+      ship.drawDecorUnder(game.objectsBatch);
       ParticlesRepository.drawAll(game.objectsBatch, delta);
       LasersRepository.drawSimple(game.objectsBatch, delta);
       enemiesProcessor.process(ship, delta);

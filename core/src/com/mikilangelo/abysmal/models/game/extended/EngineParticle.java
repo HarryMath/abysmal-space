@@ -8,19 +8,19 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 
 public class EngineParticle implements DynamicObject {
-  final EngineDef definition;
+  final EngineDef def;
   public float x;
   public float y;
-  public float opacity = 0.1f;
+  public float opacity;
+  public float whiteTint = 1;
   public float scale;
   float speedX, speedY;
   boolean stateRaising = true;
 
   final float speedCoefficient;
-  final float dyingSpeed;
 
   public EngineParticle(EngineDef def, float x, float y, float speedX, float speedY) {
-    this.definition = def;
+    this.def = def;
     this.speedX = speedX * def.particleShipSpeedCoefficient +
             (float) (Math.random() - 0.5f) * def.particleSpeedDispersion;
     this.speedY = speedY * def.particleShipSpeedCoefficient +
@@ -31,7 +31,7 @@ public class EngineParticle implements DynamicObject {
             MathUtils.random(-def.particleSizeDispersion, def.particleSizeDispersion);
     this.scale = GameScreen.SCREEN_HEIGHT * size / def.particleTexture.getHeight();
     speedCoefficient = 3 / (3 + scale);
-    dyingSpeed = 0.016f / definition.particleLifeTime;
+    opacity = def.initialParticleOpacity;
   }
 
 
@@ -49,19 +49,33 @@ public class EngineParticle implements DynamicObject {
         this.opacity += 0.1;
       }
     } else if (opacity > 0) {
-      opacity -= dyingSpeed;
+      opacity -= def.decayRate;
       if (opacity <= 0) {
         this.opacity = 0;
         this.speedY = 0;
         this.speedX = 0;
       }
     }
+    if (def.withTint && whiteTint > 0) {
+      whiteTint -= 0.07f;
+      if (whiteTint <= 0) {
+        whiteTint = 0;
+      }
+    }
   }
 
   public void draw(Batch batch) {
-    definition.particleTexture.setAlpha(opacity);
-    definition.particleTexture.setScale(scale);
-    definition.particleTexture.setCenter(x, y);
-    definition.particleTexture.draw(batch);
+    if (def.withTint) {
+      def.particleTexture.setColor(
+              whiteTint + def.color[0] * (1 - whiteTint),
+              whiteTint + def.color[1] * (1 - whiteTint),
+              whiteTint + def.color[2] * (1 - whiteTint),
+              opacity);
+    } else {
+      def.particleTexture.setAlpha(opacity);
+    }
+    def.particleTexture.setScale(scale);
+    def.particleTexture.setCenter(x, y);
+    def.particleTexture.draw(batch);
   }
 }

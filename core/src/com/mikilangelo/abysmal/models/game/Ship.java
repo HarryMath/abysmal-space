@@ -15,6 +15,7 @@ import com.mikilangelo.abysmal.models.game.animations.EngineAnimation;
 import com.mikilangelo.abysmal.models.game.extended.AutomaticTurret;
 import com.mikilangelo.abysmal.models.game.extended.EngineParticle;
 import com.mikilangelo.abysmal.models.game.extended.Laser;
+import com.mikilangelo.abysmal.models.game.extended.ResizingParticle;
 import com.mikilangelo.abysmal.models.game.extended.Turret;
 import com.mikilangelo.abysmal.models.objectsData.DestroyableObjectData;
 import com.mikilangelo.abysmal.models.objectsData.ShieldData;
@@ -86,10 +87,7 @@ public class Ship {
               new Turret(t, generationId);
       this.turrets.add(turret);
     }
-    this.def.bodyTexture.setScale( this.def.size / this.def.bodyTexture.getHeight() );
-    for (byte i = 0; i < this.def.engineAnimation.size; i++) {
-      this.def.engineAnimation.get(i).setScale( this.def.bodyTexture.getScaleY() );
-    }
+    def.resizeTextures(1);
     this.controlSpeedResistance = (0.9983f - this.def.speedResistance / 2);
     this.simpleSpeedResistance = 0.99955f - this.def.speedResistance * this.def.speedResistance;
     this.x = x; this.y = y;
@@ -232,6 +230,9 @@ public class Ship {
     }
   }
 
+  public void drawDecorUnder(Batch batch) {
+  }
+
   public void draw(Batch batch, float delta) {
     x = primaryBody.getPosition().x;
     y = primaryBody.getPosition().y;
@@ -242,15 +243,21 @@ public class Ship {
       shieldTexture.setRotation(30);
       shieldTexture.draw(batch);
     }
+    if (def.decorUnder != null) {
+      def.decorUnder.setCenter(x, y);
+      def.decorUnder.setRotation(this.angle * MathUtils.radiansToDegrees);
+      def.decorUnder.setAlpha(Math.min(speed / def.maxSpeed, 1));
+      def.decorUnder.draw(batch);
+    }
     engineAnimation.draw(batch, delta, x, y, angle);
     def.bodyTexture.setRotation(this.angle * MathUtils.radiansToDegrees);
     def.bodyTexture.setCenter(x, y);
     def.bodyTexture.draw(batch);
-    if (def.decor != null) {
-      def.decor.setCenter(x, y);
-      def.decor.setRotation(this.angle * MathUtils.radiansToDegrees);
-      def.decor.setAlpha(Math.min(speed / def.maxSpeed, 1));
-      def.decor.draw(batch);
+    if (def.decorOver != null) {
+      def.decorOver.setCenter(x, y);
+      def.decorOver.setRotation(this.angle * MathUtils.radiansToDegrees);
+      def.decorOver.setAlpha(Math.min(speed / def.maxSpeed, 1));
+      def.decorOver.draw(batch);
     }
     for (int i = 0; i < turrets.size; i++) {
       turrets.get(i).draw(batch, angle);
@@ -305,10 +312,13 @@ public class Ship {
         float screwY = e.positionY * MathUtils.sin(this.angle + MathUtils.PI / 2);
         float posX = x + e.positionX * MathUtils.cos(this.angle);
         float posY = y + e.positionX * MathUtils.sin(this.angle);
-        ParticlesRepository.add(new EngineParticle(
+        ParticlesRepository.add(
+                e.isResizing ? new ResizingParticle(
+                        e, posX + screwX, posY + screwY,
+                        velocity.x, velocity.y) :
+                new EngineParticle(
                 e, posX + screwX, posY + screwY,
-                velocity.x, velocity.y
-        ), e.isTopLayer);
+                velocity.x, velocity.y), e.isTopLayer);
       }
     }
   }

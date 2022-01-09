@@ -12,7 +12,9 @@ public interface EnemiesProcessor {
 
   void process(Ship player, float delta);
 
-  void drawAll(Batch objectsBatch, float delta);
+  void drawDecorAll(Batch batch);
+
+  void drawAll(Batch batch, float delta);
 
   void drawAtRadar(Batch batch, Radar radar);
 

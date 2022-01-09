@@ -24,18 +24,21 @@ public abstract class ShipDefinitions {
 
   public static final Array<ShipDef> shipDefinitions = new Array<>();
   private static final Map<String, Integer> shipNames = new HashMap<>();
-  private static final Array<Sprite> grayExplosion = new Array<>();
+  private static final Array<Sprite> sampleExplosion = new Array<>();
+  private static Texture sampleParticle;
 
   public static void init() {
     GameScreen.world = new World(new Vector2(0, 0), true);
     for (byte i = 0; i < 11; i++) {
-      grayExplosion.add(new Sprite(TexturesRepository.get("explosions/laser/" + i + ".png")));
-      grayExplosion.get(i).setScale( 2.2f / grayExplosion.get(i).getHeight());
+      sampleExplosion.add(new Sprite(TexturesRepository.get("explosions/laser/" + i + ".png")));
+      sampleExplosion.get(i).setScale( 2.2f / sampleExplosion.get(i).getHeight());
     }
+    sampleParticle = TexturesRepository.get("ships/kak.png");
     generateDefender();
     generateHyperion();
     generateInvader();
-    generateXWing();
+    //generateXWing();
+    generateRocinante();
     generateAlien();
   }
 
@@ -49,9 +52,96 @@ public abstract class ShipDefinitions {
   public static void disposeAll() {
     shipDefinitions.clear();
     shipNames.clear();
-    grayExplosion.clear();
+    sampleExplosion.clear();
   }
 
+  private static void generateRocinante() {
+    ShipDef rocinante = new ShipDef();
+    rocinante.name = "rocinante";
+    rocinante.health = 100f;
+    rocinante.ammo = 9900;
+    rocinante.radarPower = 90;
+    rocinante.maxZoom = 2f;
+    rocinante.minZoom = 1f;
+    // body
+    rocinante.size = 2.88f;
+    rocinante.density = 1.4f;
+    rocinante.friction = 0.3f;
+    rocinante.restitution = 0.85f;
+    rocinante.bodyLoader = new BodLLoader(Gdx.files.internal("ships/rocinante/body.json"));
+    rocinante.bodyScale = 8.7f;
+    rocinante.shieldRadius = 6.5f;
+    // dynamic
+    rocinante.speedPower = 105.5f;
+    rocinante.controlPower = 0.11f;
+    rocinante.speedResistance = 0.007f;
+    rocinante.rotationControlResistance = 0.943f;
+    rocinante.rotationResistance = 0.97f;
+    // textures
+    rocinante.bodyTexture = new Sprite(TexturesRepository.get("ships/rocinante/body.png"));
+    rocinante.bodyTexture.setScale( rocinante.size / rocinante.bodyTexture.getHeight() );
+    rocinante.engineAnimation = new Array<>();
+    for (byte i = 0; i < 0; i++) {
+      rocinante.engineAnimation.add(new Sprite(TexturesRepository.get("ships/rocinante/engine" + i + ".png")));
+      rocinante.engineAnimation.get(i).setScale( rocinante.bodyTexture.getScaleY() );
+    }
+    rocinante.frameFrequency = 0.06f;
+    // lasers
+    rocinante.laserDefinition = null;
+    rocinante.lasersAmount = 0;
+    // turrets
+    rocinante.turretDefinitions = new Array<>();
+    LaserDef mainLaser = new LaserDef(); {
+      mainLaser.lifeTime = 3;
+      mainLaser.damage = 0.37f;
+      mainLaser.touches = 2;
+      mainLaser.density = 0.1f;
+      mainLaser.impulse = 0.152f;
+      mainLaser.texture = new Sprite(TexturesRepository.get("ships/rocinante/laser.png"));
+      mainLaser.texture.setScale( 1.7f / mainLaser.texture.getHeight() );
+      mainLaser.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+      mainLaser.sound = SoundsRepository.getSound( "ships/rocinante/shot.mp3");
+      mainLaser.explosionTextures = Graphics.changeColor(sampleExplosion, new Vector3(1f, 0.2f, 0));
+      for (byte i = 0; i < 11; i++) {
+        mainLaser.explosionTextures.get(i)
+                .setScale( 1.87f / mainLaser.explosionTextures.get(i).getHeight() );
+      }
+    }
+    TurretDef mainTurret = new TurretDef(); {
+      mainTurret.isAutomatic = false;
+      mainTurret.positionX = 0.75f; mainTurret.positionY = 0f;
+      mainTurret.lasersAmount = 2;
+      mainTurret.rotationSpeed = 0.1f;
+      mainTurret.lasersDistance = 0.25f;
+      mainTurret.shotInterval = 67f;
+      mainTurret.size = 1;
+      mainTurret.texture = new Sprite(TexturesRepository.get("ships/hyperion/turret.png"));
+      mainTurret.texture.setScale( mainTurret.size / mainTurret.texture.getHeight() );
+      mainTurret.laserDefinition = mainLaser;
+      rocinante.turretDefinitions.add(mainTurret);
+    }
+    // engines
+    rocinante.engineDefinitions = new Array<>();
+    EngineDef e = new EngineDef();
+    e.particleTexture = new Sprite(TexturesRepository.get("ships/rocinante/kak.png"));
+    e.positionX = -3.21f;
+    e.positionY = 0;
+    e.particleSpeedDispersion = 1f; // 10f;
+    e.particlePositionDispersion = 0.005f; // 10f;
+    e.decayRate = 0.016f / 0.31f; // 7f;
+    e.particleScale = 0.048f;
+    e.particleSizeDispersion = 0.005f; // 0.011f;
+    e.particleShipSpeedCoefficient = 0.21f; // -0.05f;
+    e.withTint = true;
+    e.initialParticleOpacity = 1;
+    e.color[0] = 0.05f; e.color[1] = 0f; e.color[2] = 1;
+    e.isTopLayer = false;
+    e.isResizing = true;
+    rocinante.engineDefinitions.add(e);
+
+    shipNames.put(rocinante.name, shipDefinitions.size);
+    shipDefinitions.add(rocinante);
+  }
 
   private static void generateXWing() {
     ShipDef xWing = new ShipDef();
@@ -99,7 +189,7 @@ public abstract class ShipDefinitions {
       laserDefinition.explosionTextures = new Array<>();
       laserDefinition.density = 1.9f;
     }
-    laserDefinition.explosionTextures = Graphics.changeColor(grayExplosion, new Vector3(1, 0.04f, 0.1f));
+    laserDefinition.explosionTextures = Graphics.changeColor(sampleExplosion, new Vector3(1, 0.04f, 0.1f));
     xWing.laserDefinition = laserDefinition;
     xWing.lasersAmount = 2;
     xWing.lasersDistance = 2.06f;
@@ -136,6 +226,8 @@ public abstract class ShipDefinitions {
     // textures
     defender.bodyTexture = new Sprite(TexturesRepository.get("ships/defender/body.png"));
     defender.bodyTexture.setScale( defender.size / defender.bodyTexture.getHeight() );
+    defender.decorUnder = new Sprite(TexturesRepository.get("ships/defender/light.png"));
+    defender.decorUnder.setScale(defender.bodyTexture.getScaleY());
     defender.engineAnimation = new Array<>();
     for (byte i = 0; i < 4; i++) {
       defender.engineAnimation.add(new Sprite(TexturesRepository.get("ships/defender/engine" + i + ".png")));
@@ -158,7 +250,7 @@ public abstract class ShipDefinitions {
       laserDefinition.explosionTextures = new Array<>();
       laserDefinition.density = 1.9f;
     }
-    laserDefinition.explosionTextures = Graphics.changeColor(grayExplosion, new Vector3(1, 0.04f, 0.1f));
+    laserDefinition.explosionTextures = Graphics.changeColor(sampleExplosion, new Vector3(1, 0.04f, 0.1f));
     defender.laserDefinition = laserDefinition;
     defender.lasersAmount = 2;
     defender.lasersDistance = 2.06f;
@@ -167,28 +259,36 @@ public abstract class ShipDefinitions {
     defender.turretDefinitions = new Array<>();
     // engines
     Array<EngineDef> engines = new Array<>();
-    EngineDef engineBlue1 = new EngineDef();
-    EngineDef engineBlue2 = new EngineDef();
+    //EngineDef engineBlue1 = new EngineDef();
+    //EngineDef engineBlue2 = new EngineDef();
     EngineDef engineRed1 = new EngineDef();
     EngineDef engineRed2 = new EngineDef();
-    engineBlue1.particleTexture = new Sprite(TexturesRepository.get("ships/defender/kak1.png"));
-    engineBlue2.particleTexture = engineBlue1.particleTexture;
-    engineRed1.particleTexture = new Sprite(TexturesRepository.get("ships/defender/kak0.png"));
+    //engineBlue1.particleTexture = new Sprite(TexturesRepository.get("ships/defender/kak1.png"));
+    //engineBlue2.particleTexture = engineBlue1.particleTexture;
+    engineRed1.particleTexture = new Sprite(sampleParticle);
     engineRed2.particleTexture = engineRed1.particleTexture;
-    engines.add(engineBlue1, engineBlue2, engineRed1, engineRed2);
-    engineBlue1.positionX = engineRed1.positionX = -1f;
-    engineBlue2.positionX = engineRed2.positionX = -1f;
-    engineBlue1.positionY = engineRed1.positionY = 0.385f;
-    engineBlue2.positionY = engineRed2.positionY = -0.385f;
-    for (byte i = 0; i < engines.size; i ++) {
-      final EngineDef e = engines.get(i);
+    engines.add(engineRed1, engineRed2);
+    //engineBlue1.positionX =
+            engineRed1.positionX = -1f;
+    //engineBlue2.positionX =
+            engineRed2.positionX = -1f;
+    //engineBlue1.positionY =
+            engineRed1.positionY = 0.385f;
+    //engineBlue2.positionY =
+            engineRed2.positionY = -0.385f;
+    for (byte i = 2; i < engines.size + 2; i ++) {
+      final EngineDef e = engines.get(i - 2);
       e.particleSpeedDispersion = 0.15f; // 10f;
       e.particlePositionDispersion = i > 1 ? 0.088f : 0.13f; // 10f;
-      e.particleLifeTime = i > 1 ? 0.14f : 0.26f; // 7f;
+      e.decayRate = 0.016f / (i > 1 ? 0.17f : 0.26f); // 7f;
       e.particleScale = i > 1 ? 0.009f : 0.0141f;
       e.particleSizeDispersion = 0.005f; // 0.011f;
-      e.particleShipSpeedCoefficient = i > 1 ? 0.933f : 0.88f; // -0.05f;
+      e.particleShipSpeedCoefficient = i > 1 ? 0.91f : 0.88f; // -0.05f;
       e.isTopLayer = i > 1;
+      if (i > 1) {
+        e.withTint = true;
+        e.color[0] = 1; e.color[1] = 0; e.color[2] = 0.2f;
+      }
     }
     defender.engineDefinitions = engines;
 
@@ -240,7 +340,7 @@ public abstract class ShipDefinitions {
     }
 
     laserDefinition.explosionTextures = Graphics
-            .changeColor(grayExplosion, new Vector3(0.08f, 0.59f, 0.93f));
+            .changeColor(sampleExplosion, new Vector3(0.08f, 0.59f, 0.93f));
     for (byte i = 0; i < 11; i++) {
       laserDefinition.explosionTextures.get(i)
               .setScale( 2.27f / laserDefinition.explosionTextures.get(i).getHeight() );
@@ -260,7 +360,7 @@ public abstract class ShipDefinitions {
     e.particleTexture = new Sprite(TexturesRepository.get("ships/invader/kak.png"));
     e.particleSpeedDispersion = 2.15f; // 10f;
     e.particlePositionDispersion = 0.1f; // 10f;
-    e.particleLifeTime = 3.73f; // 7f;
+    e.decayRate = 0.016f / 3.73f; // 7f;
     e.particleScale = 0.014f;
     e.particleSizeDispersion = 0.005f; // 0.011f;
     e.particleShipSpeedCoefficient = 0.9f; // -0.05f;
@@ -293,8 +393,8 @@ public abstract class ShipDefinitions {
     // textures
     alien.bodyTexture = new Sprite(TexturesRepository.get("ships/alien/body.png"));
     alien.bodyTexture.setScale( alien.size / alien.bodyTexture.getHeight() );
-    alien.decor = new Sprite(TexturesRepository.get("ships/alien/decor.png"));
-    alien.decor.setScale( alien.bodyTexture.getScaleY() );
+    alien.decorOver = new Sprite(TexturesRepository.get("ships/alien/decor.png"));
+    alien.decorOver.setScale( alien.bodyTexture.getScaleY() );
     alien.engineAnimation = new Array<>();
     for (byte i = 0; i < 0; i++) {
       alien.engineAnimation.add(new Sprite(TexturesRepository.get("ships/alien/engine" + i + ".png")));
@@ -316,7 +416,7 @@ public abstract class ShipDefinitions {
     }
 
     laserDefinition.explosionTextures = Graphics
-            .changeColor(grayExplosion, new Vector3(0.15f, 1, 0.05f));
+            .changeColor(sampleExplosion, new Vector3(0.15f, 1, 0.05f));
     for (byte i = 0; i < 11; i++) {
       laserDefinition.explosionTextures.get(i)
               .setScale( 2.47f / laserDefinition.explosionTextures.get(i).getHeight() );
@@ -342,7 +442,7 @@ public abstract class ShipDefinitions {
       final EngineDef e = engines.get(i);
       e.particleSpeedDispersion = 0.08f; // 10f;
       e.particlePositionDispersion = 0.13f; // 10f;
-      e.particleLifeTime =  0.28f; // 7f;
+      e.decayRate = 0.016f / 0.28f; // 7f;
       e.particleScale = 0.014f;
       e.particleSizeDispersion = 0.003f; // 0.011f;
       e.particleShipSpeedCoefficient = 0.85f; // -0.05f;
@@ -399,7 +499,7 @@ public abstract class ShipDefinitions {
       mainLaser.texture.setScale( 0.63f / mainLaser.texture.getHeight() );
       mainLaser.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
       mainLaser.sound = SoundsRepository.getSound( "ships/hyperion/shot.mp3");
-      mainLaser.explosionTextures = Graphics.changeColor(grayExplosion, new Vector3(0.09f, 0.02f, 1f));
+      mainLaser.explosionTextures = Graphics.changeColor(sampleExplosion, new Vector3(0.09f, 0.02f, 1f));
       for (byte i = 0; i < 11; i++) {
         mainLaser.explosionTextures.get(i)
                 .setScale( 1.87f / mainLaser.explosionTextures.get(i).getHeight() );

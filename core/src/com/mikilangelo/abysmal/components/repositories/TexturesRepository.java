@@ -31,6 +31,7 @@ public abstract class TexturesRepository {
             "circle", "controller", "radar", "logo", "radar_asteroid", "radar_center", "radar_enem",
             "radar_scanner", "shot", "arrow"},
             ".png");
+    loadTexture("ships/kak.png");
     loadTextures("UI/indicators/", new String[]{
                     "ammo", "health", "border", "back", "red", "yellow", "blue", "speed"}, ".png");
     loadTextures("UI/radar/", new String[]{
@@ -42,11 +43,12 @@ public abstract class TexturesRepository {
     loadTextures("things/spawn/", range(24), ".png");
     loadTextures("things/", new String[] {"shield", "shieldTouch"}, ".png");
     loadTextures("ships/defender/", new String[] {
-            "body", "kak0", "kak1", "laser", "engine0", "engine1", "engine2", "engine3"}, ".png");
+            "body", "kak0", "kak1", "laser", "engine0", "engine1", "engine2", "engine3", "light"}, ".png");
     loadTextures("ships/hyperion/", new String[] {
             "body", "laser", "engine0", "engine1", "engine2", "turret", "turretSmall"}, ".png");
     loadTextures("ships/invader/", new String[] {"body", "kak", "laser"}, ".png");
     loadTextures("ships/alien/", new String[] {"body", "kak", "laser", "decor"}, ".png");
+    loadTextures("ships/rocinante/", new String[] {"body", "laser", "kak"}, ".png");
     loadTextures("ships/x-wing/", new String[] {"body", "0", "1", "2", "3"}, ".png");
     loadTextures("explosions/laser/", range(11), ".png");
     loadTextures("explosions/big/", range(27), ".png");

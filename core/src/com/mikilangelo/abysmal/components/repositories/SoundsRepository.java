@@ -42,7 +42,7 @@ public abstract class SoundsRepository {
             "menu.mp3", "music.mp3", "battle2.mp3", "radar.mp3"});
     loadSounds("", new String[]{
             "explosions/simple/sound.mp3", "explosions/stone/sound.mp3", "sounds/shieldHit.wav"}, "");
-    loadSounds("ships/", new String[]{"alien", "defender", "hyperion", "invader"}, "/shot.mp3");
+    loadSounds("ships/", new String[]{"alien", "defender", "hyperion", "invader", "rocinante"}, "/shot.mp3");
   }
 
   public static Music getMusic(String path) {

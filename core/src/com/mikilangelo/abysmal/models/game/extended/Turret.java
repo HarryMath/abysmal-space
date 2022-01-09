@@ -68,7 +68,7 @@ public class Turret {
     if (newShotTime - lastShotTime < definition.shotInterval) {
       return;
     }
-    final float maxLeftLaser = -(definition.lasersDistance * definition.lasersAmount + definition.lasersDistance) * 0.5f;
+    final float maxLeftLaser = -(definition.lasersAmount - 1) * 0.5f * definition.lasersDistance;
     for (byte i = 0; i < definition.lasersAmount; i++) {
       final float addCos = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.cos(angle + ship.angle + 1.57078f);
       final float addSin = (maxLeftLaser + definition.lasersDistance * i) * MathUtils.sin(angle + ship.angle + 1.57078f);

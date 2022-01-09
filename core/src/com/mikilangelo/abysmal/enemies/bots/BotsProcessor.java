@@ -146,6 +146,17 @@ public class BotsProcessor implements EnemiesProcessor {
   }
 
   @Override
+  public void drawDecorAll(Batch batch) {
+    try {
+      for (Bot bot: bots) {
+        if (bot.ship.distance < SCREEN_WIDTH * 3) {
+          bot.ship.drawDecorUnder(batch);
+        }
+      }
+    } catch (NullPointerException ignore) {}
+  }
+
+  @Override
   public void drawAll(Batch batch, float delta) {
     try {
       for (Bot bot: bots) {

@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -24,7 +25,6 @@ import com.mikilangelo.abysmal.enemies.upd.UdpClient;
 import com.mikilangelo.abysmal.models.definitions.ShipDef;
 import com.mikilangelo.abysmal.models.game.PlayerShip;
 import com.mikilangelo.abysmal.models.game.animations.EngineAnimation;
-import com.mikilangelo.abysmal.models.game.extended.Planet;
 import com.mikilangelo.abysmal.tools.Geometry;
 import com.mikilangelo.abysmal.ui.screens.options.ExitOption;
 import com.mikilangelo.abysmal.ui.screens.options.MainMenuOption;
@@ -58,7 +58,6 @@ public class MenuScreen implements Screen {
   private float currentShipY = 0;
   private float prevShipY = 1f;
 
-  Planet planet = new Planet("Terra", 0 ,0, 0, 0);
   private ShapeRenderer shapeRenderer = new ShapeRenderer();
   private final Array<Option> options = new Array<>();
   private float optionHeight;
@@ -173,11 +172,7 @@ public class MenuScreen implements Screen {
   }
 
   private void resizeShip(ShipDef ship) {
-    final float scale = h * 0.06f * ship.size / ship.bodyTexture.getHeight();
-    ship.bodyTexture.setScale(scale);
-    for (Sprite e: ship.engineAnimation) {
-      e.setScale( scale );
-    }
+    ship.resizeTextures(h * 0.06f);
   }
 
   @Override
@@ -220,29 +215,18 @@ public class MenuScreen implements Screen {
       }
       t += delta;
       animateShips(delta);
-      engineAnimations.get(currentShipIndex).draw(game.batchInterface, delta,
+      drawShip(currentShip, engineAnimations.get(currentShipIndex),
               w * 0.75f + h * 0.01f * MathUtils.cos(t * 1.2f),
-              h * 0.45f + h * currentShipY + h * 0.01f * MathUtils.sin(t * 0.9f),
-              MathUtils.PI / 2);
-      currentShip.bodyTexture.setCenter(
-              w * 0.75f + h * 0.01f * MathUtils.cos(t * 1.2f),
-              h * 0.45f + h * currentShipY + h * 0.01f * MathUtils.sin(t * 0.9f));
-      currentShip.bodyTexture.draw(game.batchInterface);
+              h * 0.45f + h * currentShipY + h * 0.015f * MathUtils.sin(t * 0.9f), delta);
       if (previousShip != null) {
-        engineAnimations.get(prevShipIndex).draw(game.batchInterface, delta,
+        drawShip(previousShip, engineAnimations.get(prevShipIndex),
                 w * 0.75f + h * 0.01f * MathUtils.cos(t * 1.2f),
-                h * 0.45f + h * prevShipY + h * 0.01f * MathUtils.sin(t * 0.9f),
-                MathUtils.PI / 2);
-        previousShip.bodyTexture.setCenter(
-                w * 0.75f + h * 0.01f * MathUtils.cos(t * 1.2f),
-                h * 0.45f + h * prevShipY + h * 0.01f * MathUtils.sin(t * 0.9f));
-        previousShip.bodyTexture.draw(game.batchInterface);
+                h * 0.45f + h * prevShipY + h * 0.015f * MathUtils.sin(t * 0.9f), delta);
       }
 
       game.batchInterface.draw(logo, optionHeight, h * 0.97f - optionHeight * 1.4f,
               optionHeight * 1.3f * logoRatio, optionHeight * 1.3f);
 
-      planet.draw(game.batchInterface, 0,0,0);
       shapeRenderer.setProjectionMatrix(camera.combined);
       shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
       shapeRenderer.setColor(0, 0, 0, 0.5f);
@@ -292,6 +276,24 @@ public class MenuScreen implements Screen {
       shapeRenderer.rect(0, 0, w, h);
       shapeRenderer.end();
       Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+  }
+
+  private void drawShip(ShipDef def, EngineAnimation engine, float x, float y, float delta) {
+    if (def.decorUnder != null) {
+      def.decorUnder.setAlpha(0.5f);
+      def.decorUnder.setCenter(x, y);
+      def.decorUnder.setRotation(90);
+      def.decorUnder.draw(game.batchInterface);
+    }
+    engine.draw(game.batchInterface, delta, x, y,MathUtils.PI * 0.5f);
+    def.bodyTexture.setCenter(x, y);
+    def.bodyTexture.draw(game.batchInterface);
+    if (def.decorOver != null) {
+      def.decorOver.setAlpha(0.5f);
+      def.decorOver.setCenter(x, y);
+      def.decorOver.setRotation(90);
+      def.decorOver.draw(game.batchInterface);
     }
   }
 

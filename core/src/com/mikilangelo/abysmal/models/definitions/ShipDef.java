@@ -31,7 +31,8 @@ public class ShipDef {
 
   // texture
   public Sprite bodyTexture;
-  public Sprite decor = null;
+  public Sprite decorOver = null;
+  public Sprite decorUnder = null;
   public Array<Sprite> engineAnimation;
   public float frameFrequency;
 
@@ -51,4 +52,18 @@ public class ShipDef {
   // shield
   public int shieldRechargeTime = 45000; // ms
   public int shieldLifeTime = 15; // s
+
+  public void resizeTextures(float coefficient) {
+    final float scale = size / bodyTexture.getHeight() * coefficient;
+    bodyTexture.setScale(scale);
+    if (decorUnder != null) {
+      decorUnder.setScale(scale);
+    }
+    if (decorOver != null) {
+      decorOver.setScale(scale);
+    }
+    for (Sprite s: engineAnimation) {
+      s.setScale(scale);
+    }
+  }
 }
