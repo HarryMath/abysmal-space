@@ -230,9 +230,6 @@ public class Ship {
     }
   }
 
-  public void drawDecorUnder(Batch batch) {
-  }
-
   public void draw(Batch batch, float delta) {
     x = primaryBody.getPosition().x;
     y = primaryBody.getPosition().y;
@@ -274,13 +271,15 @@ public class Ship {
       }
       for (float angle: shieldData.lastTouches) {
         shieldTouches.add(new ShieldTouch(angle));
-        if (shieldTouches.size > 20) {
+        if (shieldTouches.size > 10) {
           shieldTouches.removeIndex(0);
         }
       }
       if (shieldData.lastTouches.size > 0) {
         shieldData.lastTouches.clear();
-        ExplosionsRepository.shieldHid(distance);
+        if (shieldTouches.size < 8) {
+          ExplosionsRepository.shieldHid(distance);
+        }
       }
       shieldTouchTexture.setCenter(x, y);
       shieldTouchTexture.setScale(shieldScale);

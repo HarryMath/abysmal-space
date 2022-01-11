@@ -216,7 +216,6 @@ public class GameScreen implements Screen {
         }
       }
       portal.draw(game.objectsBatch, delta, camera.X, camera.Y, camera.zoom);
-      ship.drawDecorUnder(game.objectsBatch);
       ParticlesRepository.drawAll(game.objectsBatch, delta);
       LasersRepository.drawSimple(game.objectsBatch, delta);
       enemiesProcessor.process(ship, delta);

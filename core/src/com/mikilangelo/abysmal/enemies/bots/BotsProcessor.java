@@ -45,7 +45,7 @@ public class BotsProcessor implements EnemiesProcessor {
     playerX = ship.x; playerY = ship.y;
     if (Settings.debug) {
       final Ship bot = new Ship(
-              ShipDefinitions.get("invader"),
+              ShipDefinitions.get("hyperion"),
               playerX + MathUtils.random(-19.3f, 19.3f),
               playerY + MathUtils.random(-19.3f, 19.3f), false,
               playerX, playerY);
@@ -143,17 +143,6 @@ public class BotsProcessor implements EnemiesProcessor {
       bots.add(new Bot(ship));
     }
     newShips.clear();
-  }
-
-  @Override
-  public void drawDecorAll(Batch batch) {
-    try {
-      for (Bot bot: bots) {
-        if (bot.ship.distance < SCREEN_WIDTH * 3) {
-          bot.ship.drawDecorUnder(batch);
-        }
-      }
-    } catch (NullPointerException ignore) {}
   }
 
   @Override

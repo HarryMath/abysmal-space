@@ -14,9 +14,11 @@ public class Turret {
   public float angle;
   public float newAngle;
   protected long lastShotTime = 0;
+  protected long lastSoundPLayTime = 0;
   protected String generationId;
   protected float x;
   protected float y;
+  protected long soundId = 0;
 
   public Turret(TurretDef def, String generationId) {
     this.definition = def;
@@ -80,11 +82,13 @@ public class Turret {
               generationId, ship.bodyId);
       LasersRepository.addTurret(l);
     }
-    definition.laserDefinition.sound.play(soundScale);
-//    ship.body.applyLinearImpulse(
-//            -1 * MathUtils.cos(angle + ship.angle),
-//            -1 * MathUtils.sin(angle + ship.angle),
-//            x, y, true);
+    if (newShotTime - lastSoundPLayTime >= definition.soundPlayInterval) {
+      if (soundId > 0) {
+        definition.laserDefinition.sound.stop(soundId);
+      }
+      soundId = definition.laserDefinition.sound.play(soundScale);
+      lastSoundPLayTime = newShotTime;
+    }
     this.lastShotTime = newShotTime;
   }
 }

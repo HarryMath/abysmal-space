@@ -13,4 +13,5 @@ public class TurretDef {
   public float lasersDistance;
   public float shotInterval;
   public float rotationSpeed;
+  public float soundPlayInterval = 0;
 }

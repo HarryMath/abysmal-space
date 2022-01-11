@@ -92,11 +92,11 @@ public abstract class ShipDefinitions {
     // turrets
     rocinante.turretDefinitions = new Array<>();
     LaserDef mainLaser = new LaserDef(); {
-      mainLaser.lifeTime = 3;
-      mainLaser.damage = 0.37f;
+      mainLaser.lifeTime = 2.1f;
+      mainLaser.damage = 0.21f;
       mainLaser.touches = 2;
       mainLaser.density = 0.1f;
-      mainLaser.impulse = 0.152f;
+      mainLaser.impulse = 0.15f;
       mainLaser.texture = new Sprite(TexturesRepository.get("ships/rocinante/laser.png"));
       mainLaser.texture.setScale( 1.7f / mainLaser.texture.getHeight() );
       mainLaser.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -107,18 +107,24 @@ public abstract class ShipDefinitions {
                 .setScale( 1.87f / mainLaser.explosionTextures.get(i).getHeight() );
       }
     }
+    TurretDef secondTurret = new TurretDef();
     TurretDef mainTurret = new TurretDef(); {
-      mainTurret.isAutomatic = false;
-      mainTurret.positionX = 0.75f; mainTurret.positionY = 0f;
-      mainTurret.lasersAmount = 2;
-      mainTurret.rotationSpeed = 0.1f;
-      mainTurret.lasersDistance = 0.25f;
-      mainTurret.shotInterval = 67f;
-      mainTurret.size = 1;
-      mainTurret.texture = new Sprite(TexturesRepository.get("ships/hyperion/turret.png"));
+      mainTurret.isAutomatic = secondTurret.isAutomatic = false;
+      mainTurret.positionX = 0.73f; mainTurret.positionY = 0f;
+      secondTurret.positionX = -1.33f; secondTurret.positionY = 0f;
+      mainTurret.lasersAmount = secondTurret.lasersAmount = 2;
+      mainTurret.rotationSpeed = secondTurret.rotationSpeed = 0.1f;
+      mainTurret.lasersDistance = secondTurret.lasersDistance = 0.25f;
+      mainTurret.shotInterval = 37f;
+      mainTurret.soundPlayInterval = secondTurret.soundPlayInterval = 65f;
+      secondTurret.shotInterval = 57f;
+      mainTurret.size = 1.9f;
+      secondTurret.size = 1.7f;
+      mainTurret.texture = secondTurret.texture = new Sprite(TexturesRepository.get("ships/rocinante/turret.png"));
       mainTurret.texture.setScale( mainTurret.size / mainTurret.texture.getHeight() );
-      mainTurret.laserDefinition = mainLaser;
-      rocinante.turretDefinitions.add(mainTurret);
+      secondTurret.texture.setScale( secondTurret.size / mainTurret.texture.getHeight() );
+      mainTurret.laserDefinition = secondTurret.laserDefinition = mainLaser;
+      rocinante.turretDefinitions.add(mainTurret);//, secondTurret);
     }
     // engines
     rocinante.engineDefinitions = new Array<>();

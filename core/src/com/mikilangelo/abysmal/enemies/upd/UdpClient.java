@@ -155,16 +155,9 @@ public class UdpClient implements EnemiesProcessor {
   }
 
   @Override
-  public void drawDecorAll(Batch batch) {
-    for (int i = 0; i < players.size; i++) {
-      players.get(i).ship.drawDecorUnder(batch);
-    }
-  }
-
-  @Override
   public void drawAll(Batch batch, float delta) {
-    for (int i = 0; i < players.size; i++) {
-      players.get(i).draw(batch, delta);
+    for (Player p: players) {
+      p.draw(batch, delta);
     }
   }
 
