@@ -265,31 +265,23 @@ public abstract class ShipDefinitions {
     defender.turretDefinitions = new Array<>();
     // engines
     Array<EngineDef> engines = new Array<>();
-    //EngineDef engineBlue1 = new EngineDef();
-    //EngineDef engineBlue2 = new EngineDef();
     EngineDef engineRed1 = new EngineDef();
     EngineDef engineRed2 = new EngineDef();
-    //engineBlue1.particleTexture = new Sprite(TexturesRepository.get("ships/defender/kak1.png"));
-    //engineBlue2.particleTexture = engineBlue1.particleTexture;
     engineRed1.particleTexture = new Sprite(sampleParticle);
     engineRed2.particleTexture = engineRed1.particleTexture;
     engines.add(engineRed1, engineRed2);
-    //engineBlue1.positionX =
-            engineRed1.positionX = -1f;
-    //engineBlue2.positionX =
-            engineRed2.positionX = -1f;
-    //engineBlue1.positionY =
-            engineRed1.positionY = 0.385f;
-    //engineBlue2.positionY =
-            engineRed2.positionY = -0.385f;
+    engineRed1.positionX = -1f;
+    engineRed2.positionX = -1f;
+    engineRed1.positionY = 0.385f;
+    engineRed2.positionY = -0.385f;
     for (byte i = 2; i < engines.size + 2; i ++) {
       final EngineDef e = engines.get(i - 2);
       e.particleSpeedDispersion = 0.15f; // 10f;
       e.particlePositionDispersion = i > 1 ? 0.088f : 0.13f; // 10f;
-      e.decayRate = 0.016f / (i > 1 ? 0.17f : 0.26f); // 7f;
-      e.particleScale = i > 1 ? 0.009f : 0.0141f;
+      e.decayRate = 0.016f / 0.17f;
+      e.particleScale = 0.009f;
       e.particleSizeDispersion = 0.005f; // 0.011f;
-      e.particleShipSpeedCoefficient = i > 1 ? 0.91f : 0.88f; // -0.05f;
+      e.particleShipSpeedCoefficient = 0.88f;
       e.isTopLayer = i > 1;
       if (i > 1) {
         e.withTint = true;
@@ -319,8 +311,8 @@ public abstract class ShipDefinitions {
     // dynamic
     invader.speedPower = 26.7f;
     invader.controlPower = 0.09f;
-    invader.speedResistance = 0.0177f;
-    invader.rotationControlResistance = 0.982f;
+    invader.speedResistance = 0.0176f;
+    invader.rotationControlResistance = 0.98f;
     invader.rotationResistance = 0.982f;
     // textures
     invader.bodyTexture = new Sprite(TexturesRepository.get("ships/invader/body.png"));
@@ -338,7 +330,7 @@ public abstract class ShipDefinitions {
       laserDefinition.damage = 17;
       laserDefinition.touches = 3;
       laserDefinition.texture = new Sprite(TexturesRepository.get("ships/invader/laser.png"));
-      laserDefinition.texture.setScale( 1.46f / laserDefinition.texture.getHeight() );
+      laserDefinition.texture.setScale( 2.76f / laserDefinition.texture.getHeight() );
       laserDefinition.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
       laserDefinition.sound = SoundsRepository.getSound( "ships/invader/shot.mp3");
       laserDefinition.explosionTextures = new Array<>();
@@ -354,7 +346,7 @@ public abstract class ShipDefinitions {
     invader.laserDefinition = laserDefinition;
     invader.lasersAmount = 1;
     invader.lasersDistance = 2.06f;
-    invader.shotInterval = 211f;
+    invader.shotInterval = 241f;
     // turrets
     invader.turretDefinitions = new Array<>();
     // engines
@@ -366,10 +358,10 @@ public abstract class ShipDefinitions {
     e.particleTexture = new Sprite(TexturesRepository.get("ships/invader/kak.png"));
     e.particleSpeedDispersion = 2.15f; // 10f;
     e.particlePositionDispersion = 0.1f; // 10f;
-    e.decayRate = 0.016f / 3.73f; // 7f;
+    e.decayRate = 0.016f / 11.73f; // 7f;
     e.particleScale = 0.014f;
     e.particleSizeDispersion = 0.005f; // 0.011f;
-    e.particleShipSpeedCoefficient = 0.9f; // -0.05f;
+    e.particleShipSpeedCoefficient = 0.87f; // -0.05f;
     invader.engineDefinitions = engines;
 
     addShip(invader);
@@ -502,7 +494,7 @@ public abstract class ShipDefinitions {
       mainLaser.density = 0.2f;
       mainLaser.impulse = 0.3f;
       mainLaser.texture = new Sprite(TexturesRepository.get("ships/hyperion/laser.png"));
-      mainLaser.texture.setScale( 0.63f / mainLaser.texture.getHeight() );
+      mainLaser.texture.setScale( 1.43f / mainLaser.texture.getHeight() );
       mainLaser.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
       mainLaser.sound = SoundsRepository.getSound( "ships/hyperion/shot.mp3");
       mainLaser.explosionTextures = Graphics.changeColor(sampleExplosion, new Vector3(0.09f, 0.02f, 1f));
@@ -518,7 +510,7 @@ public abstract class ShipDefinitions {
       smallLaser.density = 0.05f;
       smallLaser.impulse = 0.058f;
       smallLaser.texture = new Sprite(TexturesRepository.get("ships/hyperion/laser.png"));
-      smallLaser.texture.setScale( 0.39f / mainLaser.texture.getHeight() );
+      smallLaser.texture.setScale( 0.9f / mainLaser.texture.getHeight() );
       smallLaser.sound = mainLaser.sound;
       smallLaser.explosionTextures = mainLaser.explosionTextures;
     }

@@ -11,7 +11,7 @@ public abstract class ParticlesRepository {
   private static EngineParticle p;
 
   public static void add(EngineParticle particle, boolean isTopLayer) {
-    if (particles.size > 700) {
+    if (particles.size > 1700) {
       particles.removeIndex(0);
       particles.removeIndex(0);
     }
