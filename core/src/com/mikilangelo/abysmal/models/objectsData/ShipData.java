@@ -1,7 +1,9 @@
 package com.mikilangelo.abysmal.models.objectsData;
 
 public class ShipData implements DestroyableObjectData, IdentityData {
+
   public String id;
+  public boolean underPlayerFocus = false;
   public float health;
 
   @Override
@@ -17,5 +19,10 @@ public class ShipData implements DestroyableObjectData, IdentityData {
   @Override
   public String getId() {
     return id;
+  }
+
+  @Override
+  public void setPlayerFocus() {
+    underPlayerFocus = true;
   }
 }

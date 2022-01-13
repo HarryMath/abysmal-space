@@ -13,4 +13,7 @@ public class LaserData implements IdentityData {
   public String getId() {
     return shipId;
   }
+
+  @Override
+  public void setPlayerFocus() {}
 }

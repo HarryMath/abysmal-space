@@ -2,21 +2,22 @@ package com.mikilangelo.abysmal.enemies.bots;
 
 import static com.mikilangelo.abysmal.ui.screens.GameScreen.SCREEN_WIDTH;
 
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikilangelo.abysmal.components.repositories.ExplosionsRepository;
+import com.mikilangelo.abysmal.enemies.Enemy;
 import com.mikilangelo.abysmal.models.game.Ship;
 import com.mikilangelo.abysmal.models.objectsData.DestroyableObjectData;
 import com.mikilangelo.abysmal.tools.Geometry;
 
 import java.util.Locale;
 
-class Bot {
+class Bot extends Enemy {
 
   private final BotStrategy strategy;
-  Ship ship;
 
   public Bot(Ship ship) {
-    this.ship = ship;
+    super(ship);
     final String name = ship.def.name.toLowerCase(Locale.ROOT);
     if (name.contains("defender")) {
       this.strategy =
@@ -60,4 +61,5 @@ class Bot {
     strategy.perform(ship, playerX, playerY, playerAngle, delta);
     return true;
   }
+
 }

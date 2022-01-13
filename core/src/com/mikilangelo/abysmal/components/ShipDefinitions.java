@@ -65,7 +65,7 @@ public abstract class ShipDefinitions {
     rocinante.minZoom = 1f;
     // body
     rocinante.size = 2.88f;
-    rocinante.density = 1.4f;
+    rocinante.density = 1.33f;
     rocinante.friction = 0.3f;
     rocinante.restitution = 0.85f;
     rocinante.bodyLoader = new BodLLoader(Gdx.files.internal("ships/rocinante/body.json"));
@@ -116,7 +116,7 @@ public abstract class ShipDefinitions {
       mainTurret.rotationSpeed = secondTurret.rotationSpeed = 0.1f;
       mainTurret.lasersDistance = secondTurret.lasersDistance = 0.25f;
       mainTurret.shotInterval = 37f;
-      mainTurret.soundPlayInterval = secondTurret.soundPlayInterval = 65f;
+      mainTurret.soundPlayInterval = secondTurret.soundPlayInterval = 75f;
       secondTurret.shotInterval = 57f;
       mainTurret.size = 1.9f;
       secondTurret.size = 1.7f;
@@ -134,13 +134,13 @@ public abstract class ShipDefinitions {
     e.positionY = 0;
     e.particleSpeedDispersion = 1f; // 10f;
     e.particlePositionDispersion = 0.005f; // 10f;
-    e.decayRate = 0.016f / 0.31f; // 7f;
+    e.decayRate = 0.016f / 0.33f; // 7f;
     e.particleScale = 0.048f;
     e.particleSizeDispersion = 0.005f; // 0.011f;
     e.particleShipSpeedCoefficient = 0.21f; // -0.05f;
     e.withTint = true;
     e.initialParticleOpacity = 1;
-    e.color[0] = 0.05f; e.color[1] = 0f; e.color[2] = 1;
+    e.color[0] = 0.01f; e.color[1] = 0.1f; e.color[2] = 1;
     e.isTopLayer = false;
     e.isResizing = true;
     rocinante.engineDefinitions.add(e);

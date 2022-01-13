@@ -1,6 +1,8 @@
 package com.mikilangelo.abysmal.enemies.upd;
 
+import static com.mikilangelo.abysmal.ui.screens.GameScreen.SCREEN_HEIGHT;
 import static com.mikilangelo.abysmal.ui.screens.GameScreen.SCREEN_WIDTH;
+import static com.mikilangelo.abysmal.ui.screens.GameScreen.camera;
 import static com.mikilangelo.abysmal.ui.screens.GameScreen.world;
 
 import com.badlogic.gdx.Gdx;
@@ -11,6 +13,7 @@ import com.google.gson.JsonSyntaxException;
 import com.mikilangelo.abysmal.components.ShipDefinitions;
 import com.mikilangelo.abysmal.components.repositories.ExplosionsRepository;
 import com.mikilangelo.abysmal.enemies.EnemiesProcessor;
+import com.mikilangelo.abysmal.enemies.Enemy;
 import com.mikilangelo.abysmal.models.game.Ship;
 import com.mikilangelo.abysmal.models.objectsData.DestroyableObjectData;
 import com.mikilangelo.abysmal.models.objectsData.ShipData;
@@ -156,8 +159,12 @@ public class UdpClient implements EnemiesProcessor {
 
   @Override
   public void drawAll(Batch batch, float delta) {
+    final float w = SCREEN_WIDTH * camera.zoom;
+    final float h = SCREEN_HEIGHT * camera.zoom;
+    final float x = camera.X;
+    final float y = camera.Y;
     for (Player p: players) {
-      p.draw(batch, delta);
+      p.draw(batch, delta, x, y, w, h);
     }
   }
 
@@ -198,16 +205,15 @@ public class UdpClient implements EnemiesProcessor {
     }
   }
 
-  private class Player {
+  private class Player extends Enemy {
     private final String generationId;
     private boolean isPowerApplied = false;
     private int badPackages = 10;
     private PlayerState lastState;
     private boolean isDead = false;
-    final Ship ship;
 
     public Player(Ship ship, String id, boolean friendly) {
-      this.ship = ship;
+      super(ship);
       this.generationId = id;
       lastState = new PlayerState();
       lastState.speedX = lastState.speedY = 0;
@@ -294,12 +300,6 @@ public class UdpClient implements EnemiesProcessor {
 //            ((ShipData)ship.body.getUserData()).health = data.h;
         }
       });
-    }
-
-    public void draw(Batch batch, float delta) {
-      if (ship.distance < SCREEN_WIDTH * 3) {
-        ship.draw(batch, delta);
-      }
     }
 
     public void shot(ShotData shotData) {

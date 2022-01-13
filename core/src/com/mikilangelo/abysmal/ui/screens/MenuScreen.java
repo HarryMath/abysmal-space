@@ -72,7 +72,6 @@ public class MenuScreen implements Screen {
   EnemiesProcessor enemiesProcessor;
 
   public MenuScreen(AbysmalSpace game) {
-    System.out.println("\n!Menu start called\n");
     MusicPlayer.start("sounds/menu.mp3", 0.6f);
     this.game = game;
     camera = new OrthographicCamera();
@@ -203,9 +202,10 @@ public class MenuScreen implements Screen {
     camera.update();
     game.batchInterface.setProjectionMatrix(camera.combined);
 
-    game.batchInterface.begin(); {
+    game.batchInterface.begin();
+    {
       game.batchInterface.draw(background, 0, 0, w, h);
-      for (MenuStar s: stars) {
+      for (MenuStar s : stars) {
         star.setScale(s.scale, s.scale * s.length);
         star.setAlpha(s.opacity);
         s.y -= delta * 0.8f * s.layer * s.layer;
@@ -226,18 +226,24 @@ public class MenuScreen implements Screen {
 
       game.batchInterface.draw(logo, optionHeight, h * 0.97f - optionHeight * 1.4f,
               optionHeight * 1.3f * logoRatio, optionHeight * 1.3f);
+    } game.batchInterface.end();
 
+    {
+      Gdx.gl.glEnable(GL20.GL_BLEND);
+      Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
       shapeRenderer.setProjectionMatrix(camera.combined);
       shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-      shapeRenderer.setColor(0, 0, 0, 0.5f);
+      shapeRenderer.setColor(0, 0, 0, 0.4f);
       final float startX = Math.min(menuStartX, 0);
       for (int i = 0; i < options.size; i++) {
         shapeRenderer.rect(startX, menuStartY - optionHeight * i, menuWidth + menuStartX - startX, optionHeight * 0.8f);
       }
       shapeRenderer.end();
-    } game.batchInterface.end();
+      Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
 
-    game.batchInterface.begin(); {
+    game.batchInterface.begin();
+    {
       {
         float opacity = currentShipIndex < ShipDefinitions.shipDefinitions.size - 1 ? 1 : 0.4f;
         arrow.setCenter(rightArrowX, arrowY);

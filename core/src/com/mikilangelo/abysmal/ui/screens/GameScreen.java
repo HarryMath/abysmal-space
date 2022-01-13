@@ -95,7 +95,7 @@ public class GameScreen implements Screen {
     camera = new Camera(HEIGHT, WIDTH, ship.def.minZoom, ship.def.maxZoom);
     SCREEN_WIDTH = (float) WIDTH / (float) HEIGHT * SCREEN_HEIGHT;
     world = new World(new Vector2(0, 0), true);
-    world.setContactListener(new CollisionHandler());
+    world.setContactListener(new CollisionHandler(ship.generationId));
     debugRenderer = new Box2DDebugRenderer();
     ship.createBody(world);
     ship.activateShield();

@@ -17,7 +17,6 @@ import com.mikilangelo.abysmal.models.game.extended.EngineParticle;
 import com.mikilangelo.abysmal.models.game.extended.Laser;
 import com.mikilangelo.abysmal.models.game.extended.ResizingParticle;
 import com.mikilangelo.abysmal.models.game.extended.Turret;
-import com.mikilangelo.abysmal.models.objectsData.DestroyableObjectData;
 import com.mikilangelo.abysmal.models.objectsData.ShieldData;
 import com.mikilangelo.abysmal.models.objectsData.ShipData;
 import com.mikilangelo.abysmal.tools.Geometry;
@@ -42,8 +41,8 @@ public class Ship {
   public String generationId;
   public Body body;
   public Body shield;
-  private ShieldData shieldData;
-  public DestroyableObjectData bodyData;
+  public ShieldData shieldData;
+  public ShipData bodyData;
   private Body primaryBody;
   private Body secondaryBody;
   public Array<Turret> turrets;

@@ -2,6 +2,7 @@ package com.mikilangelo.abysmal.enemies.bots;
 
 import static com.mikilangelo.abysmal.ui.screens.GameScreen.SCREEN_HEIGHT;
 import static com.mikilangelo.abysmal.ui.screens.GameScreen.SCREEN_WIDTH;
+import static com.mikilangelo.abysmal.ui.screens.GameScreen.camera;
 import static com.mikilangelo.abysmal.ui.screens.GameScreen.world;
 
 import com.mikilangelo.abysmal.components.Settings;
@@ -148,10 +149,12 @@ public class BotsProcessor implements EnemiesProcessor {
   @Override
   public void drawAll(Batch batch, float delta) {
     try {
+      final float w = SCREEN_WIDTH * camera.zoom;
+      final float h = SCREEN_HEIGHT * camera.zoom;
+      final float x = camera.X;
+      final float y = camera.Y;
       for (Bot bot: bots) {
-        if (bot.ship.distance < SCREEN_WIDTH * 3) {
-          bot.ship.draw(batch, delta);
-        }
+        bot.draw(batch, delta, x, y, w, h);
       }
     } catch (NullPointerException ignore) {}
   }

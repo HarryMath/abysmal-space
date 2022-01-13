@@ -14,6 +14,13 @@ import com.mikilangelo.abysmal.tools.Geometry;
 
 public class CollisionHandler implements ContactListener {
 
+  private final String playerId;
+
+  public CollisionHandler(String playerId) {
+    this.playerId = playerId;
+  }
+
+
   @Override
   public void beginContact(Contact contact) {
   }
@@ -50,19 +57,23 @@ public class CollisionHandler implements ContactListener {
         l.collision = contact.getWorldManifold().getPoints()[0];
         l.contactsCounter++;
       }
-      else if (bodyA.getUserData() instanceof DestroyableObjectData) {
+      else if (bodyAData instanceof DestroyableObjectData) {
         final float speed = bodyB.getLinearVelocity().sub(bodyA.getLinearVelocity()).len();
         float damage = speed > 3 ? (float) (Math.pow(bodyB.getMass(), 0.3) *
                 Math.pow(bodyB.getLinearVelocity()
                         .sub(bodyA.getLinearVelocity().scl(0.5f))
                         .len(), 1.71)) / 17f : 0;
         if (bodyBData instanceof LaserData) {
-          damage = (((LaserData) bodyBData).damage * 5 + damage) / 5.5f;
+          LaserData l = (LaserData) bodyBData;
+          damage = (l.damage * 5 + damage) / 5.5f;
+          if (l.shipId.equals(playerId) && bodyAData instanceof IdentityData) {
+            ((IdentityData) bodyAData).setPlayerFocus();
+          }
         }
         // System.out.println("\nimpulse: " + bodyB.getMass() * bodyB.getLinearVelocity().len());
         // System.out.println("damage: " + damage);
-        ((DestroyableObjectData) bodyA.getUserData()).damage(damage);
-        if (((DestroyableObjectData) bodyA.getUserData()).getHealth() < 0) {
+        ((DestroyableObjectData) bodyAData).damage(damage);
+        if (((DestroyableObjectData) bodyAData).getHealth() < 0) {
           contact.setEnabled(false);
         }
       }
