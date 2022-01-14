@@ -52,6 +52,7 @@ public class ShipDef {
   // shield
   public int shieldRechargeTime = 45000; // ms
   public int shieldLifeTime = 15; // s
+  public float laserX = 0;
 
   public void resizeTextures(float coefficient) {
     final float scale = size / bodyTexture.getHeight() * coefficient;

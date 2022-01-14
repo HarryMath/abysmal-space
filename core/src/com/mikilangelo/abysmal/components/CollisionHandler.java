@@ -78,10 +78,10 @@ public class CollisionHandler implements ContactListener {
         }
       }
       else if (bodyAData instanceof ShieldData) {
-        ((ShieldData) bodyAData).lastTouches.add(
-                Geometry.defineAngle(contact.getWorldManifold().getPoints()[0], bodyA.getPosition())
-                * MathUtils.radiansToDegrees
-        );
+        final float speed = bodyB.getLinearVelocity().sub(bodyA.getLinearVelocity()).len();
+        final float angle = MathUtils.radiansToDegrees *
+                Geometry.defineAngle(contact.getWorldManifold().getPoints()[0], bodyA.getPosition());
+        ((ShieldData) bodyAData).touch(angle, speed * 0.02f);
       }
     }
   }

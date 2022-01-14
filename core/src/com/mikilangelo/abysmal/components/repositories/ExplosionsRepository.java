@@ -52,9 +52,12 @@ public abstract class ExplosionsRepository {
     GameScreen.shakeCamera(2.5f * soundScale);
   }
 
-  public static void shieldHid(float distance) {
+  public static void shieldHid(float distance, float power) {
     if (distance < 100) {
-      shieldHit.play(0.5f - distance * 0.005f);
+      final float soundPower = (0.75f - distance * 0.0075f) * power;
+      if (soundPower > 0.03f) {
+        shieldHit.play();
+      }
     }
   }
 

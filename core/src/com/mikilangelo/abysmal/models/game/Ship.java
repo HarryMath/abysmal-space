@@ -188,11 +188,13 @@ public class Ship {
       return;
     }
     final float maxLeftLaser = -def.lasersDistance * def.lasersAmount / 2f + def.lasersDistance / 2f;
+    final float shipBiasX = def.laserX * MathUtils.cos(angle);
+    final float shipBiasY = def.laserX * MathUtils.sin(angle);
     for (byte i = 0; i < def.lasersAmount; i++) {
       final float addCos = (maxLeftLaser + def.lasersDistance * i) * MathUtils.cos(angle + 1.5708f);
       final float addSin = (maxLeftLaser + def.lasersDistance * i) * MathUtils.sin(angle + 1.57078f);
       Laser l = new Laser(def.laserDefinition,
-              x + addCos, y + addSin, this.angle,
+              x + addCos + shipBiasX, y + addSin + shipBiasY, this.angle,
               sX, sY, generationId, bodyId, delay);
       LasersRepository.addSimple(l);
     }
@@ -268,23 +270,28 @@ public class Ship {
         stopShield();
         return;
       }
-      for (float angle: shieldData.lastTouches) {
-        shieldTouches.add(new ShieldTouch(angle));
-        if (shieldTouches.size > 10) {
-          shieldTouches.removeIndex(0);
+      float touchPower = 0.05f;
+      for (ShieldData.Touch touch: shieldData.lastTouches) {
+        if (touch.power > touchPower) {
+          touchPower = touch.power;
+          shieldTouches.add(new ShieldTouch(touch.angle));
+          if (shieldTouches.size > 10) {
+            shieldTouches.removeIndex(0);
+          }
         }
       }
       if (shieldData.lastTouches.size > 0) {
         shieldData.lastTouches.clear();
-        if (shieldTouches.size < 8) {
-          ExplosionsRepository.shieldHid(distance);
+        if (touchPower > 0.05f && shieldTouches.size < 8) {
+          System.out.println(touchPower);
+          ExplosionsRepository.shieldHid(distance, touchPower);
         }
       }
       shieldTouchTexture.setCenter(x, y);
       shieldTouchTexture.setScale(shieldScale);
-      shieldTexture.setAlpha(0.65f);
+      shieldTexture.setAlpha(0.55f);
       if (shieldTimeLeft < 3) {
-        shieldTexture.setAlpha(0.65f * shieldTimeLeft / 3);
+        shieldTexture.setAlpha(0.55f * shieldTimeLeft * 0.333f);
       } else if (def.shieldLifeTime - shieldTimeLeft < 0.5f) {
         shieldScale = shieldSize * (def.shieldLifeTime - shieldTimeLeft) * 2;
       } else {
@@ -293,6 +300,7 @@ public class Ship {
       shieldTexture.draw(batch);
       for (byte i = 0; i < shieldTouches.size; i++) {
         if (shieldTouches.get(i).move()) {
+          shieldTexture.draw(batch);
           shieldTouchTexture.setAlpha(shieldTouches.get(i).opacity);
           shieldTouchTexture.setRotation(shieldTouches.get(i).angle);
           shieldTouchTexture.draw(batch);

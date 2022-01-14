@@ -6,7 +6,7 @@ public class ShieldData implements IdentityData {
 
   public String shipId;
   public boolean underPlayerFocus = false;
-  public final Array<Float> lastTouches = new Array<>();
+  public final Array<Touch> lastTouches = new Array<>(10);
 
   @Override
   public String getId() {
@@ -16,5 +16,19 @@ public class ShieldData implements IdentityData {
   @Override
   public void setPlayerFocus() {
     underPlayerFocus = true;
+  }
+
+  public void touch(float angle, float power) {
+    this.lastTouches.add(new Touch(angle, power));
+  }
+
+  public class Touch {
+    public final float angle;
+    public final float power;
+
+    public Touch(float angle, float power) {
+      this.angle = angle;
+      this.power = Math.min(power, 1);
+    }
   }
 }

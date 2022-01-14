@@ -8,6 +8,7 @@ public class GameController implements GestureDetector.GestureListener {
 
   @Override
   public boolean touchDown(float x, float y, int pointer, int button) {
+    // TODO chek shield activation
     return false;
   }
 

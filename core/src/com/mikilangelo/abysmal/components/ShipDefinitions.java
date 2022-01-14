@@ -330,7 +330,7 @@ public abstract class ShipDefinitions {
       laserDefinition.damage = 17;
       laserDefinition.touches = 3;
       laserDefinition.texture = new Sprite(TexturesRepository.get("ships/invader/laser.png"));
-      laserDefinition.texture.setScale( 2.76f / laserDefinition.texture.getHeight() );
+      laserDefinition.texture.setScale( 5.3f / laserDefinition.texture.getHeight() );
       laserDefinition.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
       laserDefinition.sound = SoundsRepository.getSound( "ships/invader/shot.mp3");
       laserDefinition.explosionTextures = new Array<>();
@@ -345,6 +345,7 @@ public abstract class ShipDefinitions {
     }
     invader.laserDefinition = laserDefinition;
     invader.lasersAmount = 1;
+    invader.laserX = 3;
     invader.lasersDistance = 2.06f;
     invader.shotInterval = 241f;
     // turrets
@@ -358,7 +359,7 @@ public abstract class ShipDefinitions {
     e.particleTexture = new Sprite(TexturesRepository.get("ships/invader/kak.png"));
     e.particleSpeedDispersion = 2.15f; // 10f;
     e.particlePositionDispersion = 0.1f; // 10f;
-    e.decayRate = 0.016f / 11.73f; // 7f;
+    e.decayRate = 0.016f / 11f; // 7f;
     e.particleScale = 0.014f;
     e.particleSizeDispersion = 0.005f; // 0.011f;
     e.particleShipSpeedCoefficient = 0.87f; // -0.05f;
