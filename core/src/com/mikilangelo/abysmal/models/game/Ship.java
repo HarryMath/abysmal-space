@@ -300,7 +300,6 @@ public class Ship {
       shieldTexture.draw(batch);
       for (byte i = 0; i < shieldTouches.size; i++) {
         if (shieldTouches.get(i).move()) {
-          shieldTexture.draw(batch);
           shieldTouchTexture.setAlpha(shieldTouches.get(i).opacity);
           shieldTouchTexture.setRotation(shieldTouches.get(i).angle);
           shieldTouchTexture.draw(batch);

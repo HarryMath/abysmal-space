@@ -9,8 +9,8 @@ import com.badlogic.gdx.utils.Array;
 public class ExplosionFlame {
   private final float stepSize;
   private float direction, x, y, directionSpeed;
-  private final static int lifeTime = 150;
-  private final int framesAmount = 50;
+  private final static int lifeTime = 180;
+  private final static int framesAmount = 80;
   private final float maxSize;
   private int framesPassed = 0;
   private final Sprite spark, smoke;
@@ -35,7 +35,7 @@ public class ExplosionFlame {
       final float d = stepSize * MathUtils.random(0.6f, 1) * (framesAmount - framesPassed) / framesAmount;
       x += d * MathUtils.cos(direction);
       y += d * MathUtils.sin(direction);
-      if (framesPassed % 5 == 0) {
+      if (framesPassed % 8 == 0) {
         final float scale = (framesAmount - framesPassed) / (float) framesAmount;
         particles.add(new ExplosionParticle(
                 smoke, 0.21f + maxSize * scale * scale , x, y,
