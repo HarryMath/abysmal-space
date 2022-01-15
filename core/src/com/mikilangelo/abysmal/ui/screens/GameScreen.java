@@ -163,6 +163,9 @@ public class GameScreen implements Screen {
     framesPassed += 1;
     if (period >= 1) {
       FPS = framesPassed;
+      if (FPS < 47) {
+        MusicPlayer.stopMusicFade();
+      }
       period = framesPassed = 0;
     }
   }
