@@ -13,12 +13,12 @@ public class StrategyKamikaze implements BotStrategy {
   private final float biasRadius;
   private final float attackDistance;
   private final float biasSpeed;
-  private float targetAngle;
+  private float targetAngle = 0.5f;
   private float aimAngle = 0;
 
   StrategyKamikaze() {
     this.biasAngle = MathUtils.random(0, MathUtils.PI2);
-    this.biasRadius = MathUtils.random(9f, 35f);
+    this.biasRadius = MathUtils.random(13f, 35f);
     final float sqrt = (float) Math.sqrt(biasRadius);
     final float s = MathUtils.PI / MathUtils.random(50f, 450f) / sqrt;
     this.biasSpeed = biasAngle > MathUtils.PI ? s : -s;
@@ -35,11 +35,15 @@ public class StrategyKamikaze implements BotStrategy {
       biasAngle += 6.28318f;
     }
     if (bot.distance > attackDistance) {
-      aimAngle = Geometry.simpleDefineAngle(
+      aimAngle = bot.bodyData.health > 10 + bot.def.health * 0.35f ?
+              Geometry.simpleDefineAngle(
               (playerX + biasRadius * (bot.distance - attackDistance) / bot.distance * MathUtils.cos(biasAngle) - bot.x) / bot.distance,
               (playerY + biasRadius * (bot.distance - attackDistance) / bot.distance * MathUtils.sin(biasAngle) - bot.y) / bot.distance,
-              bot.angle
-      );
+              bot.angle) :
+              (3.14f + Geometry.simpleDefineAngle(
+                      (playerX - bot.x) / bot.distance,
+                      (playerY - bot.y) / bot.distance, targetAngle)
+              ) % MathUtils.PI2;
       // bot.control((aimAngle + 0.5f / (0.1f + bot.distance - attackDistance)) % MathUtils.PI2, 1, delta);
       bot.control(aimAngle, 1, delta);
     }

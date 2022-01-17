@@ -29,7 +29,7 @@ public class StrategyHitAndRun implements BotStrategy {
       if (bot.distance > bot.def.radarPower * 0.33f ||
               (bot.distance > 11 && leavingAngle >= MathUtils.PI * 0.4f)
       ) {
-        isAttacking = true;
+        isAttacking = bot.bodyData.health > 10 + bot.def.health * 0.35f;
       }
       if (leavingAngle < MathUtils.PI * 0.3f) {
         leavingAngle = leavingAngle * 1.1f + 0.01f;
