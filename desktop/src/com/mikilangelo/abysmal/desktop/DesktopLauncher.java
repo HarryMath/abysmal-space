@@ -32,7 +32,7 @@ public class DesktopLauncher {
 				Lwjgl3Window window = (Lwjgl3Window) windowField.get(app);
 				window.maximizeWindow();
 				// app.getGraphics().setUndecorated(true);
-			} catch (NoSuchFieldException | IllegalAccessException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}).start();

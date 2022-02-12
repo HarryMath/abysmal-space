@@ -31,8 +31,8 @@ public abstract class Enemy {
     ship.draw(batch, delta);
     if (underPlayerFocus) {
       if (focusStep < 1) {
-        focusStep = focusStep * 1.05f + 0.012f;
-        if (focusStep > 1) focusStep = 1;
+        focusStep = focusStep * 0.9f + 0.1f;
+        if (focusStep > 0.999) focusStep = 1;
         if (ship.distance > 200) {
           underPlayerFocus = false;
           ship.bodyData.underPlayerFocus = false;
@@ -44,8 +44,8 @@ public abstract class Enemy {
       rightX = (1 - focusStep) * (cameraX + w * 0.5f) + focusStep * (ship.x + shipSize);
       bottomY = (1 - focusStep) * (cameraY - h * 0.5f) + focusStep * (ship.y - shipSize);
       topY = (1 - focusStep) * (cameraY + h * 0.5f) + focusStep * (ship.y + shipSize);
-      frameWidth = (1 - focusStep) * w * 0.005f + focusStep * 0.07f;
-      drawFrame(batch, frameWidth, (0.1f + focusStep * 0.9f));
+      frameWidth = (1 - focusStep) * w * 0.0065f + focusStep * 0.085f;
+      drawFrame(batch, frameWidth, (0.2f + focusStep * 0.8f));
     } else {
       underPlayerFocus = ship.bodyData.underPlayerFocus || ship.shieldData.underPlayerFocus;
     }

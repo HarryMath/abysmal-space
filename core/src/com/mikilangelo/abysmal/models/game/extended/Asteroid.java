@@ -125,7 +125,7 @@ public class Asteroid implements DynamicObject {
   public void move(float delta) {
     if (this.bodyLoaded && !destroyed) {
       final Vector2 speed = this.body.getLinearVelocity();
-      this.body.setAngularVelocity(this.body.getAngularVelocity() * 0.987f);
+      this.body.setAngularVelocity(this.body.getAngularVelocity() * 0.99f);
       body.setLinearVelocity(speed.scl(0.997f));
       if (bodyData.health <= 0) {
         destroyed = true;
@@ -139,14 +139,14 @@ public class Asteroid implements DynamicObject {
           }
           final int amount = 4 + MathUtils.random(1, 4);
           for (byte i = 0; i < amount; i++) {
-            final float xSkew = MathUtils.random(-7.33f, 7.33f);
-            final float ySkew = MathUtils.random(-7.33f, 7.33f);
+            final float xSkew = MathUtils.random(-0.7f, 0.7f);
+            final float ySkew = MathUtils.random(-0.7f, 0.7f);
             final int type = MathUtils.random(0, smallAmount - 1);
-            Asteroid newAsteroid = new Asteroid(type, x, y);
-            newAsteroid.body.applyAngularImpulse(MathUtils.random(-1.1f, 1.1f), true);
+            Asteroid newAsteroid = new Asteroid(type, x + xSkew, y + ySkew);
+            newAsteroid.body.applyAngularImpulse(MathUtils.random(-0.9f, 0.9f), true);
             newAsteroid.body.applyLinearImpulse(
-                    (MathUtils.random(-0.013f, 0.013f) + speed.x * 0.088f + xSkew * 0.017f) * 0.059f,
-                    (MathUtils.random(-0.013f, 0.013f) + speed.y * 0.088f + ySkew * 0.017f) * 0.059f,
+                    (MathUtils.random(-0.05f, 0.05f) + speed.x * 0.5f + xSkew * 1.5f),
+                    (MathUtils.random(-0.05f, 0.05f) + speed.y * 0.5f + ySkew * 1.5f),
                     x + xSkew, y + ySkew, true);
             AsteroidsRepository.add(newAsteroid);
           }
