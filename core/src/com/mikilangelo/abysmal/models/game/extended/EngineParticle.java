@@ -57,7 +57,7 @@ public class EngineParticle implements DynamicObject {
       }
     }
     if (def.withTint && whiteTint > 0) {
-      whiteTint -= 0.07f;
+      whiteTint -= def.lightDecay;
       if (whiteTint <= 0) {
         whiteTint = 0;
       }

@@ -1,4 +1,4 @@
 package com.mikilangelo.abysmal.enemies.upd;
 
-public class server {
+public class UdpServer {
 }

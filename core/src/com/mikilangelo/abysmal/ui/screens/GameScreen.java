@@ -30,6 +30,7 @@ import com.mikilangelo.abysmal.components.repositories.ExplosionsRepository;
 import com.mikilangelo.abysmal.components.repositories.HolesRepository;
 import com.mikilangelo.abysmal.components.repositories.LasersRepository;
 import com.mikilangelo.abysmal.components.repositories.ParticlesRepository;
+import com.mikilangelo.abysmal.components.repositories.StarsRepository;
 import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.enemies.EnemiesProcessor;
 import com.mikilangelo.abysmal.models.game.PlayerShip;
@@ -38,6 +39,7 @@ import com.mikilangelo.abysmal.models.game.animations.Shine;
 import com.mikilangelo.abysmal.models.game.basic.StaticObject;
 import com.mikilangelo.abysmal.models.game.extended.Planet;
 import com.mikilangelo.abysmal.models.game.extended.Star;
+import com.mikilangelo.abysmal.models.game.extended.StaticStar;
 import com.mikilangelo.abysmal.tools.Camera;
 import com.mikilangelo.abysmal.ui.gameElemets.Indicator;
 import com.mikilangelo.abysmal.ui.gameElemets.Joystick;
@@ -298,6 +300,7 @@ public class GameScreen implements Screen {
     for (Star s : stars) {
       s.draw(batch, camera.X, camera.Y, camera.zoom * scale);
     }
+    StarsRepository.draw(batch, camera.X, camera.Y, camera.zoom * scale);
     batch.end();
   }
 
@@ -338,14 +341,15 @@ public class GameScreen implements Screen {
 
 	private void generateStars() {
     Star.initTexture();
+    // StarsRepository.generateGalaxy(-100, 50);
     for (int i = 0; i < 370; i++) {
-      stars.add(new Star(MathUtils.random(0.93f, 0.98f), 0.36f));
+      stars.add(new StaticStar(MathUtils.random(0.93f, 0.98f), 0.36f));
     }
     for (int i = 0; i < 120; i++) {
-      stars.add(new Star(MathUtils.random(0.87f, 0.92f), 0.51f));
+      stars.add(new StaticStar(MathUtils.random(0.87f, 0.92f), 0.51f));
     }
     for (int i = 0; i < 45; i++) {
-      stars.add(new Star(MathUtils.random(0.81f, 0.85f), 0.67f));
+      stars.add(new StaticStar(MathUtils.random(0.81f, 0.85f), 0.67f));
     }
   }
 

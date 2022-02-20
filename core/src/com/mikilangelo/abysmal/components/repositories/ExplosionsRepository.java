@@ -49,7 +49,7 @@ public abstract class ExplosionsRepository {
     explosions.add(new Explosion(shipExplosion, x, y, 0.07f));
     animatedExplosions.add(new AnimatedExplosion(spark, smoke, 8.1f, x, y));
     AsteroidsRepository.applyImpulse(x, y);
-    GameScreen.shakeCamera(2.5f * soundScale);
+    GameScreen.shakeCamera(3f * soundScale);
   }
 
   public static void shieldHid(float distance, float power) {

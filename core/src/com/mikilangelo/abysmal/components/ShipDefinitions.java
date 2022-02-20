@@ -81,10 +81,12 @@ public abstract class ShipDefinitions {
     rocinante.bodyTexture = new Sprite(TexturesRepository.get("ships/rocinante/body.png"));
     rocinante.bodyTexture.setScale( rocinante.size / rocinante.bodyTexture.getHeight() );
     rocinante.engineAnimation = new Array<>();
-    for (byte i = 0; i < 0; i++) {
+    for (byte i = 0; i < 4; i++) {
       rocinante.engineAnimation.add(new Sprite(TexturesRepository.get("ships/rocinante/engine" + i + ".png")));
       rocinante.engineAnimation.get(i).setScale( rocinante.bodyTexture.getScaleY() );
     }
+    rocinante.decorUnder = new Sprite(TexturesRepository.get("ships/rocinante/light.png"));
+    rocinante.decorUnder.setScale(rocinante.bodyTexture.getScaleY());
     rocinante.frameFrequency = 0.06f;
     // lasers
     rocinante.laserDefinition = null;
@@ -128,22 +130,42 @@ public abstract class ShipDefinitions {
     }
     // engines
     rocinante.engineDefinitions = new Array<>();
-    EngineDef e = new EngineDef();
-    e.particleTexture = new Sprite(TexturesRepository.get("ships/rocinante/kak.png"));
-    e.positionX = -3.21f;
-    e.positionY = 0;
-    e.particleSpeedDispersion = 1f; // 10f;
-    e.particlePositionDispersion = 0.005f; // 10f;
-    e.decayRate = 0.016f / 0.33f; // 7f;
-    e.particleScale = 0.048f;
-    e.particleSizeDispersion = 0.005f; // 0.011f;
-    e.particleShipSpeedCoefficient = 0.21f; // -0.05f;
-    e.withTint = true;
-    e.initialParticleOpacity = 1;
-    e.color[0] = 0.01f; e.color[1] = 0.1f; e.color[2] = 1;
-    e.isTopLayer = false;
-    e.isResizing = true;
-    rocinante.engineDefinitions.add(e);
+    EngineDef e1 = new EngineDef(); {
+      e1.particleTexture = new Sprite(TexturesRepository.get("ships/rocinante/kak.png"));
+      e1.positionX = -3.25f;
+      e1.positionY = 0;
+      e1.particleSpeedDispersion = 1.5f; // 10f;
+      e1.particlePositionDispersion = 0.008f; // 10f;
+      e1.decayRate = 0.005f / 0.33f; // 7f;
+      e1.particleScale = 0.047f;
+      e1.particleSizeDispersion = 0.006f; // 0.011f;
+      e1.particleShipSpeedCoefficient = 0.4f; // -0.05f;
+      e1.particleAppearChance = 0.07f;
+      e1.withTint = true;
+      e1.lightDecay = 0.1f;
+      e1.initialParticleOpacity = 1;
+      e1.color[0] = 0.02f; e1.color[1] = 0.1f; e1.color[2] = 1;
+      e1.isTopLayer = false;
+      e1.isResizing = true;
+    }
+    EngineDef e2 = new EngineDef(); {
+      e2.particleTexture = new Sprite(TexturesRepository.get("ships/rocinante/kak.png"));
+      e2.positionX = -3.23f;
+      e2.positionY = 0;
+      e2.particleSpeedDispersion = 1f; // 10f;
+      e2.particlePositionDispersion = 0.003f; // 10f;
+      e2.decayRate = 0.016f / 0.33f; // 7f;
+      e2.particleScale = 0.049f;
+      e2.particleSizeDispersion = 0.006f; // 0.011f;
+      e2.particleShipSpeedCoefficient = 0.55f; // -0.05f;
+      e2.withTint = true;
+      e2.lightDecay = 0.04f;
+      e2.initialParticleOpacity = 1;
+      e2.color[0] = 0.01f; e2.color[1] = 0.1f; e2.color[2] = 1;
+      e2.isTopLayer = true;
+      e2.isResizing = true;
+    }
+    rocinante.engineDefinitions.add(e1, e2);
 
     shipNames.put(rocinante.name, shipDefinitions.size);
     shipDefinitions.add(rocinante);

@@ -82,7 +82,7 @@ public abstract class MusicPlayer {
         previousMusic.setVolume(Math.max(previousMusic.getVolume() * 0.98f - 0.00005f, 0));
       } if (previousMusic.getVolume() <= 0 && previousMusic.isPlaying()) {
         previousMusic.pause();
-        previousMusic.setPosition(0);
+        //previousMusic.setPosition(0);
       }
       if (currentMusic.isPlaying() || previousMusic.getVolume() <= previousVolume * 0.35f) {
         if (currentMusic.isPlaying()) {

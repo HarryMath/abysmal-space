@@ -9,7 +9,7 @@ import com.mikilangelo.abysmal.tools.Geometry;
 
 public class StrategySniper implements BotStrategy {
 
-  private final float attackDistance = MathUtils.random(9f, 30f);
+  private final float attackDistance = MathUtils.random(11f, 30f);
   private final float aheadCoefficient = MathUtils.random(0.07f, 0.31f);
   private float targetAngle;
 
@@ -21,9 +21,11 @@ public class StrategySniper implements BotStrategy {
             targetAngle
     );
     bot.control(targetAngle,
-            bot.distance > attackDistance * 1.1f + 5 ? 1 : bot.distance > attackDistance * 0.4f ?
-                    (bot.distance - attackDistance * 0.25f) / attackDistance / 0.25f : 0,
-            delta);
+            bot.distance > attackDistance * 1.2f ? 1 :
+            bot.distance > attackDistance * 0.4f ?
+            (bot.distance - attackDistance * 0.4f) / (attackDistance * (1.2f - 0.4f)) : 0,
+            delta
+    );
     if (bot.distance < SCREEN_WIDTH * 0.4f * bot.def.maxZoom) {
       boolean needToShotTurrets = false;
       for (Turret t : bot.turrets) {

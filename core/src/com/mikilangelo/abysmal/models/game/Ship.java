@@ -54,6 +54,7 @@ public class Ship {
   public float angle = MathUtils.PI / 2;
   public Vector2 velocity;
   public float speed;
+  private float currentPower = 0;
   public float distance;
 
   private long lastShotTime = 0;
@@ -121,6 +122,7 @@ public class Ship {
 
   // power: [0, 1]
   public void applyImpulse(float power, boolean withParticles) {
+    this.currentPower = (this.currentPower * 0.99f + power * 0.01f);
     isPowerApplied = isUnderControl = true;
     primaryBody.applyLinearImpulse(
             power * MathUtils.cos(angle) * def.speedPower * 0.0135f,
@@ -167,6 +169,8 @@ public class Ship {
     if (isUnderControl) {
       this.body.setAngularVelocity(this.body.getAngularVelocity() * def.rotationControlResistance);
       isUnderControl = false;
+    } else {
+      this.currentPower *= 0.97f;
     }
   }
 
@@ -244,7 +248,8 @@ public class Ship {
     if (def.decorUnder != null) {
       def.decorUnder.setCenter(x, y);
       def.decorUnder.setRotation(this.angle * MathUtils.radiansToDegrees);
-      def.decorUnder.setAlpha(Math.min(speed / def.maxSpeed, 1));
+//      def.decorUnder.setAlpha(Math.min(speed / def.maxSpeed, 1));
+      def.decorUnder.setAlpha(Math.max(Math.min(this.currentPower, 1), 0));
       def.decorUnder.draw(batch);
     }
     engineAnimation.draw(batch, delta, x, y, angle);
@@ -313,6 +318,9 @@ public class Ship {
   public void kak() {
     if ( Settings.withParticles) {
       for (EngineDef e : def.engineDefinitions) {
+        if (e.particleAppearChance < 1 && e.particleAppearChance < MathUtils.random()) {
+          continue;
+        }
         float screwX = e.positionY * MathUtils.cos(this.angle + MathUtils.PI / 2);
         float screwY = e.positionY * MathUtils.sin(this.angle + MathUtils.PI / 2);
         float posX = x + e.positionX * MathUtils.cos(this.angle);
@@ -363,8 +371,8 @@ public class Ship {
     shape.setRadius(def.shieldRadius);
     FixtureDef fixtureDef = new FixtureDef();
     fixtureDef.density = body.getMass() / (def.shieldRadius * def.shieldRadius * MathUtils.PI);
-    fixtureDef.friction = def.friction * 0.2f;
-    fixtureDef.restitution = (1 + def.restitution) * 0.5f;
+    fixtureDef.friction = def.friction * 0.14f;
+    fixtureDef.restitution = 0.3f * 0.95f + def.restitution * 0.05f;
     fixtureDef.shape = shape;
     fixtureDef.filter.groupIndex = bodyId;
     shield = world.createBody(bodyDef);

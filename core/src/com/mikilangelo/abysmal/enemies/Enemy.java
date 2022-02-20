@@ -44,8 +44,8 @@ public abstract class Enemy {
       rightX = (1 - focusStep) * (cameraX + w * 0.5f) + focusStep * (ship.x + shipSize);
       bottomY = (1 - focusStep) * (cameraY - h * 0.5f) + focusStep * (ship.y - shipSize);
       topY = (1 - focusStep) * (cameraY + h * 0.5f) + focusStep * (ship.y + shipSize);
-      frameWidth = (1 - focusStep) * w * 0.0065f + focusStep * 0.085f;
-      drawFrame(batch, frameWidth, (0.2f + focusStep * 0.8f));
+      frameWidth = (1 - focusStep) * w * 0.007f + focusStep * 0.085f;
+      drawFrame(batch, frameWidth, (0.4f + focusStep * 0.6f));
     } else {
       underPlayerFocus = ship.bodyData.underPlayerFocus || ship.shieldData.underPlayerFocus;
     }

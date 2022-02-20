@@ -16,5 +16,7 @@ public class EngineDef {
   public float positionX;
   public float positionY;
   public float initialParticleOpacity = 0.1f;
+  public float particleAppearChance = 1;
+  public float lightDecay = 0.07f;
   public boolean isResizing = false;
 }
