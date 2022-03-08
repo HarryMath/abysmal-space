@@ -1,5 +1,6 @@
 package com.mikilangelo.abysmal.components;
 
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Vector3;
 import com.mikilangelo.abysmal.components.repositories.SoundsRepository;
 import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
@@ -132,6 +133,7 @@ public abstract class ShipDefinitions {
     rocinante.engineDefinitions = new Array<>();
     EngineDef e1 = new EngineDef(); {
       e1.particleTexture = new Sprite(TexturesRepository.get("ships/rocinante/kak.png"));
+      e1.distBlendFunc = GL20.GL_ONE;
       e1.positionX = -3.25f;
       e1.positionY = 0;
       e1.particleSpeedDispersion = 1.5f; // 10f;
@@ -150,16 +152,17 @@ public abstract class ShipDefinitions {
     }
     EngineDef e2 = new EngineDef(); {
       e2.particleTexture = new Sprite(TexturesRepository.get("ships/rocinante/kak.png"));
+      e2.distBlendFunc = GL20.GL_ONE;
       e2.positionX = -3.23f;
       e2.positionY = 0;
       e2.particleSpeedDispersion = 1f; // 10f;
       e2.particlePositionDispersion = 0.003f; // 10f;
-      e2.decayRate = 0.016f / 0.33f; // 7f;
+      e2.decayRate = 0.017f / 0.33f; // 7f;
       e2.particleScale = 0.049f;
       e2.particleSizeDispersion = 0.006f; // 0.011f;
-      e2.particleShipSpeedCoefficient = 0.55f; // -0.05f;
+      e2.particleShipSpeedCoefficient = 0.45f; // -0.05f;
       e2.withTint = true;
-      e2.lightDecay = 0.04f;
+      e2.lightDecay = 0.065f;
       e2.initialParticleOpacity = 1;
       e2.color[0] = 0.01f; e2.color[1] = 0.1f; e2.color[2] = 1;
       e2.isTopLayer = true;
@@ -292,8 +295,7 @@ public abstract class ShipDefinitions {
     engineRed1.particleTexture = new Sprite(sampleParticle);
     engineRed2.particleTexture = engineRed1.particleTexture;
     engines.add(engineRed1, engineRed2);
-    engineRed1.positionX = -1f;
-    engineRed2.positionX = -1f;
+    engineRed1.positionX = engineRed2.positionX = -0.9f;
     engineRed1.positionY = 0.385f;
     engineRed2.positionY = -0.385f;
     for (byte i = 2; i < engines.size + 2; i ++) {
@@ -379,12 +381,13 @@ public abstract class ShipDefinitions {
     e.positionX = -2.07f;
     e.positionY = 0;
     e.particleTexture = new Sprite(TexturesRepository.get("ships/invader/kak.png"));
-    e.particleSpeedDispersion = 2.15f; // 10f;
+    e.distBlendFunc = GL20.GL_ONE;
+    e.particleSpeedDispersion = 3.15f; // 10f;
     e.particlePositionDispersion = 0.1f; // 10f;
     e.decayRate = 0.016f / 11f; // 7f;
-    e.particleScale = 0.014f;
-    e.particleSizeDispersion = 0.005f; // 0.011f;
-    e.particleShipSpeedCoefficient = 0.87f; // -0.05f;
+    e.particleScale = 0.011f;
+    e.particleSizeDispersion = 0.0036f; // 0.011f;
+    e.particleShipSpeedCoefficient = 0.5f;
     invader.engineDefinitions = engines;
 
     addShip(invader);

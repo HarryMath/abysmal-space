@@ -21,7 +21,6 @@ public class DesktopLauncher {
 		// config.setFullscreenMode(displayMode);
 		config.setDecorated(true);
 		new Thread(() -> {
-			System.out.println("start thread");
 			try {
 				Thread.sleep(1000);
 			} catch (Exception ignore) {}

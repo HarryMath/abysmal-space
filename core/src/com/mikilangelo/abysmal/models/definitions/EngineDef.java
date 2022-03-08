@@ -1,5 +1,6 @@
 package com.mikilangelo.abysmal.models.definitions;
 
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
 public class EngineDef {
@@ -19,4 +20,6 @@ public class EngineDef {
   public float particleAppearChance = 1;
   public float lightDecay = 0.07f;
   public boolean isResizing = false;
+  public int srcBlendFunc = GL20.GL_SRC_ALPHA;
+  public int distBlendFunc = GL20.GL_ONE_MINUS_SRC_ALPHA;
 }

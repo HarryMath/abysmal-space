@@ -15,7 +15,7 @@ public class AutomaticTurret extends Turret {
   private Ship target = null;
 
   public AutomaticTurret(TurretDef def, String generationId) {
-    super(def, generationId);
+    super(def, generationId, 0);
   }
 
   @Override
@@ -61,5 +61,5 @@ public class AutomaticTurret extends Turret {
   }
 
   @Override
-  public void shot(Ship none, float soundScale) {}
+  public void shot(Ship ship, float soundScale, float pan) { }
 }

@@ -12,15 +12,18 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.google.gson.JsonSyntaxException;
 import com.mikilangelo.abysmal.components.ShipDefinitions;
 import com.mikilangelo.abysmal.components.repositories.ExplosionsRepository;
+import com.mikilangelo.abysmal.components.repositories.LasersRepository;
 import com.mikilangelo.abysmal.enemies.EnemiesProcessor;
 import com.mikilangelo.abysmal.enemies.Enemy;
 import com.mikilangelo.abysmal.models.game.Ship;
+import com.mikilangelo.abysmal.models.game.extended.Laser;
 import com.mikilangelo.abysmal.models.objectsData.DestroyableObjectData;
 import com.mikilangelo.abysmal.models.objectsData.ShipData;
 import com.mikilangelo.abysmal.models.sending.PlayerState;
 import com.mikilangelo.abysmal.models.sending.ShotData;
 import com.mikilangelo.abysmal.tools.Geometry;
 import com.mikilangelo.abysmal.ui.gameElemets.Radar;
+import com.mikilangelo.abysmal.ui.screens.GameScreen;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -163,8 +166,8 @@ public class UdpClient implements EnemiesProcessor {
     final float h = SCREEN_HEIGHT * camera.zoom;
     final float x = camera.X;
     final float y = camera.Y;
-    for (Player p: players) {
-      p.draw(batch, delta, x, y, w, h);
+    for (int i = 0; i < players.size; i++) {
+      players.get(i).draw(batch, delta, x, y, w, h);
     }
   }
 
@@ -176,16 +179,9 @@ public class UdpClient implements EnemiesProcessor {
   }
 
   @Override
-  public void shot() {
-    ShotData shotData = new ShotData();
+  public void shot(ShotData shotData) {
     shotData.generationId = state.generationId;
-    shotData.x = playerX;
-    shotData.y = playerY;
-    shotData.hasTurret = false;
-    shotData.impulseX = state.speedX;
-    shotData.impulseY = state.speedY;
     shotData.timestamp = TimeUtils.millis();
-    shotData.angle = state.angle;
     sendingThread.sendData(shotData);
   }
 
@@ -200,7 +196,7 @@ public class UdpClient implements EnemiesProcessor {
     outputPacket.setData(output, 0, output.length);
     try {
       client.send(outputPacket);
-    } catch (IOException e) {
+    } catch (IOException | SecurityException e) {
       e.printStackTrace();
     }
   }
@@ -228,7 +224,6 @@ public class UdpClient implements EnemiesProcessor {
         ship.move(delta);
         if (isPowerApplied) {
           ship.kak();
-          isPowerApplied = false;
         }
       }
       if (((ShipData) ship.body.getUserData()).health <= -30) {
@@ -288,6 +283,8 @@ public class UdpClient implements EnemiesProcessor {
           ship.body.setLinearVelocity(data.speedX * 0.9f, data.speedY * 0.9f);
           ship.body.setAngularVelocity(data.angularSpeed * 0.9f);
           ship.body.setTransform(data.x, data.y, data.angle);
+          ship.x = data.x;
+          ship.y = data.y;
           ((ShipData)ship.body.getUserData()).health = data.health;
 
 //            final float updatePower = 0.03f + deltaMillis / 500f;
@@ -304,10 +301,19 @@ public class UdpClient implements EnemiesProcessor {
 
     public void shot(ShotData shotData) {
       Gdx.app.postRunnable(() -> {
-        if (shotData.hasTurret) {
-
+        if (shotData.withSound) {
+          ship.playShotSound(shotData.gunId);
+        }
+        Laser l = new Laser(
+                shotData.gunId < 0 ? ship.def.laserDefinition :
+                        ship.def.turretDefinitions.get(shotData.gunId).laserDefinition,
+                shotData,
+                ship.bodyId
+        );
+        if (shotData.gunId < 0) {
+          LasersRepository.addSimple(l);
         } else {
-          ship.shotDirectly(shotData.x, shotData.y, shotData.impulseX, shotData.impulseY, 0);
+          LasersRepository.addTurret(l);
         }
       });
     }
@@ -320,7 +326,7 @@ public class UdpClient implements EnemiesProcessor {
 
     public void sendData(Object data) {
       sequence.add(data);
-      if (sequence.size() > 10) {
+      if (sequence.size() > 20) {
         sequence.remove(0);
       }
     }

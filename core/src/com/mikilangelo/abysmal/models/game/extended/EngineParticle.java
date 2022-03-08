@@ -1,6 +1,7 @@
 package com.mikilangelo.abysmal.models.game.extended;
 
 
+import com.badlogic.gdx.graphics.GL20;
 import com.mikilangelo.abysmal.models.definitions.EngineDef;
 import com.mikilangelo.abysmal.models.game.basic.DynamicObject;
 import com.mikilangelo.abysmal.ui.screens.GameScreen;
@@ -65,6 +66,7 @@ public class EngineParticle implements DynamicObject {
   }
 
   public void draw(Batch batch) {
+    batch.setBlendFunction(def.srcBlendFunc, def.distBlendFunc);
     if (def.withTint) {
       def.particleTexture.setColor(
               whiteTint + def.color[0] * (1 - whiteTint),

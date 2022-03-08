@@ -2,6 +2,7 @@ package com.mikilangelo.abysmal.enemies;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.mikilangelo.abysmal.models.game.Ship;
+import com.mikilangelo.abysmal.models.sending.ShotData;
 import com.mikilangelo.abysmal.ui.gameElemets.Radar;
 
 public interface EnemiesProcessor {
@@ -18,5 +19,5 @@ public interface EnemiesProcessor {
 
   void dispose();
 
-  void shot();
+  void shot(ShotData shotData);
 }

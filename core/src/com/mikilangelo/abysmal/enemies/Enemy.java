@@ -26,6 +26,7 @@ public abstract class Enemy {
 
   public void draw(Batch batch, float delta, float cameraX, float cameraY, float w, float h) {
     if (ship.distance > w) {
+      System.out.println("NOT DRAWING");
       return;
     }
     ship.draw(batch, delta);
@@ -44,7 +45,7 @@ public abstract class Enemy {
       rightX = (1 - focusStep) * (cameraX + w * 0.5f) + focusStep * (ship.x + shipSize);
       bottomY = (1 - focusStep) * (cameraY - h * 0.5f) + focusStep * (ship.y - shipSize);
       topY = (1 - focusStep) * (cameraY + h * 0.5f) + focusStep * (ship.y + shipSize);
-      frameWidth = (1 - focusStep) * w * 0.007f + focusStep * 0.085f;
+      frameWidth = (1 - focusStep) * w * 0.0075f + focusStep * 0.09f;
       drawFrame(batch, frameWidth, (0.4f + focusStep * 0.6f));
     } else {
       underPlayerFocus = ship.bodyData.underPlayerFocus || ship.shieldData.underPlayerFocus;
@@ -52,7 +53,7 @@ public abstract class Enemy {
   }
 
   private static void drawFrame(Batch batch, float width, float opacity) {
-    final float cornerLength = (width * 11 + (topY - bottomY) * 0.6f) * 0.33f;
+    final float cornerLength = (width * 11 + (topY - bottomY) * 0.6f) * 0.25f;
     final float halfL = cornerLength * 0.5f;
     final float w = width * 0.5f;
     border.setAlpha(opacity);

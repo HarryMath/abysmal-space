@@ -4,13 +4,16 @@ import static com.mikilangelo.abysmal.tools.Geometry.defineAngle;
 
 import com.mikilangelo.abysmal.components.repositories.LasersRepository;
 import com.mikilangelo.abysmal.models.definitions.TurretDef;
+import com.mikilangelo.abysmal.models.game.PlayerShip;
 import com.mikilangelo.abysmal.models.game.Ship;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.mikilangelo.abysmal.ui.screens.GameScreen;
 
 public class Turret {
   public TurretDef definition;
+  private final int gunId;
   public float angle;
   public float newAngle;
   protected long lastShotTime = 0;
@@ -20,8 +23,9 @@ public class Turret {
   protected float y;
   protected long soundId = 0;
 
-  public Turret(TurretDef def, String generationId) {
+  public Turret(TurretDef def, String generationId, int gunId) {
     this.definition = def;
+    this.gunId = gunId;
     this.angle = 0;
     this.newAngle = MathUtils.PI / 2;
     this.generationId = generationId;
@@ -61,7 +65,14 @@ public class Turret {
     definition.texture.draw(batch);
   }
 
-  public void shot(Ship ship, float soundScale) {
+  public void playShotSound(float soundScale, float pan) {
+    if (soundId > 0) {
+      definition.laserDefinition.sound.stop(soundId);
+    } // pitch 1 is speed
+    soundId = definition.laserDefinition.sound.play(soundScale, 1, pan);
+  }
+
+  public void shot(Ship ship, float soundScale, float pan) {
     if (ship.ammo < definition.lasersAmount) {
       return;
     }
@@ -80,13 +91,15 @@ public class Turret {
               ship.velocity.x,
               ship.velocity.y,
               generationId, ship.bodyId);
+      if (ship instanceof PlayerShip) {
+        Laser.lastShotData.gunId = gunId;
+        Laser.lastShotData.withSound = i == 0;
+        GameScreen.enemiesProcessor.shot(Laser.lastShotData);
+      }
       LasersRepository.addTurret(l);
     }
     if (newShotTime - lastSoundPLayTime >= definition.soundPlayInterval) {
-      if (soundId > 0) {
-        definition.laserDefinition.sound.stop(soundId);
-      }
-      soundId = definition.laserDefinition.sound.play(soundScale);
+      playShotSound(soundScale, pan);
       lastSoundPLayTime = newShotTime;
     }
     this.lastShotTime = newShotTime;

@@ -1,5 +1,6 @@
 package com.mikilangelo.abysmal.components.repositories;
 
+import com.badlogic.gdx.graphics.GL20;
 import com.mikilangelo.abysmal.models.game.extended.EngineParticle;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.utils.Array;
@@ -23,6 +24,7 @@ public abstract class ParticlesRepository {
   }
 
   public static void drawAll(Batch batch, float delta) {
+    batch.enableBlending();
     for (int i = 0; i < particles.size; i++) {
       p = particles.get(i);
       if (p.opacity <= 0) {
@@ -41,6 +43,7 @@ public abstract class ParticlesRepository {
         p.draw(batch);
       }
     }
+    batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
   }
 
   public static void clear() {

@@ -155,7 +155,7 @@ public class GameScreen implements Screen {
     camera.update(ship, game.objectsBatch, game.backgroundBatch, shaderBatch);
     drawBackground(delta);
     drawObjects(delta);
-    //debugRenderer.render(world, camera.combined());
+    // debugRenderer.render(world, camera.combined());
     drawInterface(delta);
     if (ship.bodyData.getHealth() < 0) {
       dispose();

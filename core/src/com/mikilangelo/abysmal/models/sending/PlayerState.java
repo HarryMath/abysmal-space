@@ -7,6 +7,7 @@ public class PlayerState {
   public float speedX, speedY, angularSpeed; // angular velocity
   public float health; // health
   public boolean isUnderControl; // is under control
+  public float currentPower;
   public long timestamp; // timestamp
 
   public PlayerState() { }
@@ -23,7 +24,8 @@ public class PlayerState {
     angularSpeed = Float.parseFloat(data[7]);
     health = Float.parseFloat(data[8]);
     isUnderControl = Boolean.parseBoolean(data[9]);
-    timestamp = Long.parseLong(data[10]);
+    currentPower = Float.parseFloat(data[10]);
+    timestamp = Long.parseLong(data[11]);
   }
 
   public static boolean isInstance(String json) {
@@ -35,6 +37,6 @@ public class PlayerState {
     return "state[" + generationId + ',' + shipName + ',' +
             x + ',' + y + ',' + angle + ',' +
             speedX + ',' + speedY + ',' + angularSpeed + ',' +
-            health + ',' + isUnderControl + ',' + timestamp + ']';
+            health + ',' + isUnderControl + ',' + currentPower + ',' + timestamp + ']';
   }
 }

@@ -3,11 +3,24 @@ package com.mikilangelo.abysmal.models.sending;
 public class ShotData {
   public float x, y, angle;
   public float impulseX, impulseY;
-  public boolean hasTurret;
+  public int gunId;
   public long timestamp;
   public String generationId;
+  public boolean withSound;
 
-  public ShotData() {}
+  public ShotData() {
+  }
+
+  public ShotData(float x, float y, float angle, float impulseX, float impulseY, int gunId, long timestamp, String generationId) {
+    this.x = x;
+    this.y = y;
+    this.angle = angle;
+    this.impulseX = impulseX;
+    this.impulseY = impulseY;
+    this.gunId = gunId;
+    this.timestamp = timestamp;
+    this.generationId = generationId;
+  }
 
   public ShotData(String string) {
     String[] data = string.substring(5, string.length() - 1).split(",");
@@ -16,9 +29,10 @@ public class ShotData {
     angle = Float.parseFloat(data[2]);
     impulseX = Float.parseFloat(data[3]);
     impulseY = Float.parseFloat(data[4]);
-    hasTurret = Boolean.parseBoolean(data[5]);
-    timestamp = Long.parseLong(data[6]);
-    generationId = data[7];
+    gunId = Integer.parseInt(data[5]);
+    withSound = Boolean.parseBoolean(data[6]);
+    timestamp = Long.parseLong(data[7]);
+    generationId = data[8];
 
   }
 
@@ -29,7 +43,7 @@ public class ShotData {
   @Override
   public String toString() {
     return "shot[" + x + ',' + y + ',' + angle + ',' +
-            impulseX +',' + impulseY + ',' + hasTurret + ',' +
-            timestamp + ',' + generationId + ']';
+            impulseX + ',' + impulseY + ',' + gunId + ',' +
+            withSound + ',' + timestamp + ',' + generationId + ']';
   }
 }

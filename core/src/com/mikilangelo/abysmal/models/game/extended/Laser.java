@@ -1,30 +1,35 @@
 package com.mikilangelo.abysmal.models.game.extended;
 
-import com.mikilangelo.abysmal.components.repositories.ExplosionsRepository;
-import com.mikilangelo.abysmal.models.definitions.LaserDef;
-import com.mikilangelo.abysmal.models.game.animations.LaserExplosion;
-import com.mikilangelo.abysmal.models.game.basic.DynamicObject;
-import com.mikilangelo.abysmal.models.objectsData.LaserData;
-import com.mikilangelo.abysmal.tools.Geometry;
-import com.mikilangelo.abysmal.ui.screens.GameScreen;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.mikilangelo.abysmal.components.repositories.ExplosionsRepository;
+import com.mikilangelo.abysmal.models.definitions.LaserDef;
+import com.mikilangelo.abysmal.models.game.animations.LaserExplosion;
+import com.mikilangelo.abysmal.models.game.basic.DynamicObject;
+import com.mikilangelo.abysmal.models.objectsData.LaserData;
+import com.mikilangelo.abysmal.models.sending.ShotData;
+import com.mikilangelo.abysmal.tools.Geometry;
+import com.mikilangelo.abysmal.ui.screens.GameScreen;
 
 public class Laser implements DynamicObject {
+
+  public static ShotData lastShotData;
+
   final LaserDef definition;
+  private final LaserData l;
   public Body body;
   public float angle;
   public float opacity = 1f;
   public boolean ended = false;
-  private final LaserData l;
 
-  public Laser(LaserDef def, float x, float y, float angle, float speedX, float speedY, String shipId, short bodyId, float delay) {
+  public Laser(LaserDef def, ShotData shotData, short bodyId) {
+    final float delta = (System.currentTimeMillis() - shotData.timestamp) * 0.001f;
     this.definition = def;
-    this.angle = angle;
+    this.angle = shotData.angle;
     BodyDef bodyDef = new BodyDef();
     FixtureDef fixtureDef = new FixtureDef();
     CircleShape shape = new CircleShape();
@@ -37,17 +42,18 @@ public class Laser implements DynamicObject {
     fixtureDef.filter.groupIndex = bodyId;
     body = GameScreen.world.createBody(bodyDef);
     body.createFixture(fixtureDef);
-    final float impulseX = def.impulse * MathUtils.cos(angle) + speedX/27f * def.density;
-    final float impulseY = def.impulse * MathUtils.sin(angle) + speedY/27f * def.density;
-    if (delay > 0) {
+    if (delta > 0.007f) {
       final float mass = body.getMass();
-      x += impulseX / mass * delay;
-      y += impulseY / mass * delay;
+      shotData.x += shotData.impulseX / mass * delta;
+      shotData.y += shotData.impulseY / mass * delta;
+      this.opacity -= delta / definition.lifeTime;
+    } else {
+      lastShotData = shotData;
     }
-    body.setTransform(x, y, 0);
-    body.applyLinearImpulse(impulseX, impulseY, x, y, true);
+    body.setTransform(shotData.x, shotData.y, 0);
+    body.applyLinearImpulse(shotData.impulseX, shotData.impulseY, shotData.x, shotData.y, true);
     l = new LaserData();
-    l.shipId = shipId;
+    l.shipId = shotData.generationId;
     l.damage = definition.damage;
     l.contactsCounter = 0;
     body.setUserData(l);
@@ -55,8 +61,15 @@ public class Laser implements DynamicObject {
     shape.dispose();
   }
 
-  public Laser(LaserDef def, float x, float y, float angle, float impulseX, float impulseY, String shipId, Short bodyId) {
-    this(def, x, y, angle, impulseX, impulseY, shipId, bodyId,0);
+  public Laser(LaserDef def, float x, float y, float angle, float speedX, float speedY, String shipId, short bodyId) {
+    this(def, new ShotData(
+            x, y, angle,
+            def.impulse * MathUtils.cos(angle) + speedX / 27f * def.density,
+            def.impulse * MathUtils.sin(angle) + speedY / 27f * def.density,
+            0,
+            System.currentTimeMillis() + 1,
+            shipId
+    ), bodyId);
   }
 
   @Override
@@ -68,12 +81,12 @@ public class Laser implements DynamicObject {
         ));
         l.collision = null;
         if (l.contactsCounter < definition.touches) {
-          this.angle = Geometry.defineAngle(body.getLinearVelocity().x, body.getLinearVelocity().y, MathUtils.PI/2);
+          this.angle = Geometry.defineAngle(body.getLinearVelocity().x, body.getLinearVelocity().y, MathUtils.PI / 2);
         }
       }
       if (this.opacity <= 0 || l.contactsCounter >= definition.touches) {
-          destroyBody();
-          return;
+        destroyBody();
+        return;
       }
       if (this.opacity > 0) {
         this.opacity -= delta / definition.lifeTime;

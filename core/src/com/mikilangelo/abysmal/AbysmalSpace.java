@@ -58,6 +58,7 @@ public class AbysmalSpace extends Game {
 	@Override
 	public void dispose() {
 		super.dispose();
+		this.screen.dispose();
 		objectsBatch.dispose();
 		batchInterface.dispose();
 		backgroundBatch.dispose();
@@ -68,5 +69,7 @@ public class AbysmalSpace extends Game {
 		TexturesRepository.disposeAll();
 		SoundsRepository.disposeAll();
 		Asteroid.dispose();
+		Gdx.app.exit();
+		System.exit(0);
 	}
 }

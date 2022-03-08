@@ -2,6 +2,7 @@ package com.mikilangelo.abysmal.models.game;
 
 import static com.mikilangelo.abysmal.ui.screens.GameScreen.SCREEN_WIDTH;
 
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Vector2;
 import com.mikilangelo.abysmal.components.Settings;
 import com.mikilangelo.abysmal.components.repositories.ExplosionsRepository;
@@ -54,7 +55,7 @@ public class Ship {
   public float angle = MathUtils.PI / 2;
   public Vector2 velocity;
   public float speed;
-  private float currentPower = 0;
+  public float currentPower = 0;
   public float distance;
 
   private long lastShotTime = 0;
@@ -81,10 +82,11 @@ public class Ship {
     this.def = definition;
     engineAnimation = new EngineAnimation(definition.engineAnimation, definition.frameFrequency);
     this.turrets = new Array<>();
-    for (TurretDef t : definition.turretDefinitions) {
+    for (short i = 0; i < definition.turretDefinitions.size; i++) {
+      TurretDef t = definition.turretDefinitions.get(i);
       final Turret turret = t.isAutomatic && isPlayer ?
               new AutomaticTurret(t, generationId) :
-              new Turret(t, generationId);
+              new Turret(t, generationId, i);
       this.turrets.add(turret);
     }
     def.resizeTextures(1);
@@ -174,20 +176,29 @@ public class Ship {
     }
   }
 
-  public void shotDirectly(float x, float y, float sX, float sY, long deltaMillis) {
-    if (distance >= 140) {
-      this.shotDirectly(0, 0, x, y, sX, sY, deltaMillis);
+  public void playShotSound(int gunId) {
+    if (gunId < 0) {
+      this.def.laserDefinition.sound.play(
+              (140 - distance) / 141,
+              1,
+              (x - PlayerShip.X) / distance
+      );
     } else {
-      this.shotDirectly((140 - distance) / 141, (x - PlayerShip.X) / distance,
-              x, y, sX, sY, deltaMillis);
+      this.turrets.get(gunId).playShotSound(
+              (140 - distance) / 141,
+              (x - PlayerShip.X) / distance
+      );
     }
   }
 
-  private void shotDirectly(float soundScale, float pan,
-                           float x, float y, float sX, float sY, long deltaMillis
-  ) {
-    final long newShotTime = TimeUtils.millis() - deltaMillis;
-    final float delay = deltaMillis * 0.001f;
+  protected void shot(float soundScale, float pan) {
+    if (def.lasersAmount < 1 && def.turretDefinitions.size == 0) {
+      return;
+    }
+    for (byte i = 0; i < turrets.size; i++) {
+      turrets.get(i).shot(this, soundScale, pan);
+    }
+    final long newShotTime = TimeUtils.millis();
     if (def.lasersAmount > ammo || turrets.size > 0 || (newShotTime - lastShotTime) < def.shotInterval) {
       return;
     }
@@ -196,35 +207,26 @@ public class Ship {
     final float shipBiasY = def.laserX * MathUtils.sin(angle);
     for (byte i = 0; i < def.lasersAmount; i++) {
       final float addCos = (maxLeftLaser + def.lasersDistance * i) * MathUtils.cos(angle + 1.5708f);
-      final float addSin = (maxLeftLaser + def.lasersDistance * i) * MathUtils.sin(angle + 1.57078f);
-      Laser l = new Laser(def.laserDefinition,
-              x + addCos + shipBiasX, y + addSin + shipBiasY, this.angle,
-              sX, sY, generationId, bodyId, delay);
+      final float addSin = (maxLeftLaser + def.lasersDistance * i) * MathUtils.sin(angle + 1.5708f);
+      Laser l = new Laser(
+              def.laserDefinition,
+              x + addCos + shipBiasX,
+              y + addSin + shipBiasY,
+              this.angle,
+              velocity.x,
+              velocity.y,
+              generationId,
+              bodyId);
+      if (this instanceof PlayerShip) {
+        Laser.lastShotData.gunId = -1;
+        Laser.lastShotData.withSound = i == 0;
+        GameScreen.enemiesProcessor.shot(Laser.lastShotData);
+      }
       LasersRepository.addSimple(l);
     }
     def.laserDefinition.sound.play(soundScale, 1, pan);
     this.ammo -= def.lasersAmount;
     this.lastShotTime = newShotTime;
-  }
-
-  protected void shot(float soundScale, float pan) {
-    if (def.lasersAmount < 1 && def.turretDefinitions.size == 0) {
-      return;
-    }
-    for (byte i = 0; i < turrets.size; i++) {
-      turrets.get(i).shot(this, soundScale);
-    }
-    final long newShotTime = TimeUtils.millis();
-    if (turrets.size > 0 || (newShotTime - lastShotTime) < def.shotInterval) {
-      return;
-    }
-    if (distance < 0.01f) {
-      GameScreen.enemiesProcessor.shot();
-    }
-    shotDirectly(soundScale, pan,
-            this.body.getPosition().x,
-            this.body.getPosition().y,
-            velocity.x, velocity.y, 0);
   }
 
   public void shot() {
@@ -245,6 +247,7 @@ public class Ship {
       shieldTexture.setRotation(30);
       shieldTexture.draw(batch);
     }
+    batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
     if (def.decorUnder != null) {
       def.decorUnder.setCenter(x, y);
       def.decorUnder.setRotation(this.angle * MathUtils.radiansToDegrees);
@@ -253,6 +256,7 @@ public class Ship {
       def.decorUnder.draw(batch);
     }
     engineAnimation.draw(batch, delta, x, y, angle);
+    batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     def.bodyTexture.setRotation(this.angle * MathUtils.radiansToDegrees);
     def.bodyTexture.setCenter(x, y);
     def.bodyTexture.draw(batch);
@@ -288,7 +292,6 @@ public class Ship {
       if (shieldData.lastTouches.size > 0) {
         shieldData.lastTouches.clear();
         if (touchPower > 0.05f && shieldTouches.size < 8) {
-          System.out.println(touchPower);
           ExplosionsRepository.shieldHid(distance, touchPower);
         }
       }

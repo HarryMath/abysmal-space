@@ -9,6 +9,7 @@ import com.mikilangelo.abysmal.components.Settings;
 import com.mikilangelo.abysmal.components.ShipDefinitions;
 import com.mikilangelo.abysmal.enemies.EnemiesProcessor;
 import com.mikilangelo.abysmal.models.game.Ship;
+import com.mikilangelo.abysmal.models.sending.ShotData;
 import com.mikilangelo.abysmal.tools.Geometry;
 import com.mikilangelo.abysmal.ui.gameElemets.Radar;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -176,6 +177,6 @@ public class BotsProcessor implements EnemiesProcessor {
   }
 
   @Override
-  public void shot() { }
+  public void shot(ShotData shotData) { }
 
 }

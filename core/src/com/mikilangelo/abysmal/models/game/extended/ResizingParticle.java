@@ -1,5 +1,6 @@
 package com.mikilangelo.abysmal.models.game.extended;
 
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.mikilangelo.abysmal.models.definitions.EngineDef;
 
@@ -11,6 +12,7 @@ public class ResizingParticle extends EngineParticle {
 
   @Override
   public void draw(Batch batch) {
+    batch.setBlendFunction(def.srcBlendFunc, def.distBlendFunc);
     if (def.withTint) {
       def.particleTexture.setColor(
               whiteTint + def.color[0] * (1 - whiteTint),
