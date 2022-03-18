@@ -51,7 +51,7 @@ public class Radar extends InterfaceElement {
     speedIndicator.draw(batch, PlayerShip.SPEED);
     batch.draw(this.border, x - drawRadius, y - fullHeight + drawRadius, fullWidth, fullHeight);
     digitsFont.getData().setScale(44 * RATIO / 9 / (digitsFont.getCapHeight() / digitsFont.getScaleY() * 4 / 5 ));
-    lettersFont.getData().setScale(42 * RATIO / 9 / (lettersFont.getCapHeight() / lettersFont.getScaleY() * 4 / 5 ));;
+    lettersFont.getData().setScale(42 * RATIO / 9 / (lettersFont.getCapHeight() / lettersFont.getScaleY() * 4 / 5 ));
     byte length = (byte) String.valueOf(playerX).length();
     String zeros = " 000000".substring(0, 7 - length);
     float drawX = x - drawRadius + 2 * RATIO;

@@ -141,9 +141,7 @@ public class MenuScreen implements Screen {
     }
   }
 
-  public void handleSettingsOption() {
-    return;
-  }
+  public void handleSettingsOption() { }
 
   private void animateShips(float delta) {
     if (shipSelected) return;

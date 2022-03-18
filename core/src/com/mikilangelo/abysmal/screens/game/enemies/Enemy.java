@@ -67,7 +67,7 @@ public abstract class Enemy {
     border.setCenter(rightX - w, topY - halfL);
     border.draw(batch);
     border.setScale(cornerLength, width);
-    border.setCenter(rightX - halfL, topY - w);;
+    border.setCenter(rightX - halfL, topY - w);
     border.draw(batch);
 
     border.setScale(width, cornerLength);

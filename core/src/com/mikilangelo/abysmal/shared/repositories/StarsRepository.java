@@ -39,13 +39,8 @@ public abstract class StarsRepository {
         ));
       }
     }
-    stars.sort(new Comparator<Star>() {
-      @Override
-      public int compare(Star s1, Star s2) {
-        return s1.layer > s2.layer ? 1 :
-                s1.layer > s2.layer ? -1 : 0;
-      }
-    });
+    stars.sort((s1, s2) -> s1.layer > s2.layer ? 1 :
+            s1.layer > s2.layer ? -1 : 0);
   }
 
   public static void draw(final Batch batch, final float cameraX, final float cameraY, float zoom) {

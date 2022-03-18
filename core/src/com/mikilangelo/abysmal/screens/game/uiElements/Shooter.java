@@ -50,9 +50,9 @@ public class Shooter {
   }
 
   public void handleResize(float resizeCoefficient) {
-    startX = GameScreen.WIDTH - GameScreen.HEIGHT / 8;
-    startY = GameScreen.HEIGHT / 8;
-    radius = GameScreen.HEIGHT / 8;
+    startX = GameScreen.WIDTH - GameScreen.HEIGHT / 8f;
+    startY = GameScreen.HEIGHT / 8f;
+    radius = GameScreen.HEIGHT / 8f;
   }
 
   public void draw(Batch batch) {
