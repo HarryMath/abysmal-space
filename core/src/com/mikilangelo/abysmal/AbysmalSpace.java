@@ -7,13 +7,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.mikilangelo.abysmal.components.MusicPlayer;
-import com.mikilangelo.abysmal.components.ShipDefinitions;
-import com.mikilangelo.abysmal.components.repositories.SoundsRepository;
-import com.mikilangelo.abysmal.components.repositories.TexturesRepository;
-import com.mikilangelo.abysmal.models.game.extended.Asteroid;
-import com.mikilangelo.abysmal.ui.screens.GameScreen;
-import com.mikilangelo.abysmal.ui.screens.LoadingScreen;
+import com.mikilangelo.abysmal.shared.MusicPlayer;
+import com.mikilangelo.abysmal.shared.ShipDefinitions;
+import com.mikilangelo.abysmal.shared.repositories.SoundsRepository;
+import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
+import com.mikilangelo.abysmal.screens.game.actors.fixtures.Asteroid;
+import com.mikilangelo.abysmal.screens.loading.LoadingScreen;
 
 public class AbysmalSpace extends Game {
 	public OrthographicCamera cameraInterface;

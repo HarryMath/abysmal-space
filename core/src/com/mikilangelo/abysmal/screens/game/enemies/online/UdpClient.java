@@ -1,0 +1,371 @@
+package com.mikilangelo.abysmal.screens.game.enemies.online;
+
+import static com.mikilangelo.abysmal.screens.game.GameScreen.SCREEN_HEIGHT;
+import static com.mikilangelo.abysmal.screens.game.GameScreen.SCREEN_WIDTH;
+import static com.mikilangelo.abysmal.screens.game.GameScreen.camera;
+import static com.mikilangelo.abysmal.screens.game.GameScreen.world;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
+import com.google.gson.JsonSyntaxException;
+import com.mikilangelo.abysmal.screens.game.enemies.EnemiesProcessor;
+import com.mikilangelo.abysmal.screens.game.enemies.Enemy;
+import com.mikilangelo.abysmal.shared.ShipDefinitions;
+import com.mikilangelo.abysmal.shared.repositories.ExplosionsRepository;
+import com.mikilangelo.abysmal.shared.repositories.LasersRepository;
+import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
+import com.mikilangelo.abysmal.screens.game.actors.ship.Laser;
+import com.mikilangelo.abysmal.screens.game.objectsData.DestroyableObjectData;
+import com.mikilangelo.abysmal.screens.game.objectsData.ShipData;
+import com.mikilangelo.abysmal.screens.game.enemies.online.data.PlayerState;
+import com.mikilangelo.abysmal.screens.game.enemies.online.data.ShotData;
+import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
+import com.mikilangelo.abysmal.screens.game.uiElements.Radar;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class UdpClient implements EnemiesProcessor {
+
+  private final InetAddress address;
+  private static final int port = 8080;
+
+  private final Array<Player> players = new Array<>();
+  private final DatagramSocket client;
+  private final AtomicBoolean isStopped = new AtomicBoolean(false);
+  private byte[] output;
+  private DatagramPacket outputPacket;
+  private final DatagramPacket inputPacket;
+  private int missedFrames = 0;
+  private final PlayerState state = new PlayerState();
+  private final SendingThread sendingThread;
+  private final Thread receiveThread;
+
+  private float playerX;
+  private float playerY;
+
+  public UdpClient(boolean isLocal) throws IOException {
+    this.client = new DatagramSocket();
+//    address = InetAddress.getByName("localhost");
+    address = !isLocal ? InetAddress.getByName("13.53.170.78") :
+      InetAddress.getByName("255.255.255.255");
+    inputPacket = new DatagramPacket(new byte[512], 512);
+    sendingThread = new SendingThread();
+    receiveThread = new Thread(() -> {
+      while (!isStopped.get()) {
+        try {
+          client.receive(inputPacket);
+          if (isStopped.get()) {break;}
+          handleData(new String(inputPacket.getData(), 0, inputPacket.getLength()));
+        } catch (Exception ex) {
+          ex.printStackTrace();
+        }
+      }
+      this.client.close();
+    });
+    receiveThread.start();
+    sendingThread.start();
+  }
+
+  @Override
+  public Ship getNearestEnemy(float playerX, float playerY) {
+    return null;
+  }
+
+  @Override
+  public void generateEnemies(Ship ship) {
+    state.generationId = ship.generationId;
+    state.shipName = ship.def.name;
+    playerX = state.x = ship.x;
+    playerY = state.y = ship.y;
+    state.health = 999;
+    state.speedX = state.speedY = state.angularSpeed = state.angle = 0;
+    state.timestamp = System.currentTimeMillis();
+    try {
+      output = state.toString().getBytes();
+      outputPacket = new DatagramPacket(output, output.length, address, port);
+      client.send(outputPacket);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void handleData(String dataPackage) {
+    try {
+      if (PlayerState.isInstance(dataPackage)) {
+        PlayerState player = new PlayerState(dataPackage);
+        if (!player.generationId.equals(state.generationId)) {
+          for (int i = 0; i < players.size; i++) {
+            if (players.get(i).generationId.equals(player.generationId)) {
+              players.get(i).update(player);
+              return;
+            }
+          }
+          if (player.generationId.length() > 10) {
+            for (int i = 0; i < players.size; i++) {
+              if (CalculateUtils.distance(player.x, player.y, players.get(i).ship.x, players.get(i).ship.y) < 2) {
+                return;
+              }
+            }
+            Ship ship = new Ship(ShipDefinitions.get(player.shipName),
+                    player.x, player.y, false, playerX, playerY);
+            players.add(new Player(ship, player.generationId, false));
+          }
+        }
+      }
+      else if (ShotData.isInstance(dataPackage)) {
+        ShotData shotData = new ShotData(dataPackage);
+        for (Player p : players) {
+          if (p.generationId.equals(shotData.generationId)) {
+            p.shot(shotData);
+            return;
+          }
+        }
+      }
+    } catch (JsonSyntaxException | NumberFormatException e) {
+      System.out.println("parse error: ");
+      System.out.println(dataPackage + "\n");
+    }
+  }
+
+  @Override
+  public void process(final Ship player, final float delta) {
+    missedFrames++;
+    if (missedFrames > 2) {
+      missedFrames = 0;
+      state.generationId = player.generationId;
+      state.x = playerX = player.x;
+      state.y = playerY = player.y;
+      state.speedX = player.body.getLinearVelocity().x;
+      state.speedY = player.body.getLinearVelocity().y;
+      state.angularSpeed = player.body.getAngularVelocity();
+      state.angle = player.angle;
+      state.timestamp = TimeUtils.millis();
+      state.isUnderControl = player.isPowerApplied;
+      state.currentPower = player.currentPower;
+      player.isPowerApplied = false;
+      state.health = ((DestroyableObjectData) player.body.getUserData()).getHealth();
+      sendingThread.sendStateData();
+    }
+    for (int i = 0; i < players.size; i++) {
+      if ( players.get(i).isDead(player.x, player.y, delta) ) {
+        players.removeIndex(i--);
+      }
+    }
+  }
+
+  @Override
+  public void drawAll(Batch batch, float delta) {
+    final float w = SCREEN_WIDTH * camera.zoom;
+    final float h = SCREEN_HEIGHT * camera.zoom;
+    final float x = camera.X;
+    final float y = camera.Y;
+    for (int i = 0; i < players.size; i++) {
+      players.get(i).draw(batch, delta, x, y, w, h);
+    }
+  }
+
+  @Override
+  public void drawAtRadar(Batch batch, Radar radar) {
+    for (int i = 0; i < players.size; i++) {
+      radar.drawEnemy(batch, players.get(i).ship.x, players.get(i).ship.y);
+    }
+  }
+
+  @Override
+  public void shot(ShotData shotData) {
+    shotData.generationId = state.generationId;
+    shotData.timestamp = TimeUtils.millis();
+    sendingThread.sendData(shotData);
+  }
+
+  @Override
+  public void dispose() {
+    isStopped.set(true);
+    players.clear();
+    receiveThread.interrupt();
+    sendingThread.interrupt();
+    state.health = 0;
+    output = state.toString().getBytes();
+    outputPacket.setData(output, 0, output.length);
+    try {
+      client.send(outputPacket);
+    } catch (IOException | SecurityException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private class Player extends Enemy {
+    private final String generationId;
+    private boolean isPowerApplied = false;
+    private int badPackages = 10;
+    private PlayerState lastState;
+    private boolean isDead = false;
+    private float currentPower = 0.5f;
+
+    public Player(Ship ship, String id, boolean friendly) {
+      super(ship);
+      this.generationId = id;
+      lastState = new PlayerState();
+      lastState.speedX = lastState.speedY = 0;
+      ship.generationId = friendly ? state.generationId : id;
+      ship.createBody(world);
+    }
+
+    public boolean isDead(float playerX, float playerY, float delta) {
+      if (isDead) return true;
+      ship.distance = CalculateUtils.distance(playerX, playerY, ship.x, ship.y);
+      if (ship.distance < 50 && !world.isLocked()) {
+        ship.move(delta);
+        if (isPowerApplied) {
+          ship.kak();
+          this.currentPower = this.currentPower * 0.96f + 0.04f;
+        }
+        ship.currentPower = this.currentPower;
+      }
+      if (((ShipData) ship.body.getUserData()).health <= -30) {
+        if (ship.distance < 100) {
+          ExplosionsRepository.addShipExplosion(
+                  ship.x, ship.y, 1 - ship.distance * 0.01f,
+                  (ship.x - playerX) / ship.distance );
+        }
+        this.isDead = true;
+        ship.destroy(world);
+        return true;
+      }
+      return false;
+    }
+
+    public void update(final PlayerState data) {
+      Gdx.app.postRunnable(() -> {
+        if (!world.isLocked() && !isStopped.get() && data.timestamp > lastState.timestamp) {
+//            final float deltaTime = TimeUtils.millis() - data.t / 1000f;
+          final float deltaTime = (data.timestamp - lastState.timestamp) / 1000f;
+          final float compareTime = 0.3f + deltaTime * 1.5f;
+          isPowerApplied = data.isUnderControl;
+          if (badPackages < 5 && data.health != 0) {
+            if (CalculateUtils.distance(lastState.x + lastState.speedX * deltaTime,
+                    lastState.y + lastState.speedY * deltaTime,
+                    data.x, data.y) > Math.hypot(lastState.speedX, lastState.speedY) * compareTime * (1 + badPackages) ||
+                    (CalculateUtils.distance(data.speedX, data.speedY, lastState.speedX, lastState.speedY) > (0.7f + compareTime) * (2 + badPackages) &&
+                            Math.abs(data.speedX) + Math.abs(data.speedY) > Math.abs(lastState.speedX) + Math.abs(lastState.speedY))
+            ) {
+              badPackages++;
+              System.out.println("\nbad package " + badPackages);
+              System.out.println("delta: " + deltaTime + "s; compare: " + compareTime);
+              System.out.println("prev: [x: " + lastState.x + ", y: " + lastState.y + ", ax: " + lastState.speedX + ", ay: " + lastState.speedY + "]");
+              System.out.println("expc: [x: " + (lastState.x + lastState.speedX * deltaTime) + ", y: " + (lastState.y + lastState.speedY * deltaTime) + ", ax: " + lastState.speedX + ", ay: " + lastState.speedY + "]");
+              System.out.println("got:  [x: " + data.x + ", y: " + data.y + ", ax: " + data.speedX + ", ay: " + data.speedY + "]");
+              return;
+            } else  {
+              badPackages = 0;
+            }
+          } else {
+            badPackages = 0;
+          }
+          if (data.health <= 0) {
+            if (!isDead) {
+              if (ship.distance < 100) {
+                ExplosionsRepository.addShipExplosion(
+                        ship.x, ship.y, 1 - ship.distance * 0.01f,
+                        (ship.x - playerX) / ship.distance );
+              }
+              ship.destroy(world);
+              this.isDead = true;
+            }
+            return;
+          }
+          lastState = data;
+          ship.body.setLinearVelocity(0, 0);
+          ship.body.setLinearVelocity(data.speedX * 0.9f, data.speedY * 0.9f);
+          ship.body.setAngularVelocity(data.angularSpeed * 0.9f);
+          ship.body.setTransform(data.x, data.y, data.angle);
+          ship.x = data.x;
+          ship.y = data.y;
+          ((ShipData)ship.body.getUserData()).health = data.health;
+          if (data.isUnderControl) {
+            this.currentPower = 0.5f * (this.currentPower + 0.2f + data.currentPower * 0.8f);
+          }
+
+//            final float updatePower = 0.03f + deltaMillis / 500f;
+//            ship.body.setLinearVelocity(data.aX * 0.95f, data.aY * 0.95f);
+//            ship.body.setAngularVelocity(data.aA * 0.95f);
+//            ship.body.setTransform(
+//                    (ship.body.getPosition().x + updatePower * (data.x + data.aX * deltaTime)) / (updatePower + 1),
+//                    (ship.body.getPosition().y + updatePower * (data.y + data.aY * deltaTime)) / (updatePower + 1),
+//                    Geometry.avgAngle(ship.angle, 1, (data.a + data.aA * deltaTime), updatePower));
+//            ((ShipData)ship.body.getUserData()).health = data.h;
+        }
+      });
+    }
+
+    public void shot(ShotData shotData) {
+      Gdx.app.postRunnable(() -> {
+        if (shotData.withSound) {
+          ship.playShotSound(shotData.gunId);
+        }
+        Laser l = new Laser(
+                shotData.gunId < 0 ? ship.def.laserDefinition :
+                        ship.def.turretDefinitions.get(shotData.gunId).laserDefinition,
+                shotData,
+                ship.bodyId
+        );
+        if (shotData.gunId < 0) {
+          LasersRepository.addSimple(l);
+        } else {
+          LasersRepository.addTurret(l);
+        }
+      });
+    }
+  }
+
+  private class SendingThread extends Thread {
+
+    private final Vector<Object> sequence = new Vector<>();
+    private final AtomicBoolean needToSendState = new AtomicBoolean(false);
+
+    public void sendData(Object data) {
+      sequence.add(data);
+      if (sequence.size() > 20) {
+        sequence.remove(0);
+      }
+    }
+
+    public void sendStateData() {
+      needToSendState.set(true);
+    }
+
+    @Override
+    public void run() {
+      while (!isStopped.get()) {
+        if (needToSendState.get()) {
+          try {
+            output = state.toString().getBytes();
+            outputPacket.setData(output, 0, output.length);
+            client.send(outputPacket);
+            needToSendState.set(false);
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+        if (sequence.size() > 0) {
+          try {
+            output = sequence.get(0).toString().getBytes();
+            outputPacket.setData(output, 0, output.length);
+            client.send(outputPacket);
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+          sequence.remove(0);
+        }
+      }
+      System.out.println("sending thread ended");
+    }
+  }
+}
