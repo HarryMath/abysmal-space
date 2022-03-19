@@ -29,7 +29,7 @@ public abstract class TexturesRepository {
   public static void init() {
     loadTextures("UI/", new String[]{
             "circle", "controller", "radar", "logo", "radar_asteroid", "radar_center", "radar_enem",
-            "radar_scanner", "shot", "arrow", "enemy_frame"},
+            "radar_scanner", "shot", "shotDirect", "arrow", "enemy_frame"},
             ".png");
     loadTexture("ships/kak.png");
     loadTextures("UI/indicators/", new String[]{

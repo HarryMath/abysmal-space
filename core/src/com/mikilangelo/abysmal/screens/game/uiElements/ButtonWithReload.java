@@ -5,17 +5,18 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 
-public class ActivationButton extends InterfaceElement {
+public class ButtonWithReload extends Button {
 
   private final Sprite icon;
   private final Sprite border;
   private final int reloadTime;
-  private float x, y, radius;
+  private final byte maxTextLength;
 
-  public ActivationButton(Sprite icon, Sprite border, int reloadTime, float x, float y, float radius) {
+  public ButtonWithReload(Sprite icon, Sprite border, int reloadTime, float x, float y, float radius) {
     this.icon = icon;
     this.border = border;
     this.reloadTime = reloadTime;
+    this.maxTextLength = (byte) String.valueOf(reloadTime).length();
     resize(x, y, radius);
   }
 
@@ -25,10 +26,9 @@ public class ActivationButton extends InterfaceElement {
       border.setAlpha(0.5f);
       border.draw(batch);
       font.setColor(1, 1, 1, 0.5f);
-      final byte maxLength = (byte) String.valueOf(reloadTime).length();
-      final float fontSize = radius * 0.9f / maxLength;
+      final float fontSize = radius * 0.9f / maxTextLength;
       String currentText = String.valueOf(secondsLeft);
-      currentText = "0000".substring(0, maxLength - currentText.length()) + currentText;
+      currentText = "00000".substring(0, maxTextLength - currentText.length()) + currentText;
       font.getData().setScale(fontSize * font.getScaleY() / font.getCapHeight());
       font.draw(batch, currentText, x, y - fontSize * 0.5f);
       // TODO draw progress arc
@@ -47,12 +47,5 @@ public class ActivationButton extends InterfaceElement {
     border.setCenter(x, y);
     icon.setScale(radius * 2 / icon.getHeight());
     border.setScale(radius * 2 / icon.getHeight());
-  }
-
-  public boolean contains(float touchX, float touchY) {
-    if (Math.abs(touchX - x) < radius * 1.1f && Math.abs(touchY - y) < radius * 1.1f) {
-      return CalculateUtils.distance(touchX, touchY, x, y) < radius * 1.1f;
-    }
-    return false;
   }
 }

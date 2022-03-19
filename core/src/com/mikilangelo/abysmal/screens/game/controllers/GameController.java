@@ -1,60 +1,16 @@
 package com.mikilangelo.abysmal.screens.game.controllers;
 
-import com.badlogic.gdx.input.GestureDetector;
-import com.badlogic.gdx.math.Vector2;
-import com.mikilangelo.abysmal.screens.game.GameScreen;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
 
-public class GameController implements GestureDetector.GestureListener {
+public interface GameController {
+  void init(Ship ship, float w, float h);
 
-  @Override
-  public boolean touchDown(float x, float y, int pointer, int button) {
-    // TODO chek shield activation
-    return false;
-  }
+  void handleControls(float delta);
 
-  @Override
-  public boolean tap(float x, float y, int count, int button) {
-    return false;
-  }
+  void drawInterface(Batch batch);
 
-  @Override
-  public boolean longPress(float x, float y) {
-    return false;
-  }
+  void resizeComponents(float w, float h);
 
-  @Override
-  public boolean fling(float velocityX, float velocityY, int button) {
-    return false;
-  }
-
-  @Override
-  public boolean pan(float x, float y, float deltaX, float deltaY) {
-    return false;
-  }
-
-  @Override
-  public boolean panStop(float x, float y, int pointer, int button) {
-    return false;
-  }
-
-  @Override
-  public boolean zoom(float initialDistance, float distance) {
-    if (!GameScreen.screenUnderControl) {
-      if (initialDistance > distance) {
-        GameScreen.camera.zoomOut();
-      } else if (initialDistance < distance) {
-        GameScreen.camera.zoomIn();
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
-    return false;
-  }
-
-  @Override
-  public void pinchStop() {
-  }
+  void dispose();
 }

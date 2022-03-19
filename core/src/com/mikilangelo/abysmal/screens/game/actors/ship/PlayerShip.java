@@ -21,7 +21,14 @@ public class PlayerShip extends Ship {
   }
 
   @Override
-  public void shot() {
-    this.shot(1, 0);
+  public void shotDirectly() {
+    this.shotDirectly(1, 0);
+  }
+
+  @Override
+  public void shotByTurrets() {
+    for (byte i = 0; i < turrets.size; i++) {
+      turrets.get(i).shot(this, 1, 0);
+    }
   }
 }

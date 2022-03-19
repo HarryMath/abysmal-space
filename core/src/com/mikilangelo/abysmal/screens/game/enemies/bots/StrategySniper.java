@@ -35,10 +35,13 @@ public class StrategySniper implements BotStrategy {
           break;
         }
       }
-      if (needToShotTurrets || Math.abs(targetAngle - bot.angle) < 0.01f ||
-              (bot.distance < attackDistance && Math.abs(targetAngle - bot.angle) < 0.02f)
+      if (needToShotTurrets) {
+        bot.shotByTurrets();
+      }
+      if (Math.abs(targetAngle - bot.angle) < 0.01f ||
+         (bot.distance < attackDistance && Math.abs(targetAngle - bot.angle) < 0.02f)
       ) {
-        bot.shot();
+        bot.shotDirectly();
       }
     }
   }

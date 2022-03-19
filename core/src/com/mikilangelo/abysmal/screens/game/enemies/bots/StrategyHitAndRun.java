@@ -46,10 +46,13 @@ public class StrategyHitAndRun implements BotStrategy {
           break;
         }
       }
-      if (needToShotTurrets || Math.abs(targetAngle - bot.angle) < 0.03f ||
-              (bot.distance < 21 && Math.abs(targetAngle - bot.angle) < 0.2f)
+      if (needToShotTurrets) {
+        bot.shotByTurrets();
+      }
+      if (Math.abs(targetAngle - bot.angle) < 0.03f ||
+          (bot.distance < 21 && Math.abs(targetAngle - bot.angle) < 0.2f)
       ) {
-        bot.shot();
+        bot.shotDirectly();
       }
     }
   }

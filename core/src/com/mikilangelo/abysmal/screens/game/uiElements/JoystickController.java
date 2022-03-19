@@ -2,21 +2,22 @@ package com.mikilangelo.abysmal.screens.game.uiElements;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.mikilangelo.abysmal.screens.game.uiElements.InterfaceElement;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 
-public class Joystick {
-  private int radius;
+public class JoystickController extends InterfaceElement {
+  private float radius;
   private final Texture circle = new Texture("UI/circle.png");
   private final Texture curJoystick = new Texture("UI/controller.png");
-  private float startX = 70;
-  private float startY = 70;
+  private float centerX = 70;
+  private float centerY = 70;
   private float touchX, touchY;
   private float directionAngle = 1.5708f;
   private float power = 0;
   private boolean controlled = false;
 
-  public Joystick(int r) {
-    radius = r;
+  public JoystickController(float w, float h) {
+    this.handleScreenResize(w, h);
   }
 
   public float getDirection() {
@@ -28,8 +29,8 @@ public class Joystick {
   }
 
   public void startTouch(float touchX, float touchY) {
-    this.startX = touchX;
-    this.startY = touchY;
+    this.centerX = touchX;
+    this.centerY = touchY;
     this.touchX = this.touchY = 0;
     controlled = true;
   }
@@ -37,9 +38,9 @@ public class Joystick {
   public void update(float touchX, float touchY) {
     this.touchX = touchX;
     this.touchY = touchY;
-    power = CalculateUtils.distance(startX, startY, touchX, touchY);
+    power = CalculateUtils.distance(centerX, centerY, touchX, touchY);
     if (power > 0) {
-      directionAngle = CalculateUtils.simpleDefineAngle((touchX - startX) / power, (touchY - startY) / power, directionAngle);
+      directionAngle = CalculateUtils.simpleDefineAngle((touchX - centerX) / power, (touchY - centerY) / power, directionAngle);
     }
     controlled = true;
   }
@@ -48,19 +49,19 @@ public class Joystick {
     if (!controlled) {
       return;
     }
-    batch.draw(circle, this.startX - radius, this.startY - radius, radius * 2, radius * 2);
+    batch.draw(circle, this.centerX - radius, this.centerY - radius, radius * 2, radius * 2);
     if (power <= radius) {
       batch.draw(curJoystick, touchX - radius, touchY - radius, radius * 2, radius * 2);
     } else {
-      batch.draw(curJoystick, this.startX - radius + radius * (touchX - this.startX) / power, this.startY - radius + radius * (touchY - this.startY) / power, radius * 2, radius * 2);
+      batch.draw(curJoystick, this.centerX - radius + radius * (touchX - this.centerX) / power, this.centerY - radius + radius * (touchY - this.centerY) / power, radius * 2, radius * 2);
     }
     controlled = false;
   }
 
-  public void handleResize(float resizeCoefficient) {
-    radius *= resizeCoefficient;
-    startX *= resizeCoefficient;
-    startY *= resizeCoefficient;
+  public void handleScreenResize(float w, float h) {
+    radius = BUTTON_RADIUS * RATIO * 2;
+    centerX = JOYSTICK_CENTER_X * RATIO;
+    centerY = JOYSTICK_CENTER_Y * RATIO;
   }
 
   public void dispose() {

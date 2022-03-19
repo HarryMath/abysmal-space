@@ -90,8 +90,9 @@ public abstract class ShipDefinitions {
     rocinante.decorUnder.setScale(rocinante.bodyTexture.getScaleY());
     rocinante.frameFrequency = 0.06f;
     // lasers
-    rocinante.laserDefinition = null;
-    rocinante.lasersAmount = 0;
+    rocinante.laserDefinition = get("invader").laserDefinition;
+    rocinante.lasersAmount = 1;
+    rocinante.shotInterval = 2500;
     // turrets
     rocinante.turretDefinitions = new Array<>();
     LaserDef mainLaser = new LaserDef(); {
@@ -250,7 +251,7 @@ public abstract class ShipDefinitions {
     defender.shieldRadius = 2;
     // dynamic
     defender.speedPower = 32.7f;
-    defender.controlPower = 0.901f;
+    defender.controlPower = 0.79f;
     defender.speedResistance = 0.0233f;
     defender.rotationControlResistance = 0.91f;
     defender.rotationResistance = 0.98f;
@@ -333,7 +334,7 @@ public abstract class ShipDefinitions {
     invader.bodyScale = 6.3f;
     invader.shieldRadius = 2.9f;
     // dynamic
-    invader.speedPower = 26.7f;
+    invader.speedPower = 29.7f;
     invader.controlPower = 0.09f;
     invader.speedResistance = 0.0176f;
     invader.rotationControlResistance = 0.98f;

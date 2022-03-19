@@ -48,8 +48,11 @@ public class StrategyWave implements BotStrategy {
           break;
         }
       }
-      if (needToShotTurrets || Math.abs(targetAngle - bot.angle) < 0.013f) {
-        bot.shot();
+      if (needToShotTurrets) {
+        bot.shotByTurrets();
+      }
+      if (Math.abs(targetAngle - bot.angle) < 0.015f) {
+        bot.shotDirectly();
       }
     }
   }

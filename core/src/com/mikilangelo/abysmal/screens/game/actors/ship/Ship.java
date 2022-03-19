@@ -186,15 +186,10 @@ public class Ship {
     }
   }
 
-  protected void shot(float soundScale, float pan) {
-    if (def.lasersAmount < 1 && def.turretDefinitions.size == 0) {
-      return;
-    }
-    for (byte i = 0; i < turrets.size; i++) {
-      turrets.get(i).shot(this, soundScale, pan);
-    }
+  protected void shotDirectly(float soundScale, float pan) {
+    if (def.lasersAmount < 1) return;
     final long newShotTime = TimeUtils.millis();
-    if (def.lasersAmount > ammo || turrets.size > 0 || (newShotTime - lastShotTime) < def.shotInterval) {
+    if (def.lasersAmount > ammo || (newShotTime - lastShotTime) < def.shotInterval) {
       return;
     }
     final float maxLeftLaser = -def.lasersDistance * def.lasersAmount / 2f + def.lasersDistance / 2f;
@@ -224,11 +219,20 @@ public class Ship {
     this.lastShotTime = newShotTime;
   }
 
-  public void shot() {
+  public void shotDirectly() {
     if (distance >= 140) {
-      this.shot(0, 0);
+      this.shotDirectly(0, 0);
     } else {
-      this.shot((140 - distance) / 141, (x - PlayerShip.X) / distance);
+      this.shotDirectly((140 - distance) / 141, (x - PlayerShip.X) / distance);
+    }
+  }
+
+  public void shotByTurrets() {
+    if (turrets.size == 0) return;
+    final float soundScale = distance < 140 ? (140 - distance) / 141: 0;
+    final float pan = distance < 140 ? (x - PlayerShip.X) / distance: 0;
+    for (byte i = 0; i < turrets.size; i++) {
+      turrets.get(i).shot(this, soundScale, pan);
     }
   }
 

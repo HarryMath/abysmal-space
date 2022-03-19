@@ -60,10 +60,13 @@ public class StrategyKamikaze implements BotStrategy {
           break;
         }
       }
-      if (needToShotTurrets || Math.abs(targetAngle - bot.angle) < 0.013f ||
-              (bot.distance < biasRadius && Math.abs(targetAngle - bot.angle) < 0.03f)
+      if (needToShotTurrets) {
+        bot.shotByTurrets();
+      }
+      if (Math.abs(targetAngle - bot.angle) < 0.013f ||
+          (bot.distance < biasRadius && Math.abs(targetAngle - bot.angle) < 0.03f)
       ) {
-        bot.shot();
+        bot.shotDirectly();
       }
     }
 

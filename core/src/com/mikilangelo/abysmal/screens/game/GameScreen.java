@@ -21,10 +21,11 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mikilangelo.abysmal.AbysmalSpace;
 import com.mikilangelo.abysmal.screens.game.components.CollisionHandler;
-import com.mikilangelo.abysmal.screens.game.controllers.GameController;
+import com.mikilangelo.abysmal.screens.game.controllers.ZoomController;
+import com.mikilangelo.abysmal.screens.game.uiElements.ButtonShot;
 import com.mikilangelo.abysmal.shared.MusicPlayer;
 import com.mikilangelo.abysmal.shared.Settings;
-import com.mikilangelo.abysmal.screens.game.controllers.TouchHandler;
+import com.mikilangelo.abysmal.screens.game.controllers.mobile.TouchHandler;
 import com.mikilangelo.abysmal.shared.repositories.AsteroidsRepository;
 import com.mikilangelo.abysmal.shared.repositories.ExplosionsRepository;
 import com.mikilangelo.abysmal.shared.repositories.HolesRepository;
@@ -42,9 +43,9 @@ import com.mikilangelo.abysmal.screens.game.actors.decor.Star;
 import com.mikilangelo.abysmal.screens.game.actors.decor.StaticStar;
 import com.mikilangelo.abysmal.screens.game.components.Camera;
 import com.mikilangelo.abysmal.screens.game.uiElements.Indicator;
-import com.mikilangelo.abysmal.screens.game.uiElements.Joystick;
+import com.mikilangelo.abysmal.screens.game.uiElements.JoystickController;
 import com.mikilangelo.abysmal.screens.game.uiElements.Radar;
-import com.mikilangelo.abysmal.screens.game.uiElements.Shooter;
+import com.mikilangelo.abysmal.screens.game.uiElements.JoystickShooter;
 import com.mikilangelo.abysmal.screens.menu.MenuScreen;
 
 
@@ -62,8 +63,10 @@ public class GameScreen implements Screen {
   public static Camera camera;
 
 
-  Joystick joystick;
-  Shooter shooter;
+  final JoystickController shipController;
+  final JoystickShooter turretShooter;
+  final ButtonShot shotButton;
+
   public Radar radar;
   final Array<Star> stars = new Array<>();
   final Array<StaticObject> nearObjects = new Array<>();
@@ -103,8 +106,11 @@ public class GameScreen implements Screen {
     ship.createBody(world);
     ship.activateShield();
     radar = new Radar(ship.def.radarPower, ship.def.maxSpeed, HEIGHT, WIDTH);
-    joystick = new Joystick(HEIGHT / 8);
-    shooter = new Shooter(ship.turrets.size > 0);
+
+    shipController = new JoystickController(WIDTH, HEIGHT);
+    turretShooter = new JoystickShooter(WIDTH, HEIGHT, ship.def.turretDefinitions.size > 0);
+    shotButton = new ButtonShot(WIDTH, HEIGHT, ship.def.lasersAmount > 0);
+
     AsteroidsRepository.generateAsteroids(ship.x, ship.y);
     ExplosionsRepository.init();
     enemiesProcessor = processor;
@@ -201,14 +207,14 @@ public class GameScreen implements Screen {
       if (Gdx.input.isTouched(1)) {
         touch2Handler.touchX = Gdx.input.getX(1);
         touch2Handler.touchY = Gdx.input.getY(1);
-        screenUnderControl = touch2Handler.handleTouch(joystick, shooter, delta);
+        screenUnderControl = touch2Handler.handleTouch(shipController, turretShooter, shotButton, delta);
       } else {
         touch2Handler.endTouch();
       }
       if (Gdx.input.isTouched(0)) {
         touch1Handler.touchX = Gdx.input.getX(0);
         touch1Handler.touchY = Gdx.input.getY(0);
-        screenUnderControl = touch1Handler.handleTouch(joystick, shooter, delta);
+        screenUnderControl = touch1Handler.handleTouch(shipController, turretShooter, shotButton, delta);
       } else {
         touch1Handler.endTouch();
       }
@@ -307,8 +313,9 @@ public class GameScreen implements Screen {
 
 	private void drawInterface(float delta) {
 		game.batchInterface.begin(); {
-		  shooter.draw(game.batchInterface);
-		  joystick.draw(game.batchInterface);
+		  turretShooter.draw(game.batchInterface);
+		  shipController.draw(game.batchInterface);
+		  shotButton.draw(game.batchInterface);
       radar.drawBack(game.batchInterface);
 			AsteroidsRepository.drawAtRadar(game.batchInterface, radar);
       enemiesProcessor.drawAtRadar(game.batchInterface, radar);
@@ -357,18 +364,18 @@ public class GameScreen implements Screen {
   @Override
   public void resize(int width, int height) {
     if (width * height == 0) return;
-    float resizeCoefficient = height / (float) HEIGHT;
     WIDTH = width; HEIGHT = height;
     SCREEN_WIDTH = (float) WIDTH / (float) HEIGHT * SCREEN_HEIGHT;
     camera.resize(height, width);
     game.cameraInterface.setToOrtho(false, width, height);
     game.batchInterface.setProjectionMatrix(game.cameraInterface.combined);
-    joystick.handleResize(resizeCoefficient);
-    shooter.handleResize(resizeCoefficient);
     radar.resize(height, width);
     Indicator.handleResize(height);
     healthIndicator.resize(height);
     ammoIndicator.resize(height);
+    shipController.handleScreenResize(width, height);
+    turretShooter.handleScreenResize(width, height);
+    shotButton.handleScreenResize(width, height);
   }
 
   @Override
@@ -385,14 +392,14 @@ public class GameScreen implements Screen {
     if (shader != null) {
       shader.dispose();
     }
-    joystick.dispose();
+    shipController.dispose();
     got.dispose();
   }
 
   @Override
   public void show() {
     System.out.println("show method called");
-    Gdx.input.setInputProcessor(new GestureDetector(new GameController()));
+    Gdx.input.setInputProcessor(new GestureDetector(new ZoomController()));
   }
 
   @Override
