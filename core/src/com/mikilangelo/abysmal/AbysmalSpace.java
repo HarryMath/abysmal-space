@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.mikilangelo.abysmal.screens.game.controllers.GameController;
 import com.mikilangelo.abysmal.shared.MusicPlayer;
 import com.mikilangelo.abysmal.shared.ShipDefinitions;
 import com.mikilangelo.abysmal.shared.repositories.SoundsRepository;
@@ -23,8 +24,10 @@ public class AbysmalSpace extends Game {
 	public BitmapFont digits;
 	public BitmapFont simpleFont;
 	public final boolean isSensor;
+	public final GameController controller;
 
-	public AbysmalSpace(boolean isSensor) {
+	public AbysmalSpace(GameController controller, boolean isSensor) {
+		this.controller = controller;
 		this.isSensor = isSensor;
 	}
 

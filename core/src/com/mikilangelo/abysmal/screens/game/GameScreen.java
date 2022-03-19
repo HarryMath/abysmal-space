@@ -21,11 +21,10 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mikilangelo.abysmal.AbysmalSpace;
 import com.mikilangelo.abysmal.screens.game.components.CollisionHandler;
+import com.mikilangelo.abysmal.screens.game.controllers.GameController;
 import com.mikilangelo.abysmal.screens.game.controllers.ZoomController;
-import com.mikilangelo.abysmal.screens.game.uiElements.ButtonShot;
 import com.mikilangelo.abysmal.shared.MusicPlayer;
 import com.mikilangelo.abysmal.shared.Settings;
-import com.mikilangelo.abysmal.screens.game.controllers.mobile.TouchHandler;
 import com.mikilangelo.abysmal.shared.repositories.AsteroidsRepository;
 import com.mikilangelo.abysmal.shared.repositories.ExplosionsRepository;
 import com.mikilangelo.abysmal.shared.repositories.HolesRepository;
@@ -43,9 +42,7 @@ import com.mikilangelo.abysmal.screens.game.actors.decor.Star;
 import com.mikilangelo.abysmal.screens.game.actors.decor.StaticStar;
 import com.mikilangelo.abysmal.screens.game.components.Camera;
 import com.mikilangelo.abysmal.screens.game.uiElements.Indicator;
-import com.mikilangelo.abysmal.screens.game.uiElements.JoystickController;
 import com.mikilangelo.abysmal.screens.game.uiElements.Radar;
-import com.mikilangelo.abysmal.screens.game.uiElements.JoystickShooter;
 import com.mikilangelo.abysmal.screens.menu.MenuScreen;
 
 
@@ -62,11 +59,6 @@ public class GameScreen implements Screen {
 
   public static Camera camera;
 
-
-  final JoystickController shipController;
-  final JoystickShooter turretShooter;
-  final ButtonShot shotButton;
-
   public Radar radar;
   final Array<Star> stars = new Array<>();
   final Array<StaticObject> nearObjects = new Array<>();
@@ -80,9 +72,6 @@ public class GameScreen implements Screen {
   FrameBuffer frameBuffer;
   SpriteBatch shaderBatch;
   ShaderProgram shader;
-
-  final TouchHandler touch1Handler;
-  final TouchHandler touch2Handler;
 
   Shine shine;
   Portal portal;
@@ -106,11 +95,6 @@ public class GameScreen implements Screen {
     ship.createBody(world);
     ship.activateShield();
     radar = new Radar(ship.def.radarPower, ship.def.maxSpeed, HEIGHT, WIDTH);
-
-    shipController = new JoystickController(WIDTH, HEIGHT);
-    turretShooter = new JoystickShooter(WIDTH, HEIGHT, ship.def.turretDefinitions.size > 0);
-    shotButton = new ButtonShot(WIDTH, HEIGHT, ship.def.lasersAmount > 0);
-
     AsteroidsRepository.generateAsteroids(ship.x, ship.y);
     ExplosionsRepository.init();
     enemiesProcessor = processor;
@@ -123,6 +107,8 @@ public class GameScreen implements Screen {
             new Vector3(186, 117, 67).scl(1 / 255f),
             game.digits, ship.def.ammo, 12 + 64, HEIGHT);
 
+    game.controller.init(ship, WIDTH, HEIGHT);
+
     if (Settings.drawBackground) {
       generateHoles();
       generateStars();
@@ -131,8 +117,6 @@ public class GameScreen implements Screen {
     }
     generatePlanets();
     portal = new Portal(-5, 1, SCREEN_HEIGHT);
-    touch1Handler = new TouchHandler(ship);
-    touch2Handler = new TouchHandler(ship);
   }
 
   public static void shakeCamera(float power) {
@@ -181,43 +165,7 @@ public class GameScreen implements Screen {
 
   private void handleControls(float delta) {
     ship.move(delta);
-    screenUnderControl = false;
-    if (!game.isSensor) {
-      ship.newAngle = ship.angle;
-      if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
-        ship.applyImpulse(1, true);
-      }
-      if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-        ship.applyImpulse(-0.01f, false);
-      }
-      if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-        ship.rotate(0.7f, delta);
-      }
-      if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-        ship.rotate(-0.7f, delta);
-      }
-      if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-        camera.zoomOut();
-      }
-      if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
-        camera.zoomIn();
-      }
-    }
-
-      if (Gdx.input.isTouched(1)) {
-        touch2Handler.touchX = Gdx.input.getX(1);
-        touch2Handler.touchY = Gdx.input.getY(1);
-        screenUnderControl = touch2Handler.handleTouch(shipController, turretShooter, shotButton, delta);
-      } else {
-        touch2Handler.endTouch();
-      }
-      if (Gdx.input.isTouched(0)) {
-        touch1Handler.touchX = Gdx.input.getX(0);
-        touch1Handler.touchY = Gdx.input.getY(0);
-        screenUnderControl = touch1Handler.handleTouch(shipController, turretShooter, shotButton, delta);
-      } else {
-        touch1Handler.endTouch();
-      }
+    screenUnderControl = game.controller.process(ship, camera, delta);
   }
 
   private void drawObjects(float delta) {
@@ -313,9 +261,7 @@ public class GameScreen implements Screen {
 
 	private void drawInterface(float delta) {
 		game.batchInterface.begin(); {
-		  turretShooter.draw(game.batchInterface);
-		  shipController.draw(game.batchInterface);
-		  shotButton.draw(game.batchInterface);
+		  game.controller.drawInterface(game.batchInterface);
       radar.drawBack(game.batchInterface);
 			AsteroidsRepository.drawAtRadar(game.batchInterface, radar);
       enemiesProcessor.drawAtRadar(game.batchInterface, radar);
@@ -373,9 +319,7 @@ public class GameScreen implements Screen {
     Indicator.handleResize(height);
     healthIndicator.resize(height);
     ammoIndicator.resize(height);
-    shipController.handleScreenResize(width, height);
-    turretShooter.handleScreenResize(width, height);
-    shotButton.handleScreenResize(width, height);
+    game.controller.resizeComponents(width, height);
   }
 
   @Override
@@ -392,7 +336,7 @@ public class GameScreen implements Screen {
     if (shader != null) {
       shader.dispose();
     }
-    shipController.dispose();
+    game.controller.dispose();
     got.dispose();
   }
 

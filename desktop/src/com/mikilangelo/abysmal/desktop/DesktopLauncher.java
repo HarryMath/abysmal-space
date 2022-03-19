@@ -7,6 +7,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
 import com.mikilangelo.abysmal.AbysmalSpace;
+import com.mikilangelo.abysmal.desktop.controller.DesktopController;
 
 import java.lang.reflect.Field;
 
@@ -35,7 +36,7 @@ public class DesktopLauncher {
 				e.printStackTrace();
 			}
 		}).start();
-		new Lwjgl3Application(new AbysmalSpace(false), config);
+		new Lwjgl3Application(new AbysmalSpace(new DesktopController(),false), config);
 
 	}
 }

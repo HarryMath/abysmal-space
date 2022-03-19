@@ -1,4 +1,4 @@
-package com.mikilangelo.abysmal.screens.game.controllers.mobile;
+package com.mikilangelo.abysmal.screens.game.controllers;
 
 import static com.mikilangelo.abysmal.screens.game.GameScreen.HEIGHT;
 import static com.mikilangelo.abysmal.screens.game.GameScreen.WIDTH;
@@ -39,14 +39,14 @@ public class TouchHandler {
       }
       // else if () {} TODO check if other buttons are clicked
     }
-    if (!buttonClicked && touchY > HEIGHT / 3f && !createdShooter && !createdJoystick) {
-      if (touchX < WIDTH / 3f) {
+    if (!buttonClicked && touchY > HEIGHT * 0.25f && !createdShooter && !createdJoystick) {
+      if (touchX < WIDTH * 0.33f) {
         if (!hasCreatedJoystick) {
           createdJoystick = hasCreatedJoystick = true;
           shipController.startTouch(touchX, HEIGHT - touchY);
         }
-      } else if (turretShooter.isActive && touchX > 2 * WIDTH / 3f) {
-        if (!hasCreatedShooter) {
+      } else if (turretShooter.isActive && touchX > WIDTH * 0.66f) {
+        if (!hasCreatedShooter && turretShooter.contains(touchX, HEIGHT - touchY)) {
           turretShooter.startTouch(touchX, HEIGHT - touchY);
           createdShooter = hasCreatedShooter = true;
         }

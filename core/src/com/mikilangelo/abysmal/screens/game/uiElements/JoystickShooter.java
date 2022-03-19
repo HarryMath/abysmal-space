@@ -22,6 +22,8 @@ public class JoystickShooter extends InterfaceElement {
   public JoystickShooter(float w, float h, boolean isActive) {
     this.isActive = isActive;
     handleScreenResize(w, h);
+    touchX = centerX;
+    touchY = centerY;
   }
 
   public float getDirection() {
@@ -29,9 +31,8 @@ public class JoystickShooter extends InterfaceElement {
   }
 
   public void startTouch(float touchX, float touchY) {
-    this.centerX = touchX;
-    this.centerY = touchY;
-    this.touchX = this.touchY = 0;
+    this.touchX = touchX;
+    this.touchY = touchY;
     controlled = true;
   }
 
@@ -45,16 +46,28 @@ public class JoystickShooter extends InterfaceElement {
     controlled = true;
   }
 
+  public boolean contains(float touchX, float touchY) {
+    if (Math.abs(touchX - centerX) < radius * 3.1f && Math.abs(touchY - centerY) < radius * 3.1f) {
+      return CalculateUtils.distance(touchX, touchY, centerX, centerY) < radius * 3.1f;
+    }
+    return false;
+  }
+
   public void handleScreenResize(float w, float h) {
     centerX = w - JOYSTICK_CENTER_X * RATIO;
     centerY = JOYSTICK_CENTER_Y * RATIO;
+    if (!controlled) {
+      touchX = centerX;
+      touchY = centerY;
+    }
     radius = BUTTON_RADIUS * RATIO * 2;
   }
 
   public void draw(Batch batch) {
     if (!isActive) return;
     if (!controlled) {
-      return;
+      touchX = 0.5f * (touchX + centerX);
+      touchY = 0.5f * (touchY + centerY);
     }
     batch.draw(circle, centerX - radius, centerY - radius, radius * 2, radius * 2);
     if (power <= radius) {

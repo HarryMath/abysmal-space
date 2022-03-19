@@ -2,13 +2,13 @@ package com.mikilangelo.abysmal.screens.game.uiElements;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.mikilangelo.abysmal.screens.game.uiElements.InterfaceElement;
+import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 
 public class JoystickController extends InterfaceElement {
   private float radius;
-  private final Texture circle = new Texture("UI/circle.png");
-  private final Texture curJoystick = new Texture("UI/controller.png");
+  private final Texture circle = TexturesRepository.get("UI/circle.png");
+  private final Texture curJoystick = TexturesRepository.get("UI/controller.png");
   private float centerX = 70;
   private float centerY = 70;
   private float touchX, touchY;
@@ -64,8 +64,4 @@ public class JoystickController extends InterfaceElement {
     centerY = JOYSTICK_CENTER_Y * RATIO;
   }
 
-  public void dispose() {
-    this.circle.dispose();
-    this.curJoystick.dispose();
-  }
 }
