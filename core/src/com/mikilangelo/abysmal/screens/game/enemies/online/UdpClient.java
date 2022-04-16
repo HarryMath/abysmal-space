@@ -9,7 +9,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.google.gson.JsonSyntaxException;
 import com.mikilangelo.abysmal.screens.game.enemies.EnemiesProcessor;
 import com.mikilangelo.abysmal.screens.game.enemies.Enemy;
 import com.mikilangelo.abysmal.shared.ShipDefinitions;
@@ -34,10 +33,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class UdpClient implements EnemiesProcessor {
 
   private final InetAddress address;
-  private static final int port = 8080;
+  private final int port;
+  private final DatagramSocket client;
 
   private final Array<Player> players = new Array<>();
-  private final DatagramSocket client;
   private final AtomicBoolean isStopped = new AtomicBoolean(false);
   private byte[] output;
   private DatagramPacket outputPacket;
@@ -50,11 +49,10 @@ public class UdpClient implements EnemiesProcessor {
   private float playerX;
   private float playerY;
 
-  public UdpClient(boolean isLocal) throws IOException {
-    this.client = new DatagramSocket();
-//    address = InetAddress.getByName("localhost");
-    address = !isLocal ? InetAddress.getByName("13.53.170.78") :
-      InetAddress.getByName("255.255.255.255");
+  public UdpClient(String ip, int port) throws IOException {
+    this.port = port;
+    address = InetAddress.getByName(ip);
+    this.client = new DatagramSocket(port, address);
     inputPacket = new DatagramPacket(new byte[512], 512);
     sendingThread = new SendingThread();
     receiveThread = new Thread(() -> {
@@ -89,7 +87,8 @@ public class UdpClient implements EnemiesProcessor {
     state.timestamp = System.currentTimeMillis();
     try {
       output = state.toString().getBytes();
-      outputPacket = new DatagramPacket(output, output.length, address, port);
+      outputPacket = new DatagramPacket(output, output.length);
+      // outputPacket = new DatagramPacket(output, output.length, address, port);
       client.send(outputPacket);
     } catch (IOException e) {
       e.printStackTrace();
@@ -128,7 +127,7 @@ public class UdpClient implements EnemiesProcessor {
           }
         }
       }
-    } catch (JsonSyntaxException | NumberFormatException e) {
+    } catch (NumberFormatException e) {
       System.out.println("parse error: ");
       System.out.println(dataPackage + "\n");
     }

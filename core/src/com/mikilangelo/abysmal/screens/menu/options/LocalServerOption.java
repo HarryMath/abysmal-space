@@ -2,23 +2,14 @@ package com.mikilangelo.abysmal.screens.menu.options;
 
 import com.mikilangelo.abysmal.screens.menu.MenuScreen;
 
-public class PlayOption extends BasicOption {
-
-  String text = "Play";
-
-  public PlayOption() {}
-
-  public PlayOption(String text) {
-    this.text = text;
-  }
-
+public class LocalServerOption extends BasicOption {
   @Override
   public String getText() {
-    return text;
+    return "Create Server";
   }
 
   @Override
   public void handleClick(MenuScreen screen) {
-    screen.handlePlayClick();
+    screen.setLocalServer();
   }
 }

@@ -3,6 +3,7 @@ package com.mikilangelo.abysmal.screens.menu;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -15,8 +16,14 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.mikilangelo.abysmal.AbysmalSpace;
+import com.mikilangelo.abysmal.screens.menu.components.NotificationWrapper;
+import com.mikilangelo.abysmal.screens.menu.components.ServerProvider;
+import com.mikilangelo.abysmal.screens.menu.options.LocalClientOption;
+import com.mikilangelo.abysmal.screens.menu.options.LocalGameOption;
+import com.mikilangelo.abysmal.screens.menu.options.LocalServerOption;
 import com.mikilangelo.abysmal.shared.MusicPlayer;
 import com.mikilangelo.abysmal.shared.ShipDefinitions;
+import com.mikilangelo.abysmal.shared.repositories.SoundsRepository;
 import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.screens.game.enemies.EnemiesProcessor;
 import com.mikilangelo.abysmal.screens.game.enemies.bots.BotsProcessor;
@@ -25,21 +32,23 @@ import com.mikilangelo.abysmal.shared.defenitions.ShipDef;
 import com.mikilangelo.abysmal.screens.game.actors.ship.PlayerShip;
 import com.mikilangelo.abysmal.screens.game.actors.decor.animations.EngineAnimation;
 import com.mikilangelo.abysmal.screens.game.GameScreen;
+import com.mikilangelo.abysmal.shared.tools.Async;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 import com.mikilangelo.abysmal.screens.menu.options.ExitOption;
 import com.mikilangelo.abysmal.screens.menu.options.MainMenuOption;
-import com.mikilangelo.abysmal.screens.menu.options.MultiPlayerOption;
+import com.mikilangelo.abysmal.screens.menu.options.GlobalGameOption;
 import com.mikilangelo.abysmal.screens.menu.options.Option;
 import com.mikilangelo.abysmal.screens.menu.options.PlayOption;
 import com.mikilangelo.abysmal.screens.menu.options.SettingsOption;
 import com.mikilangelo.abysmal.screens.menu.options.SingleplayerOption;
+
+import java.io.IOException;
 
 public class MenuScreen implements Screen {
 
   final AbysmalSpace game;
   OrthographicCamera camera;
   int w, h;
-  String message = "";
   Preferences storage;
   Texture background = TexturesRepository.get("backMenu.png");
   Texture logo = TexturesRepository.get("UI/logo.png");
@@ -70,10 +79,17 @@ public class MenuScreen implements Screen {
   private float darkness = 1;
   private float leftArrowX, rightArrowX, arrowY;
 
-  private boolean isLoading = false;
+  final NotificationWrapper notification = new NotificationWrapper();
+  boolean isLoading = false;
+  float overlayOpacity = 0;
+  String loadingText = "";
   EnemiesProcessor enemiesProcessor;
+  final Sound positive = SoundsRepository.getSound("sounds/button_positive.mp3");
+  final Sound negative = SoundsRepository.getSound("sounds/button_negative.mp3");
 
   public MenuScreen(AbysmalSpace game) {
+    this.w = Gdx.graphics.getWidth();
+    this.h = Gdx.graphics.getHeight();
     MusicPlayer.start("sounds/menu.mp3", 0.6f);
     this.game = game;
     camera = new OrthographicCamera();
@@ -83,13 +99,13 @@ public class MenuScreen implements Screen {
     storage = Gdx.app.getPreferences("storage");
     currentShipIndex = storage.contains("shipId") ? storage.getInteger("shipId") : 0;
     selectShip(currentShipIndex);
-    resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     for (ShipDef d: ShipDefinitions.shipDefinitions) {
       this.engineAnimations.add(new EngineAnimation(d.engineAnimation, d.frameFrequency));
     }
     game.simpleFont.setColor(1, 1, 1, 0.8f);
     handleMainMenuOption();
     generateStars();
+    resize(w, h);
   }
 
   private void generateStars() {
@@ -112,7 +128,7 @@ public class MenuScreen implements Screen {
 
   public void handlePlayClick() {
     this.options.clear();
-    this.options.add(new SingleplayerOption(), new MultiPlayerOption(), new MainMenuOption());
+    this.options.add(new SingleplayerOption(), new GlobalGameOption(), new LocalGameOption(), new MainMenuOption());
   }
 
   public void handleMainMenuOption() {
@@ -121,27 +137,47 @@ public class MenuScreen implements Screen {
   }
 
   public void setSingleplayer() {
+    this.enemiesProcessor = new BotsProcessor();
+    this.startGame();
+  }
+
+  public void setLocalMultiPlayer() {
+    this.options.clear();
+    this.options.add(new LocalClientOption(), new LocalServerOption(), new PlayOption("< Back"));
+  }
+
+  public void setGlobalMultiplayer() {
+    this.isLoading = true;
+    this.loadingText = "searching for server";
+    new Async(ServerProvider.findGlobalServer).then(() -> {
+      if (ServerProvider.server != null) {
+        try {
+          this.enemiesProcessor = new UdpClient(ServerProvider.server.ip, ServerProvider.server.udpPort);
+          this.startGame();
+        } catch (IOException e) {
+          this.notification.showWarning("Error connecting to server");
+          negative.play(1);
+          e.printStackTrace();
+        }
+      } else {
+        negative.play(1);
+        this.notification.showWarning("No available server at the moment. Try later Please. We are very sorry for tat inconvenience! turn back later, please");
+      }
+      isLoading = false;
+    }).start();
+  }
+
+  private void startGame() {
     game.setScreen(new GameScreen(
             game,
-            new PlayerShip(currentShip, 0, 0),
-            new BotsProcessor()));
+            new PlayerShip(currentShip, 0 , 0),
+            this.enemiesProcessor));
     dispose();
   }
 
-  @Deprecated
-  public void setMultiplayer() {
-    try {
-      game.setScreen(new GameScreen(
-              game,
-              new PlayerShip(currentShip, 0, 0),
-              new UdpClient(true)));
-      dispose();
-    } catch (Exception e) {
-      this.message = "unavailable to join server";
-    }
+  public void handleSettingsOption() {
+    notification.showWarning("Settings unavailable yet :c");
   }
-
-  public void handleSettingsOption() { }
 
   private void animateShips(float delta) {
     if (shipSelected) return;
@@ -176,7 +212,7 @@ public class MenuScreen implements Screen {
 
   @Override
   public void show() {
-    Gdx.input.setInputProcessor(new GestureDetector(new Controller(this)));
+    Gdx.input.setInputProcessor(new ActionDetector(this));
   }
 
   @Override
@@ -190,7 +226,7 @@ public class MenuScreen implements Screen {
     drawMenu();
     drawInterface();
     drawLoadingOverlay();
-    drawSmoothDarkness(delta);
+    drawSmoothDarkness();
   }
 
   private void updateMenu(float delta) {
@@ -242,10 +278,15 @@ public class MenuScreen implements Screen {
     Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     shapeRenderer.setProjectionMatrix(camera.combined);
     shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-    shapeRenderer.setColor(0, 0, 0, 0.4f);
     final float startX = Math.min(menuStartX, 0);
     for (int i = 0; i < options.size; i++) {
-      shapeRenderer.rect(startX, menuStartY - optionHeight * i, menuWidth + menuStartX - startX, optionHeight * 0.8f);
+      if (options.get(i).isHovered()) {
+        shapeRenderer.setColor(0f, 0f, 0f, 0.5f);
+        shapeRenderer.rect(startX, menuStartY - optionHeight * (i + 0.05f), menuWidth + menuStartX - startX, optionHeight * 0.9f);
+      } else {
+        shapeRenderer.setColor(0.03f, 0.03f, 0.031f, 0.4f);
+        shapeRenderer.rect(startX, menuStartY - optionHeight * i, menuWidth + menuStartX - startX, optionHeight * 0.8f);
+      }
     }
     shapeRenderer.end();
     Gdx.gl.glDisable(GL20.GL_BLEND);
@@ -274,6 +315,7 @@ public class MenuScreen implements Screen {
             arrow.getHeight() * optionHeight / h);
     game.customFont.getData().setScale(optionHeight * 0.39f / game.customFont.getCapHeight() * game.customFont.getScaleY());
     for (int i = 0; i < options.size; i++) {
+      game.customFont.setColor(1,1, 1, options.get(i).isHovered() ? 1 : 0.8f);
       game.customFont.draw(game.batchInterface, options.get(i).getText(),
               menuStartX / 3f + optionHeight * 1.05f,
               menuStartY - optionHeight * (i - 0.6f));
@@ -284,20 +326,27 @@ public class MenuScreen implements Screen {
   }
 
   private void drawLoadingOverlay() {
-    if (isLoading) {
+    if (isLoading || notification.isShown()) {
       Gdx.gl.glEnable(GL20.GL_BLEND);
       Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
       shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-      shapeRenderer.setColor(0, 0, 0, 0.7f);
+      shapeRenderer.setColor(0.011f, 0.011f, 0.015f, 0.6f * overlayOpacity);
       shapeRenderer.rect(0, 0, w, h);
       shapeRenderer.end();
       Gdx.gl.glDisable(GL20.GL_BLEND);
+      overlayOpacity = (overlayOpacity * 0.6f + 0.4f);
+    } else {
+      overlayOpacity *= 0.8f;
     }
+    game.batchInterface.begin();
+    notification.draw(game.batchInterface, game.customFont);
+    game.batchInterface.end();
   }
 
-  private void drawSmoothDarkness(float delta) {
+  private void drawSmoothDarkness() {
     if (darkness > 0) {
-      darkness -= delta / 20 + (1 - darkness) / 35f;
+      darkness -= 0.00047 + (1 - darkness) * 0.035f;
+      if (darkness < 0) darkness = 0;
       Gdx.gl.glEnable(GL20.GL_BLEND);
       Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
       shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -351,27 +400,30 @@ public class MenuScreen implements Screen {
             optionHeight * 0.2f / game.simpleFont.getCapHeight() * game.simpleFont.getScaleY());
     version = new GlyphLayout(game.simpleFont, "v1.0.0. (2021-09-29)");
     copyright = new GlyphLayout(game.simpleFont, "(c) 2021 MikiIangeIo");
+    this.notification.resize(width, height);
   }
 
   @Override
-  public void pause() {
-
-  }
+  public void pause() { }
 
   @Override
-  public void resume() {
-
-  }
+  public void resume() { }
 
   @Override
-  public void hide() {
-
-  }
+  public void hide() { }
 
   @Override
   public void dispose() {
     stars.clear();
     shapeRenderer.dispose();
+  }
+
+  public void setLocalClient() {
+    notification.showWarning("This option is not available yet :c");
+  }
+
+  public void setLocalServer() {
+    notification.showWarning("This option is not available yet :c");
   }
 
   private class MenuStar {
@@ -389,6 +441,25 @@ public class MenuScreen implements Screen {
     }
   }
 
+  private class ActionDetector extends GestureDetector {
+
+    public ActionDetector(MenuScreen screen) {
+      super(new Controller(screen));
+    }
+
+    @Override
+    public boolean mouseMoved(int x, int y) {
+      super.mouseMoved(x, y);
+      y = h - y;
+      for (int i = 0; i < options.size; i++) {
+        options.get(i).setHovered(x < menuWidth &&
+                y > menuStartY - optionHeight * i &&
+                y < menuStartY - optionHeight * (i - 0.8f));
+      }
+      return false;
+    }
+  }
+
   private class Controller implements GestureDetector.GestureListener {
 
     private final MenuScreen screen;
@@ -398,27 +469,38 @@ public class MenuScreen implements Screen {
     }
 
     @Override
-    public boolean touchDown(float x, float y, int pointer, int button) {
+    public boolean tap(float x, float y, int count, int button) {
+      if (isLoading) {
+        return false;
+      }
       y = h - y;
-      for (int i = 0; i < options.size; i++) {
-        if (x < menuWidth &&
-                y > menuStartY - optionHeight * i &&
-                y < menuStartY - optionHeight * (i - 0.8f)
-        ) {
-          menuAnimationCounter = 0;
-          options.get(i).handleClick(screen);
-          return false;
+      if (notification.isShown()) {
+        if (notification.isInButton((int) x, (int) y)) {
+          positive.play(0.3f);
+          notification.hide();
         }
       }
-      if (CalculateUtils.distance(x, y, leftArrowX, arrowY) <= optionHeight * 0.5f) {
-        selectShip(currentShipIndex - 1);
-      } else if (CalculateUtils.distance(x, y, rightArrowX, arrowY) <= optionHeight * 0.5f) {
-        selectShip(currentShipIndex + 1);
+      else {
+        for (int i = 0; i < options.size; i++) {
+          if (x < menuWidth &&
+                  y > menuStartY - optionHeight * i &&
+                  y < menuStartY - optionHeight * (i - 0.8f)
+          ) {
+            menuAnimationCounter = 0;
+            options.get(i).handleClick(screen);
+            positive.play(0.3f);
+            return false;
+          }
+        }
+        if (CalculateUtils.distance(x, y, leftArrowX, arrowY) <= optionHeight * 0.5f) {
+          selectShip(currentShipIndex - 1);
+        } else if (CalculateUtils.distance(x, y, rightArrowX, arrowY) <= optionHeight * 0.5f) {
+          selectShip(currentShipIndex + 1);
+        }
       }
       return false;
     }
-
-    public boolean tap(float x, float y, int count, int button) { return false; }
+    public boolean touchDown(float x, float y, int pointer, int button) { return false; }
     public boolean longPress(float x, float y) { return false; }
     public boolean fling(float velocityX, float velocityY, int button) { return false; }
     public boolean pan(float x, float y, float deltaX, float deltaY) { return false; }

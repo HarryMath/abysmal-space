@@ -6,7 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.screens.menu.MenuScreen;
 
-public class ExitOption implements Option {
+public class ExitOption extends BasicOption {
   @Override
   public String getText() {
     return "Quit";

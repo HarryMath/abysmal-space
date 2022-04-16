@@ -36,8 +36,8 @@ public class ShotData {
 
   }
 
-  public static boolean isInstance(String json) {
-    return json.startsWith("shot[");
+  public static boolean isInstance(String data) {
+    return data.startsWith("shot[");
   }
 
   @Override

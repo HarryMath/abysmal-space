@@ -8,4 +8,7 @@ public interface Option {
 
   void handleClick(MenuScreen screen);
 
+  boolean isHovered();
+
+  void setHovered(boolean isHovered);
 }

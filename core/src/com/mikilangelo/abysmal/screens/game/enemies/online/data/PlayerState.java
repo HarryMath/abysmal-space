@@ -28,8 +28,8 @@ public class PlayerState {
     timestamp = Long.parseLong(data[11]);
   }
 
-  public static boolean isInstance(String json) {
-    return json.startsWith("state[");
+  public static boolean isInstance(String data) {
+    return data.startsWith("state[");
   }
 
   @Override

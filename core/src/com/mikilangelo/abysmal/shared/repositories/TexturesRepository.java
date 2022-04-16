@@ -32,6 +32,9 @@ public abstract class TexturesRepository {
             "radar_scanner", "shot", "shotDirect", "arrow", "enemy_frame"},
             ".png");
     loadTexture("ships/kak.png");
+    loadTextures("UI/notification/", new String[] {
+            "border", "btn", "btnBorder", "shadow", "window"
+    }, ".png");
     loadTextures("UI/indicators/", new String[]{
                     "ammo", "health", "border", "back", "red", "yellow", "blue", "speed"}, ".png");
     loadTextures("UI/radar/", new String[]{

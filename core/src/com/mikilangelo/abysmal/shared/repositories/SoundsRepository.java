@@ -40,6 +40,8 @@ public abstract class SoundsRepository {
   public static void init() {
     loadTracks("sounds/", new String[]{
             "menu.mp3", "music.mp3", "battle2.mp3", "radar.mp3"});
+    loadSounds("sounds/", new String[]{
+            "button_negative", "button_positive", "menu_button"}, ".mp3");
     loadSounds("", new String[]{
             "explosions/simple/sound.mp3", "explosions/stone/sound.mp3", "sounds/shieldHit.wav"}, "");
     loadSounds("ships/", new String[]{"alien", "defender", "hyperion", "invader", "rocinante"}, "/shot.mp3");

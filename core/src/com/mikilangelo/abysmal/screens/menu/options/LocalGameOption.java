@@ -2,13 +2,13 @@ package com.mikilangelo.abysmal.screens.menu.options;
 
 import com.mikilangelo.abysmal.screens.menu.MenuScreen;
 
-public class PlayOption extends BasicOption {
+public class LocalGameOption extends BasicOption {
 
-  String text = "Play";
+  private String text = "By local network";
 
-  public PlayOption() {}
+  public LocalGameOption() {}
 
-  public PlayOption(String text) {
+  public LocalGameOption(String text) {
     this.text = text;
   }
 
@@ -19,6 +19,6 @@ public class PlayOption extends BasicOption {
 
   @Override
   public void handleClick(MenuScreen screen) {
-    screen.handlePlayClick();
+    screen.setLocalMultiPlayer();
   }
 }

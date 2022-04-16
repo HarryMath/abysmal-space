@@ -1,6 +1,7 @@
 package com.mikilangelo.abysmal.screens.menu.models;
 
-public class ServerData {
-  public String ipAddress;
+public class ServerDto {
+  public String ip;
+  public int udpPort;
   public int playersAmount;
 }
