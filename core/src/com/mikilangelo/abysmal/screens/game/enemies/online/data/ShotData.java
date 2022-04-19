@@ -1,6 +1,6 @@
 package com.mikilangelo.abysmal.screens.game.enemies.online.data;
 
-public class ShotData {
+public class ShotData extends DataPackage {
   public float x, y, angle;
   public float impulseX, impulseY;
   public int gunId;

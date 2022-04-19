@@ -8,6 +8,7 @@ public class ShipDef {
 
   // basic
   public String name;
+  public int id;
   public float health;
   public float maxZoom, minZoom = 0.5f;
   public float radarPower;

@@ -49,7 +49,7 @@ import com.mikilangelo.abysmal.screens.menu.MenuScreen;
 public class GameScreen implements Screen {
 
   public static final float SCREEN_HEIGHT = 25;
-  public static float SCREEN_WIDTH = 25;
+  public static float SCREEN_WIDTH;
   public static World world;
   private final PlayerShip ship;
   public static boolean screenUnderControl = false;
@@ -95,7 +95,7 @@ public class GameScreen implements Screen {
     ship.createBody(world);
     ship.activateShield();
     radar = new Radar(ship.def.radarPower, ship.def.maxSpeed, HEIGHT, WIDTH);
-    AsteroidsRepository.generateAsteroids(ship.x, ship.y);
+    AsteroidsRepository.generateAsteroids(32323, ship.x, ship.y);
     ExplosionsRepository.init();
     enemiesProcessor = processor;
     enemiesProcessor.generateEnemies(ship);

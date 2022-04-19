@@ -72,8 +72,7 @@ public class Ship {
   public Ship(ShipDef definition, float x, float y, boolean isPlayer, float playerX, float playerY) {
     totalShips++;
     bodyId = (short)(-totalShips);
-    this.generationId = definition.name + (totalShips % 10) + MathUtils.random(0, 9) +
-            String.valueOf(System.currentTimeMillis()).substring(5);
+    this.generationId = CalculateUtils.uid();
     this.def = definition;
     engineAnimation = new EngineAnimation(definition.engineAnimation, definition.frameFrequency);
     this.turrets = new Array<>();
@@ -97,7 +96,12 @@ public class Ship {
 
   public void control(float direction, float power, float delta) {
     newAngle = direction;
-    this.applyImpulse(power, this.distance < SCREEN_WIDTH);
+    final float rotationLeft = (angle - newAngle + MathUtils.PI2) % MathUtils.PI2;
+    final float rotationRight = (newAngle - angle + MathUtils.PI2) % MathUtils.PI2;
+    final boolean isLeft = rotationLeft < rotationRight;
+    final float rotation = isLeft ? rotationLeft : rotationRight;
+    final float powerScale = (3.1415927f - rotation) / 3.14159267f;
+    this.applyImpulse(power * (0.1f + powerScale * 0.9f), this.distance < SCREEN_WIDTH);
 
     assert angle >= 0 && angle <= MathUtils.PI2;
     assert newAngle >= 0 && newAngle <= MathUtils.PI2;
@@ -106,9 +110,7 @@ public class Ship {
       if (angle <= newAngle + def.controlPower / 5f && angle >= newAngle - def.controlPower / 5f) {
         this.body.setAngularVelocity(this.body.getAngularVelocity() * 0.82f);
       } else {
-        final float rotationLeft = (angle - newAngle + MathUtils.PI2) % MathUtils.PI2;
-        final float rotationRight = (newAngle - angle + MathUtils.PI2) % MathUtils.PI2;
-        if (rotationLeft < rotationRight) {
+        if (isLeft) {
           this.rotate(- rotationLeft / MathUtils.PI * 0.55f - 0.45f, delta);
         } else {
           this.rotate(rotationLeft / MathUtils.PI * 0.55f + 0.45f, delta);

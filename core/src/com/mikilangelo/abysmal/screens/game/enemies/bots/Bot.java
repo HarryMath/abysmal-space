@@ -18,26 +18,27 @@ class Bot extends Enemy {
   public Bot(Ship ship) {
     super(ship);
     final String name = ship.def.name.toLowerCase(Locale.ROOT);
-    if (name.contains("defender")) {
-      this.strategy =
-              CalculateUtils.getProbability(0.5f) ? new StrategyHitAndRun() :
-              CalculateUtils.getProbability(0.3f) ? new StrategyWave() :
-              CalculateUtils.getProbability(0.4f) ? new StrategyKamikaze() : new StrategySniper();
-    } else if (name.contains("invader")) {
-      this.strategy = CalculateUtils.getProbability(0.4f) ?
-              new StrategySniper() : new StrategyKamikaze();
-    } else if (name.contains("hyperion")) {
-      this.strategy = CalculateUtils.getProbability(0.6f) ?
-              new StrategyHitAndRun() : new StrategySniper();
-    } else if (name.contains("alien")){
-      this.strategy = CalculateUtils.getProbability(0.81f) ?
-              new StrategyHitAndRun() : new StrategyKamikaze();
-    } else {
-      System.out.println("Unknown ship: " + name);
-      this.strategy = CalculateUtils.getProbability(0.333f) ?
-              new StrategyHitAndRun() : CalculateUtils.getProbability(0.5f) ?
-              new StrategyKamikaze() : new StrategySniper();
-    }
+//    if (name.contains("defender")) {
+//      this.strategy =
+//              CalculateUtils.getProbability(0.5f) ? new StrategyHitAndRun() :
+//              CalculateUtils.getProbability(0.3f) ? new StrategyWave() :
+//              CalculateUtils.getProbability(0.4f) ? new StrategyKamikaze() : new StrategySniper();
+//    } else if (name.contains("invader")) {
+//      this.strategy = CalculateUtils.getProbability(0.4f) ?
+//              new StrategySniper() : new StrategyKamikaze();
+//    } else if (name.contains("hyperion")) {
+//      this.strategy = CalculateUtils.getProbability(0.6f) ?
+//              new StrategyHitAndRun() : new StrategySniper();
+//    } else if (name.contains("alien")){
+//      this.strategy = CalculateUtils.getProbability(0.81f) ?
+//              new StrategyHitAndRun() : new StrategyKamikaze();
+//    } else {
+//      System.out.println("Unknown ship: " + name);
+//      this.strategy = CalculateUtils.getProbability(0.333f) ?
+//              new StrategyHitAndRun() : CalculateUtils.getProbability(0.5f) ?
+//              new StrategyKamikaze() : new StrategySniper();
+//    }
+    this.strategy = new StrategyHitAndRun();
   }
 
   public boolean control(float playerX, float playerY, float playerAngle, float delta) {

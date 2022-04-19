@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.mikilangelo.abysmal.screens.game.enemies.EnemiesProcessor;
 import com.mikilangelo.abysmal.screens.game.enemies.Enemy;
+import com.mikilangelo.abysmal.screens.game.enemies.online.data.DataPackage;
 import com.mikilangelo.abysmal.shared.ShipDefinitions;
 import com.mikilangelo.abysmal.shared.repositories.ExplosionsRepository;
 import com.mikilangelo.abysmal.shared.repositories.LasersRepository;
@@ -41,7 +42,7 @@ public class UdpClient implements EnemiesProcessor {
   private byte[] output;
   private DatagramPacket outputPacket;
   private final DatagramPacket inputPacket;
-  private int missedFrames = 0;
+  private byte missedFrames = 0;
   private final PlayerState state = new PlayerState();
   private final SendingThread sendingThread;
   private final Thread receiveThread;
@@ -51,8 +52,8 @@ public class UdpClient implements EnemiesProcessor {
 
   public UdpClient(String ip, int port) throws IOException {
     this.port = port;
-    address = InetAddress.getByName(ip);
-    this.client = new DatagramSocket(port, address);
+    address = InetAddress.getByName("nikita-bortnik-resume.web.app");
+    this.client = new DatagramSocket();
     inputPacket = new DatagramPacket(new byte[512], 512);
     sendingThread = new SendingThread();
     receiveThread = new Thread(() -> {
@@ -79,7 +80,7 @@ public class UdpClient implements EnemiesProcessor {
   @Override
   public void generateEnemies(Ship ship) {
     state.generationId = ship.generationId;
-    state.shipName = ship.def.name;
+    state.shipId = ship.def.id;
     playerX = state.x = ship.x;
     playerY = state.y = ship.y;
     state.health = 999;
@@ -87,8 +88,8 @@ public class UdpClient implements EnemiesProcessor {
     state.timestamp = System.currentTimeMillis();
     try {
       output = state.toString().getBytes();
-      outputPacket = new DatagramPacket(output, output.length);
-      // outputPacket = new DatagramPacket(output, output.length, address, port);
+      // outputPacket = new DatagramPacket(output, output.length);
+      outputPacket = new DatagramPacket(output, output.length, address, port);
       client.send(outputPacket);
     } catch (IOException e) {
       e.printStackTrace();
@@ -112,7 +113,7 @@ public class UdpClient implements EnemiesProcessor {
                 return;
               }
             }
-            Ship ship = new Ship(ShipDefinitions.get(player.shipName),
+            Ship ship = new Ship(ShipDefinitions.get(player.shipId),
                     player.x, player.y, false, playerX, playerY);
             players.add(new Player(ship, player.generationId, false));
           }
@@ -326,10 +327,10 @@ public class UdpClient implements EnemiesProcessor {
 
   private class SendingThread extends Thread {
 
-    private final Vector<Object> sequence = new Vector<>();
+    private final Vector<DataPackage> sequence = new Vector<>();
     private final AtomicBoolean needToSendState = new AtomicBoolean(false);
 
-    public void sendData(Object data) {
+    public void sendData(DataPackage data) {
       sequence.add(data);
       if (sequence.size() > 20) {
         sequence.remove(0);
@@ -344,7 +345,15 @@ public class UdpClient implements EnemiesProcessor {
     public void run() {
       while (!isStopped.get()) {
         if (needToSendState.get()) {
+          long t = System.currentTimeMillis();
           try {
+            {
+              //System.out.print("\norig:    ");
+              //state.print();
+              System.out.println("encoded: " + state);
+              //System.out.print("decoded: ");
+              //new PlayerState(state.toString()).print();
+            }
             output = state.toString().getBytes();
             outputPacket.setData(output, 0, output.length);
             client.send(outputPacket);
@@ -352,6 +361,7 @@ public class UdpClient implements EnemiesProcessor {
           } catch (IOException e) {
             e.printStackTrace();
           }
+          System.out.println("send packet took + " + (System.currentTimeMillis() - t) + "ms.");
         }
         if (sequence.size() > 0) {
           try {

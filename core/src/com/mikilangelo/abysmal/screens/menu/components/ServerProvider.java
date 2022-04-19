@@ -11,20 +11,16 @@ import java.net.URL;
 
 public abstract class ServerProvider {
 
-  private static final String mainServerUrl = "http://localhost:80/node/provide";
+  private static final String mainServerUrl = "http://localhost:80/nodes/provide";
   public static ServerDto server;
 
   public final static Runnable findGlobalServer = () -> {
     try {
-      System.out.println("LoadServer action started");
       URL url = new URL(mainServerUrl);
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
       connection.setRequestMethod("GET");
-      connection.setDoOutput(true);
-      OutputStream requestStream = connection.getOutputStream();
-      requestStream.write(0);
-      requestStream.flush();
-      requestStream.close();
+      connection.setRequestProperty("content-type", "application/json");
+      System.out.println("[ServerProvider] response code: " + connection.getResponseCode());
       InputStream responseStream = connection.getInputStream();
       BufferedReader rd = new BufferedReader(new InputStreamReader(responseStream));
       StringBuilder responseBuilder = new StringBuilder(); // or StringBuffer if Java version 5+
@@ -35,14 +31,16 @@ public abstract class ServerProvider {
       }
       rd.close();
       String response = responseBuilder.toString();
-      System.out.println(response);
+      System.out.println("[ServerProvider] response: " + response);
       server = new ServerDto();
-      server.ip = getProperty(response, "ip").replace("::fff:", "");
+      server.ip = getProperty(response, "ip").replace("::ffff:", "");
+      System.out.println("ip is " + server.ip);
       server.udpPort = Integer.parseInt(getProperty(response, "udpPort"));
       server.playersAmount = Integer.parseInt(getProperty(response, "playersAmount"));
     } catch (Exception ignore) {
+      System.out.println("[ServerProvider] error getting global server");
+      ignore.printStackTrace();
       server = null;
-      System.out.println("LoadServer action ended with error");
     }
   };
 

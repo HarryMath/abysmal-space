@@ -10,6 +10,16 @@ public abstract class CalculateUtils {
   private static final float PI2 = 2 * PI;
   private static final float PI4 = 2 * PI2;
 
+  public static String uid() {
+    final long timestamp = System.currentTimeMillis();
+    return new StringBuilder()
+            .append((char) (timestamp % 128))
+            .append((char) MathUtils.random(0, 127))
+            .append((char) MathUtils.random(0, 127))
+            .append((char) MathUtils.random(0, 127))
+            .toString();
+  }
+
   public static float defineAngle(float x, float y, float angle) {
     if (x == 0 && y == 0) {
       return angle;

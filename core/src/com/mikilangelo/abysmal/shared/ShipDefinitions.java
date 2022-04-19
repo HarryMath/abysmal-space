@@ -46,6 +46,7 @@ public abstract class ShipDefinitions {
   public static ShipDef get(String shipName) {
     return shipDefinitions.get(shipNames.get(shipName));
   }
+
   public static ShipDef get(int index) {
     return shipDefinitions.get(index);
   }
@@ -170,9 +171,7 @@ public abstract class ShipDefinitions {
       e2.isResizing = true;
     }
     rocinante.engineDefinitions.add(e1, e2);
-
-    shipNames.put(rocinante.name, shipDefinitions.size);
-    shipDefinitions.add(rocinante);
+    addShip(rocinante);
   }
 
   private static void generateXWing() {
@@ -314,7 +313,6 @@ public abstract class ShipDefinitions {
       }
     }
     defender.engineDefinitions = engines;
-
     addShip(defender);
   }
 
@@ -390,7 +388,6 @@ public abstract class ShipDefinitions {
     e.particleSizeDispersion = 0.0036f; // 0.011f;
     e.particleShipSpeedCoefficient = 0.5f;
     invader.engineDefinitions = engines;
-
     addShip(invader);
   }
 
@@ -474,7 +471,6 @@ public abstract class ShipDefinitions {
       e.isTopLayer = false;
     }
     alien.engineDefinitions = engines;
-
     addShip(alien);
   }
 
@@ -571,12 +567,11 @@ public abstract class ShipDefinitions {
     }
     // engines
     hyperion.engineDefinitions = new Array<>();
-
-    shipNames.put(hyperion.name, shipDefinitions.size);
-    shipDefinitions.add(hyperion);
+    addShip(hyperion);
   }
 
   private static void addShip(ShipDef definition) {
+    definition.id = shipDefinitions.size;
     shipNames.put(definition.name, shipDefinitions.size);
     shipDefinitions.add(definition);
   }

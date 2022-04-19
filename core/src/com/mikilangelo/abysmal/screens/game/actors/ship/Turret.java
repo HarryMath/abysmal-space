@@ -1,7 +1,5 @@
 package com.mikilangelo.abysmal.screens.game.actors.ship;
 
-import static com.mikilangelo.abysmal.shared.tools.CalculateUtils.defineAngle;
-
 import com.mikilangelo.abysmal.shared.repositories.LasersRepository;
 import com.mikilangelo.abysmal.shared.defenitions.TurretDef;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -10,6 +8,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.mikilangelo.abysmal.screens.game.GameScreen;
 
 public class Turret {
+  private static final float halfPI = MathUtils.PI * 0.5f;
   public TurretDef definition;
   private final int gunId;
   public float angle;
@@ -51,9 +50,9 @@ public class Turret {
       }
       this.angle = (this.angle + MathUtils.PI2) % MathUtils.PI2;
     }
-    x = shipX + definition.positionY * MathUtils.cos(shipAngle + MathUtils.PI / 2) +
+    x = shipX + definition.positionY * MathUtils.cos(shipAngle + halfPI) +
             definition.positionX * MathUtils.cos(shipAngle);
-    y = shipY + definition.positionY * MathUtils.sin(shipAngle + MathUtils.PI / 2) +
+    y = shipY + definition.positionY * MathUtils.sin(shipAngle + halfPI) +
             definition.positionX * MathUtils.sin(shipAngle);
   }
 

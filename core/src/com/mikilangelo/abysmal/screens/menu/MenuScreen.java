@@ -168,11 +168,13 @@ public class MenuScreen implements Screen {
   }
 
   private void startGame() {
-    game.setScreen(new GameScreen(
-            game,
-            new PlayerShip(currentShip, 0 , 0),
-            this.enemiesProcessor));
-    dispose();
+    Gdx.app.postRunnable(()-> {
+      game.setScreen(new GameScreen(
+              game,
+              new PlayerShip(currentShip, 0 , 0),
+              this.enemiesProcessor));
+      dispose();
+    });
   }
 
   public void handleSettingsOption() {

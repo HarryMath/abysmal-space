@@ -1,5 +1,6 @@
 package com.mikilangelo.abysmal.screens.menu.components;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -94,7 +95,9 @@ public class Notification {
   }
 
   public void resize(int w, int h) {
-    this.pixelSize = 0.5f + h / 500f * 0.7f + w / 800f * 0.3f;
+    float pixelsPerCentimeter = Gdx.graphics.getDensity() * 0.3937f * 160;
+    this.pixelSize = (0.3f * pixelsPerCentimeter + 0.1f * h * 0.7f) / 30;
+    // this.pixelSize = 0.5f + h / 500f * 0.7f + w / 800f * 0.3f;
     this.fontSize = 16 * pixelSize * 0.45f;
     this.w = fontSize * 4 + (maxRowLength * 0.4f + rowLength * 0.6f) *
             (fontSize * 0.5f * 0.7f + w * 0.4f / maxRowLength * 0.3f);
