@@ -81,7 +81,7 @@ public class GameScreen implements Screen {
 
   public static EnemiesProcessor enemiesProcessor;
 
-  public GameScreen(final AbysmalSpace game, PlayerShip ship, EnemiesProcessor processor) {
+  public GameScreen(final AbysmalSpace game, PlayerShip ship, EnemiesProcessor processor, long seed) {
     MusicPlayer.start("sounds/battle2.mp3", 0.5f);
     this.game = game;
     this.ship = ship;
@@ -95,7 +95,7 @@ public class GameScreen implements Screen {
     ship.createBody(world);
     ship.activateShield();
     radar = new Radar(ship.def.radarPower, ship.def.maxSpeed, HEIGHT, WIDTH);
-    AsteroidsRepository.generateAsteroids(32323, ship.x, ship.y);
+    AsteroidsRepository.generateAsteroids(seed, ship.x, ship.y);
     ExplosionsRepository.init();
     enemiesProcessor = processor;
     enemiesProcessor.generateEnemies(ship);

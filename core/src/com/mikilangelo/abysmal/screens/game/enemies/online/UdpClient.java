@@ -11,8 +11,10 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.mikilangelo.abysmal.screens.game.enemies.EnemiesProcessor;
 import com.mikilangelo.abysmal.screens.game.enemies.Enemy;
+import com.mikilangelo.abysmal.screens.game.enemies.online.data.AsteroidCrashed;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.DataPackage;
 import com.mikilangelo.abysmal.shared.ShipDefinitions;
+import com.mikilangelo.abysmal.shared.repositories.AsteroidsRepository;
 import com.mikilangelo.abysmal.shared.repositories.ExplosionsRepository;
 import com.mikilangelo.abysmal.shared.repositories.LasersRepository;
 import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
@@ -28,6 +30,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -52,16 +56,17 @@ public class UdpClient implements EnemiesProcessor {
 
   public UdpClient(String ip, int port) throws IOException {
     this.port = port;
-    address = InetAddress.getByName("nikita-bortnik-resume.web.app");
+    address = InetAddress.getByName(ip);
     this.client = new DatagramSocket();
-    inputPacket = new DatagramPacket(new byte[512], 512);
+    inputPacket = new DatagramPacket(new byte[256], 256);
     sendingThread = new SendingThread();
     receiveThread = new Thread(() -> {
       while (!isStopped.get()) {
         try {
           client.receive(inputPacket);
           if (isStopped.get()) {break;}
-          handleData(new String(inputPacket.getData(), 0, inputPacket.getLength()));
+          handleData(trimPackage(inputPacket.getData()));
+          inputPacket.setData(new byte[256]);
         } catch (Exception ex) {
           ex.printStackTrace();
         }
@@ -70,6 +75,14 @@ public class UdpClient implements EnemiesProcessor {
     });
     receiveThread.start();
     sendingThread.start();
+  }
+
+  private byte[] trimPackage(byte[] data) {
+    int i = (short) data.length - 1;
+    while (i >= 0 && data[i] == 0) {
+      i--;
+    }
+    return Arrays.copyOf(data, i+1);
   }
 
   @Override
@@ -87,8 +100,7 @@ public class UdpClient implements EnemiesProcessor {
     state.speedX = state.speedY = state.angularSpeed = state.angle = 0;
     state.timestamp = System.currentTimeMillis();
     try {
-      output = state.toString().getBytes();
-      // outputPacket = new DatagramPacket(output, output.length);
+      output = state.compress();
       outputPacket = new DatagramPacket(output, output.length, address, port);
       client.send(outputPacket);
     } catch (IOException e) {
@@ -96,7 +108,7 @@ public class UdpClient implements EnemiesProcessor {
     }
   }
 
-  private void handleData(String dataPackage) {
+  private void handleData(byte[] dataPackage) {
     try {
       if (PlayerState.isInstance(dataPackage)) {
         PlayerState player = new PlayerState(dataPackage);
@@ -107,7 +119,7 @@ public class UdpClient implements EnemiesProcessor {
               return;
             }
           }
-          if (player.generationId.length() > 10) {
+          if (player.generationId.length() > 1) {
             for (int i = 0; i < players.size; i++) {
               if (CalculateUtils.distance(player.x, player.y, players.get(i).ship.x, players.get(i).ship.y) < 2) {
                 return;
@@ -120,13 +132,19 @@ public class UdpClient implements EnemiesProcessor {
         }
       }
       else if (ShotData.isInstance(dataPackage)) {
+        System.out.println("recieved shot data: ");
         ShotData shotData = new ShotData(dataPackage);
+        System.out.println(shotData);
         for (Player p : players) {
           if (p.generationId.equals(shotData.generationId)) {
             p.shot(shotData);
             return;
           }
         }
+      }
+      else if (AsteroidCrashed.isInstance(dataPackage)) {
+        AsteroidCrashed crashData = new AsteroidCrashed(dataPackage);
+        AsteroidsRepository.handleCrash(crashData);
       }
     } catch (NumberFormatException e) {
       System.out.println("parse error: ");
@@ -186,15 +204,26 @@ public class UdpClient implements EnemiesProcessor {
   }
 
   @Override
+  public void explodeAsteroid(long asteroidId, float x, float y, float angle) {
+    AsteroidCrashed data = new AsteroidCrashed();
+    data.asteroidId = asteroidId;
+    data.x = x;
+    data.y = y;
+    data.angle = angle;
+    data.timestamp = System.currentTimeMillis();
+    sendingThread.sendData(data);
+  }
+
+  @Override
   public void dispose() {
     isStopped.set(true);
     players.clear();
     receiveThread.interrupt();
     sendingThread.interrupt();
     state.health = 0;
-    output = state.toString().getBytes();
-    outputPacket.setData(output, 0, output.length);
     try {
+      output = state.compress();
+      outputPacket.setData(output, 0, output.length);
       client.send(outputPacket);
     } catch (IOException | SecurityException e) {
       e.printStackTrace();
@@ -345,29 +374,25 @@ public class UdpClient implements EnemiesProcessor {
     public void run() {
       while (!isStopped.get()) {
         if (needToSendState.get()) {
-          long t = System.currentTimeMillis();
+          //long t = System.currentTimeMillis();
           try {
-            {
-              //System.out.print("\norig:    ");
-              //state.print();
-              System.out.println("encoded: " + state);
-              //System.out.print("decoded: ");
-              //new PlayerState(state.toString()).print();
-            }
-            output = state.toString().getBytes();
+            output = state.compress();
             outputPacket.setData(output, 0, output.length);
             client.send(outputPacket);
             needToSendState.set(false);
-          } catch (IOException e) {
+            //System.out.println("\noriginal: " + state);
+            //System.out.println("decoded:  " + new PlayerState(output));
+          } catch (ArrayIndexOutOfBoundsException | IOException e) {
             e.printStackTrace();
           }
-          System.out.println("send packet took + " + (System.currentTimeMillis() - t) + "ms.");
+          //System.out.println("send packet took + " + (System.currentTimeMillis() - t) + "ms.");
         }
         if (sequence.size() > 0) {
           try {
-            output = sequence.get(0).toString().getBytes();
+            output = sequence.get(0).compress();
             outputPacket.setData(output, 0, output.length);
             client.send(outputPacket);
+            System.out.println("\noriginal:\n" + Arrays.toString(output));
           } catch (IOException e) {
             e.printStackTrace();
           }

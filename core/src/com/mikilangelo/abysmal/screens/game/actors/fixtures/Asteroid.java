@@ -20,6 +20,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.utils.Array;
+import com.mikilangelo.abysmal.shared.tools.Random;
 
 public class Asteroid implements DynamicObject {
 
@@ -49,10 +50,18 @@ public class Asteroid implements DynamicObject {
   public boolean destroyed = false;
   public Body body;
   private final AsteroidData bodyData;
+  public final long asteroidId;
+  private final Random random;
+  private Vector2 position;
   public float x, y;
 
-  public Asteroid(final int asteroidTypeId, final float x, final float y) {
-    this.asteroidTypeId = asteroidTypeId;
+  private boolean isExplodedRemotely = false;
+  private float deathX, deathY, deathAngle;
+
+  public Asteroid(long asteroidId, int typeId, float x, float y) {
+    this.asteroidTypeId = typeId;
+    this.asteroidId = asteroidId;
+    this.random = new Random(asteroidId);
     bodyData = loadBody(x, y);
     if (sqrtmass[asteroidTypeId] == 0) {
       sqrtmass[asteroidTypeId] = (float) Math.sqrt(body.getMass());
@@ -99,6 +108,7 @@ public class Asteroid implements DynamicObject {
       return null;
     }
     this.x = x; this.y = y;
+    this.position = new Vector2(x, y);
     BodyDef bodyDef = new BodyDef();
     bodyDef.type = BodyDef.BodyType.DynamicBody;
     FixtureDef fixtureDef = new FixtureDef();
@@ -107,13 +117,21 @@ public class Asteroid implements DynamicObject {
     fixtureDef.restitution = 0.5f;
     body = GameScreen.world.createBody(bodyDef);
     bodies.get(asteroidTypeId).attachFixture(body, "Name", fixtureDef, bodyScales[asteroidTypeId]);
-    body.setTransform(x, y, MathUtils.random(0, MathUtils.PI2));
+    body.setTransform(x, y, random.nextFloat(0, 6.28f));
     body.setAwake(false);
     AsteroidData asteroidData = new AsteroidData();
-    asteroidData.health = healthWeight * (float) Math.pow(body.getMass(), 0.6f) * MathUtils.random(1.1f, 3f);
+    asteroidData.health = healthWeight * (float) Math.pow(body.getMass(), 0.6f) * random.nextFloat(1.1f, 3f);
     body.setUserData(asteroidData);
     bodyLoaded = true;
     return asteroidData;
+  }
+
+  public void setExploded(float x, float y, float angle) {
+    isExplodedRemotely = true;
+    deathX = x;
+    deathY = y;
+    deathAngle = angle;
+    bodyData.health = -1;
   }
 
   public void destroyBody() {
@@ -124,34 +142,41 @@ public class Asteroid implements DynamicObject {
   @Override
   public void move(float delta) {
     if (this.bodyLoaded && !destroyed) {
-      final Vector2 speed = this.body.getLinearVelocity();
-      this.body.setAngularVelocity(this.body.getAngularVelocity() * 0.99f);
+      final Vector2 speed = body.getLinearVelocity();
+      body.setAngularVelocity(body.getAngularVelocity() * 0.99f);
       body.setLinearVelocity(speed.scl(0.997f));
       if (bodyData.health <= 0) {
         destroyed = true;
-        x = this.body.getPosition().x;
-        y = this.body.getPosition().y;
-        ExplosionsRepository.addExplosion(new Explosion(stoneExplosion, x, y, 0.05f));
+        position = body.getPosition();
+        x = position.x;
+        y = position.y;
+        if (isExplodedRemotely) {
+          x = (deathX + x) * 0.5f;
+          y = (deathY + y) * 0.5f;
+          body.setTransform(x, y, deathAngle);
+        } else {
+          GameScreen.enemiesProcessor.explodeAsteroid(asteroidId, x, y, body.getAngle());
+        }
         if (asteroidTypeId >= smallAmount) {
           final float distance = CalculateUtils.distance(x, y, GameScreen.camera.X, GameScreen.camera.Y);
           if (distance < 50) {
             explosionSound.play(1 - distance / 50);
           }
-          final int amount = 4 + MathUtils.random(1, 4);
+          final int amount = 4 + random.nextInt(1, 4);
           for (byte i = 0; i < amount; i++) {
-            final float xSkew = MathUtils.random(-0.7f, 0.7f);
-            final float ySkew = MathUtils.random(-0.7f, 0.7f);
-            final int type = MathUtils.random(0, smallAmount - 1);
-            Asteroid newAsteroid = new Asteroid(type, x + xSkew, y + ySkew);
-            newAsteroid.body.applyAngularImpulse(MathUtils.random(-0.9f, 0.9f), true);
+            final float xSkew = random.nextFloat(-0.7f, 0.7f);
+            final float ySkew = random.nextFloat(-0.7f, 0.7f);
+            final int type = random.nextInt(0, smallAmount - 1);
+            Asteroid newAsteroid = new Asteroid(random.getSeed(), type, x + xSkew, y + ySkew);
+            newAsteroid.body.applyAngularImpulse(random.nextFloat(-0.9f, 0.9f), true);
             newAsteroid.body.applyLinearImpulse(
-                    (MathUtils.random(-0.05f, 0.05f) + speed.x * 0.5f + xSkew * 1.5f),
-                    (MathUtils.random(-0.05f, 0.05f) + speed.y * 0.5f + ySkew * 1.5f),
+                    (random.nextFloat(-0.05f, 0.05f) + speed.x * 0.1f + xSkew * 1.5f),
+                    (random.nextFloat(-0.05f, 0.05f) + speed.y * 0.1f + ySkew * 1.5f),
                     x + xSkew, y + ySkew, true);
             AsteroidsRepository.add(newAsteroid);
           }
-          // ExplosionsRepository.addExplosion(new Explosion(explosion, x, y, 0.033f));
         }
+        ExplosionsRepository.addExplosion(new Explosion(stoneExplosion, x, y, 0.05f));
       }
     }
   }

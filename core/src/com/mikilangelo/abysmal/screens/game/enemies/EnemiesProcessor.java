@@ -20,4 +20,6 @@ public interface EnemiesProcessor {
   void dispose();
 
   void shot(ShotData shotData);
+
+  void explodeAsteroid(long asteroidId, float x, float y, float angle);
 }

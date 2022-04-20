@@ -87,7 +87,7 @@ public abstract class MusicPlayer {
         if (currentMusic.isPlaying()) {
           currentMusic.setVolume( Math.max((currentMusic.getVolume() * 190 + currentVolume) / 191f, 0) );
         } else {
-          currentMusic.play();
+          Gdx.app.postRunnable(currentMusic::play);
         }
       }
       if (currentMusic.getVolume() >= currentVolume * 0.999f - 0.0001f) {

@@ -1,6 +1,12 @@
 package com.mikilangelo.abysmal.screens.game.enemies.online.data;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
 public class PlayerState extends DataPackage {
+  private static final byte[] indicator = "state".getBytes(StandardCharsets.US_ASCII);
   public String generationId; // unique generation id
   public int shipId; // ship id
   public float x, y, angle;
@@ -29,40 +35,73 @@ public class PlayerState extends DataPackage {
     timestamp = Long.parseLong(data[11]);
   }
 
-  public PlayerState(String string) {
-    String[] data = string.substring(6, string.length() - 1).split(",");
-    generationId = data[0];
-    shipId = decodeInt(data[1]);
-    x = decodeFloat(data[2]);
-    y = decodeFloat(data[3]);
-    angle = decodeFloat(data[4]);
-    speedX = decodeFloat(data[5]);
-    speedY = decodeFloat(data[6]);
-    angularSpeed = decodeFloat(data[7]);
-    health = decodeFloat(data[8]);
-    isUnderControl = decodeBoolean(data[9]);
-    currentPower = decodeFloat(data[10]);
-    timestamp = decodeLong(data[11]);
+  public PlayerState(byte[] data) {
+    byte[][] chunks = split(data, (short) 12, (short) indicator.length);
+    generationId = decodeString(chunks[0]);
+    shipId = decodeInt(chunks[1]);
+    x = decodeFloat(chunks[2]);
+    y = decodeFloat(chunks[3]);
+    angle = decodeFloat(chunks[4]);
+    speedX = decodeFloat(chunks[5]);
+    speedY = decodeFloat(chunks[6]);
+    angularSpeed = decodeFloat(chunks[7]);
+    health = decodeFloat(chunks[8]);
+    isUnderControl = decodeBoolean(chunks[9]);
+    currentPower = decodeFloat(chunks[10]);
+    timestamp = decodeLong(chunks[11]);
   }
 
-  public static boolean isInstance(String data) {
-    return data.startsWith("state[");
+  public static boolean isInstance(byte[] data) {
+    return startsWith(data, indicator);
   }
 
-  public void print() {
-    System.out.println("state[" + generationId + ',' + shipId + ',' +
-            x + '|' + y + '|' + angle + '|' +
-            speedX + '|' + speedY + '|' + angularSpeed + '|' +
-            health + '|' + isUnderControl + '|' + currentPower + '|' + timestamp + ']');
+  public byte[] compress() throws IOException {
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    outputStream.write(indicator);
+    outputStream.write(generationId.getBytes(StandardCharsets.US_ASCII));
+    outputStream.write(separator);
+    outputStream.write(compress(shipId));
+    outputStream.write(separator);
+    outputStream.write(compress(x));
+    outputStream.write(separator);
+    outputStream.write(compress(y));
+    outputStream.write(separator);
+    outputStream.write(compress(angle));
+    outputStream.write(separator);
+    outputStream.write(compress(speedX));
+    outputStream.write(separator);
+    outputStream.write(compress(speedY));
+    outputStream.write(separator);
+    outputStream.write(compress(angularSpeed));
+    outputStream.write(separator);
+    outputStream.write(compress(health));
+    outputStream.write(separator);
+    outputStream.write(compress(isUnderControl));
+    outputStream.write(separator);
+    outputStream.write(compress(currentPower));
+    outputStream.write(separator);
+    outputStream.write(compress(timestamp));
+    byte[] result = outputStream.toByteArray();
+    outputStream.close();
+    return result;
   }
 
   @Override
+  @Deprecated
   public String toString() {
-    return "state[" + generationId + ',' + compress(shipId) + ',' +
-            compress(x) + ',' + compress(y) + ',' + compress(angle) + ',' +
-            compress(speedX) + ',' + compress(speedY) + ',' + compress(angularSpeed) + ',' +
-            compress(health) + ',' + compress(isUnderControl) + ',' + compress(currentPower) + ',' +
-            compress(timestamp) + "]";
+    return "state[" +
+            generationId + "," +
+            shipId + "," +
+            x + "," +
+            y + "," +
+            angle + "," +
+            speedX + "," +
+            speedY + "," +
+            angularSpeed + "," +
+            health + "," +
+            isUnderControl + "," +
+            currentPower + "," +
+            timestamp + "]";
   }
 
   /*

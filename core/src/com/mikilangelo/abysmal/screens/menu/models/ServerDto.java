@@ -4,4 +4,5 @@ public class ServerDto {
   public String ip;
   public int udpPort;
   public int playersAmount;
+  public long seed;
 }

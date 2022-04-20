@@ -179,4 +179,7 @@ public class BotsProcessor implements EnemiesProcessor {
   @Override
   public void shot(ShotData shotData) { }
 
+  @Override
+  public void explodeAsteroid(long asteroidId, float x, float y, float angle) { }
+
 }

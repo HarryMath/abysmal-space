@@ -84,6 +84,7 @@ public class MenuScreen implements Screen {
   float overlayOpacity = 0;
   String loadingText = "";
   EnemiesProcessor enemiesProcessor;
+  long seed = 32323;
   final Sound positive = SoundsRepository.getSound("sounds/button_positive.mp3");
   final Sound negative = SoundsRepository.getSound("sounds/button_negative.mp3");
 
@@ -94,7 +95,6 @@ public class MenuScreen implements Screen {
     this.game = game;
     camera = new OrthographicCamera();
     camera.setToOrtho(false, w, h);
-    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
     logoRatio = logo.getWidth() / (float) logo.getHeight();
     storage = Gdx.app.getPreferences("storage");
     currentShipIndex = storage.contains("shipId") ? storage.getInteger("shipId") : 0;
@@ -153,6 +153,7 @@ public class MenuScreen implements Screen {
       if (ServerProvider.server != null) {
         try {
           this.enemiesProcessor = new UdpClient(ServerProvider.server.ip, ServerProvider.server.udpPort);
+          this.seed = ServerProvider.server.seed;
           this.startGame();
         } catch (IOException e) {
           this.notification.showWarning("Error connecting to server");
@@ -172,7 +173,7 @@ public class MenuScreen implements Screen {
       game.setScreen(new GameScreen(
               game,
               new PlayerShip(currentShip, 0 , 0),
-              this.enemiesProcessor));
+              this.enemiesProcessor, seed));
       dispose();
     });
   }
@@ -453,11 +454,24 @@ public class MenuScreen implements Screen {
     public boolean mouseMoved(int x, int y) {
       super.mouseMoved(x, y);
       y = h - y;
+      boolean hovered = false;
       for (int i = 0; i < options.size; i++) {
-        options.get(i).setHovered(x < menuWidth &&
+        boolean isHovered = x < menuWidth &&
                 y > menuStartY - optionHeight * i &&
-                y < menuStartY - optionHeight * (i - 0.8f));
+                y < menuStartY - optionHeight * (i - 0.8f);
+        options.get(i).setHovered(isHovered);
+        hovered = hovered || isHovered;
       }
+      if (notification.isShown()) {
+        hovered = notification.isInButton((int) x, (int) y);
+      } else {
+        hovered = hovered ||
+                CalculateUtils.distance(x, y, leftArrowX, arrowY) <= optionHeight * 0.5f ||
+                CalculateUtils.distance(x, y, rightArrowX, arrowY) <= optionHeight * 0.5f;
+      }
+      Gdx.graphics.setSystemCursor(hovered ?
+              Cursor.SystemCursor.Hand :
+              Cursor.SystemCursor.Arrow);
       return false;
     }
   }

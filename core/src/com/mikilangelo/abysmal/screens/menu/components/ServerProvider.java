@@ -37,6 +37,7 @@ public abstract class ServerProvider {
       System.out.println("ip is " + server.ip);
       server.udpPort = Integer.parseInt(getProperty(response, "udpPort"));
       server.playersAmount = Integer.parseInt(getProperty(response, "playersAmount"));
+      server.seed = Long.parseLong(getProperty(response, "seed"));
     } catch (Exception ignore) {
       System.out.println("[ServerProvider] error getting global server");
       ignore.printStackTrace();

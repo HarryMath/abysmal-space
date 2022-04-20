@@ -1,80 +1,136 @@
 package com.mikilangelo.abysmal.screens.game.enemies.online.data;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
+
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 
 public abstract class DataPackage {
 
-  private static long success = 0;
-  private static int failsComa = 0;
-  private static int failsSpace = 0;
+  protected static final byte separator = -127;
 
-  private String compress(ByteBuffer bytes) {
-    StringBuilder str = new StringBuilder();
-    boolean wasNonEmptyByte = false;
-    for (byte value : bytes.array()) {
-      if (wasNonEmptyByte || value != 0) {
-        wasNonEmptyByte = true;
-        str.append((char)value);
+  public abstract byte[] compress() throws IOException;
+
+  private static byte[] compress(byte[] bytes) {
+    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+    for (byte i = 0; i < bytes.length; i++) {
+      if (bytes[i] != 0) {
+        byte[] result = new byte[bytes.length - i];
+        byteBuffer.get(result, 0, bytes.length - i);
+        for (short j =0 ; j < result.length; j++) {
+          if (result[j] == separator) {
+            result[j] = separator + 1;
+            System.out.println("byte is " + separator);
+          }
+        }
+        return result;
+      } else {
+        byteBuffer.get();
       }
     }
-    success ++;
-    if (str.toString().contains(".")) {
-      System.out.println("Error encoding. contains \"dot\"");
-      failsComa ++;
-      System.out.println("dot appears at " + failsComa + " of " + success + " compressions");
+    return new byte[]{};
+  }
+
+  protected static String decodeString(byte[] bytes) {
+    StringBuilder str = new StringBuilder();
+    for (byte value : bytes) {
+        str.append((char)value);
     }
     return str.toString();
   }
 
-  protected String compress(int a) {
-    return compress(ByteBuffer.allocate(4).putInt(a));
+  protected static byte[] compress(int a) {
+    return compress(ByteBuffer.allocate(4).putInt(a).array());
   }
 
-  protected String compress(long a) {
-    return compress(ByteBuffer.allocate(8).putLong(a));
+  protected static byte[] compress(long a) {
+    return compress(ByteBuffer.allocate(8).putLong(a).array());
   }
 
-  protected String compress(float a) {
-    return compress(ByteBuffer.allocate(4).putFloat(a));
+  protected static byte[] compress(float a) {
+    return compress(ByteBuffer.allocate(4).putFloat(a).array());
   }
 
-  protected String compress(boolean a) {
-    return a ? "t" : "f";
+  protected byte compress(boolean a) {
+    return a ? 1 : (byte) -1;
   }
 
-  protected float decodeFloat(String s) {
-    final char[] chars = s.toCharArray();
+  protected static float decodeFloat(byte[] data) {
     final byte[] bytes = new byte[4];
-    int i = 4 - chars.length;
-    for (char value : chars) {
-      bytes[i++] = (byte) value;
+    int i = 4 - data.length;
+    for (byte value : data) {
+      bytes[i++] = value;
     }
     return ByteBuffer.wrap(bytes).order(BIG_ENDIAN).getFloat();
   }
 
-  protected int decodeInt(String s) {
-    final char[] chars = s.toCharArray();
+  protected int decodeInt(byte[] data) {
     final byte[] bytes = new byte[4];
-    int i = 4 - chars.length;
-    for (char value : chars) {
-      bytes[i++] = (byte) value;
+    int i = 4 - data.length;
+    for (byte value : data) {
+      bytes[i++] = value;
     }
     return ByteBuffer.wrap(bytes).order(BIG_ENDIAN).getInt();
   }
 
-  protected long decodeLong(String s) {
-    final char[] chars = s.toCharArray();
+  protected static long decodeLong(byte[] data) {
     final byte[] bytes = new byte[8];
-    int i = 8 - chars.length;
-    for (char value : chars) {
-      bytes[i++] = (byte) value;
+    int i = 8 - data.length;
+    for (byte value : data) {
+      bytes[i++] = value;
     }
     return ByteBuffer.wrap(bytes).order(BIG_ENDIAN).getLong();
   }
 
-  protected boolean decodeBoolean(String s) {
-    return "t".equals(s);
+  protected boolean decodeBoolean(byte[] data) {
+    return data.length == 1 && data[0] == 1;
+  }
+
+  public static void main(String[] a) {
+    byte[] data = {
+            1, 3,4, 4,32, -24, 123, 0,
+            0,
+            0,
+            21, 23, -13, 83 ,0,
+            -43, 124, 31, 1, 24, 93, 98, 0,
+            12
+    };
+    for(byte[] chunk: split(data, (byte) 6, (byte) 3)) {
+      System.out.println(Arrays.toString(chunk));
+    }
+  }
+
+  protected static boolean startsWith(byte[] data, byte[] prefix) {
+    for (byte i = 0; i < prefix.length; i++) {
+      if (data[i] != prefix[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  protected static byte[][] split(byte[] data, short amount, short offset) {
+    // ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+    byte[][] result = new byte[amount][];
+    short start = offset;
+    byte packageNumber = 0;
+    for (short i = offset; i < data.length; i++) {
+      if (data[i] == separator) {
+        result[packageNumber] = new byte[i - start];
+        // byteBuffer.get(result[packageNumber], packageNumber, i - start - packageNumber);
+        System.arraycopy(data, start, result[packageNumber], 0, i - start);
+        packageNumber++;
+        start = (short)(i + 1);
+      }
+    }
+    if (packageNumber == amount - 1) {
+      result[packageNumber] = new byte[data.length - start];
+      // byteBuffer.get(result[packageNumber], 0, data.length - start);
+      System.arraycopy(data, start, result[packageNumber], 0, data.length - start);
+    }
+    return result;
   }
 }

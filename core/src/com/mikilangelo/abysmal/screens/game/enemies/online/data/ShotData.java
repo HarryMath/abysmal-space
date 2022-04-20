@@ -1,6 +1,13 @@
 package com.mikilangelo.abysmal.screens.game.enemies.online.data;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
 public class ShotData extends DataPackage {
+
+  private static final byte[] indicator = "shot".getBytes(StandardCharsets.US_ASCII);
   public float x, y, angle;
   public float impulseX, impulseY;
   public int gunId;
@@ -22,28 +29,62 @@ public class ShotData extends DataPackage {
     this.generationId = generationId;
   }
 
-  public ShotData(String string) {
-    String[] data = string.substring(5, string.length() - 1).split(",");
-    x = Float.parseFloat(data[0]);
-    y = Float.parseFloat(data[1]);
-    angle = Float.parseFloat(data[2]);
-    impulseX = Float.parseFloat(data[3]);
-    impulseY = Float.parseFloat(data[4]);
-    gunId = Integer.parseInt(data[5]);
-    withSound = Boolean.parseBoolean(data[6]);
-    timestamp = Long.parseLong(data[7]);
-    generationId = data[8];
-
+  public ShotData(byte[] data) {
+    System.out.println(Arrays.toString(data));
+    byte[][] chunks = split(data, (short) 9, (short) indicator.length);
+    System.out.println(Arrays.deepToString(chunks));
+    x = decodeFloat(chunks[0]);
+    y = decodeFloat(chunks[1]);
+    angle = decodeFloat(chunks[2]);
+    impulseX = decodeFloat(chunks[3]);
+    impulseY = decodeFloat(chunks[4]);
+    gunId = decodeInt(chunks[5]);
+    withSound = decodeBoolean(chunks[6]);
+    timestamp = decodeLong(chunks[7]);
+    generationId = decodeString(chunks[8]);
   }
 
-  public static boolean isInstance(String data) {
-    return data.startsWith("shot[");
+  public static boolean isInstance(byte[] data) {
+    return startsWith(data, indicator);
   }
 
   @Override
   public String toString() {
-    return "shot[" + x + ',' + y + ',' + angle + ',' +
-            impulseX + ',' + impulseY + ',' + gunId + ',' +
-            withSound + ',' + timestamp + ',' + generationId + ']';
+    return "shot[" +
+            x + "," +
+            y + "," +
+            angle + "," +
+            impulseX + "," +
+            impulseY + "," +
+            gunId + "," +
+            withSound + "," +
+            timestamp + ", " +
+            generationId + ']';
+  }
+
+  @Override
+  public byte[] compress() throws IOException {
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    outputStream.write(indicator);
+    outputStream.write(compress(x));
+    outputStream.write(separator);
+    outputStream.write(compress(y));
+    outputStream.write(separator);
+    outputStream.write(compress(angle));
+    outputStream.write(separator);
+    outputStream.write(compress(impulseX));
+    outputStream.write(separator);
+    outputStream.write(compress(impulseY));
+    outputStream.write(separator);
+    outputStream.write(compress(gunId));
+    outputStream.write(separator);
+    outputStream.write(compress(withSound));
+    outputStream.write(separator);
+    outputStream.write(compress(timestamp));
+    outputStream.write(separator);
+    outputStream.write(generationId.getBytes(StandardCharsets.US_ASCII));
+    byte[] result = outputStream.toByteArray();
+    outputStream.close();
+    return result;
   }
 }

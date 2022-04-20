@@ -3,11 +3,14 @@ package com.mikilangelo.abysmal.shared.repositories;
 import static com.mikilangelo.abysmal.screens.game.GameScreen.SCREEN_HEIGHT;
 import static com.mikilangelo.abysmal.screens.game.GameScreen.SCREEN_WIDTH;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.mikilangelo.abysmal.screens.game.actors.fixtures.Asteroid;
+import com.mikilangelo.abysmal.screens.game.enemies.online.data.AsteroidCrashed;
 import com.mikilangelo.abysmal.screens.game.uiElements.Radar;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.mikilangelo.abysmal.shared.tools.Random;
 
 
 public abstract class AsteroidsRepository {
@@ -94,46 +97,51 @@ public abstract class AsteroidsRepository {
       z = coveredZones.get(i);
       if (!coveredTop) {
         coveredTop = z.covers(shipX, shipY + ZONE_SIZE);
-        continue;
+        if (coveredTop) continue;
       }
       if (!coveredTopLeft) {
         coveredTopLeft = z.covers(shipX - ZONE_SIZE, shipY + ZONE_SIZE);
-        continue;
+        if (coveredTopLeft) continue;
       }
       if (!coveredTopRight) {
         coveredTopRight = z.covers(shipX + ZONE_SIZE, shipY + ZONE_SIZE);
-        continue;
+        if (coveredTopRight) continue;
       }
       if (!coveredBottom) {
         coveredBottom = z.covers(shipX, shipY - ZONE_SIZE);
-        continue;
+        if (coveredBottom) continue;
       }
       if (!coveredBottomLeft) {
         coveredBottomLeft = z.covers(shipX - ZONE_SIZE, shipY - ZONE_SIZE);
-        continue;
+        if (coveredBottomLeft) continue;
       }
       if (!coveredBottomRight) {
         coveredBottomRight = z.covers(shipX + ZONE_SIZE, shipY - ZONE_SIZE);
-        continue;
+        if (coveredBottomRight) continue;
       }
       if (!coveredLeft) {
         coveredLeft = z.covers(shipX - ZONE_SIZE, shipY);
-        continue;
+        if (coveredLeft) continue;
       }
       if (!coveredRight) {
         coveredRight = z.covers(shipX + ZONE_SIZE, shipY);
-        continue;
+        if (coveredRight) continue;
       }
-      if ( Math.abs(z.startY + ZONE_SIZE - shipY) > ZONE_SIZE * 3 ||
-              Math.abs(z.startX + ZONE_SIZE - shipX) > ZONE_SIZE * 3
+      if ( Math.abs(z.startY + ZONE_SIZE * 0.5f - shipY) > ZONE_SIZE * 3 ||
+              Math.abs(z.startX + ZONE_SIZE * 0.5f - shipX) > ZONE_SIZE * 3
       ) {
+        System.out.println("\nleft zone: [" + z.startX + ", " + z.endX  +" ] * ["
+                + z.startY +  "," + + z.endY + "]");
+        int counter = 0;
         for (int j = 0; j < asteroids.size; j++) {
           a = asteroids.get(j);
           if (z.covers(a.x, a.y)) {
             a.destroyBody();
+            counter++;
             asteroids.removeIndex(j--);
           }
         }
+        System.out.println("removed " + counter + " asteroids");
         coveredZones.removeIndex(i--);
       }
     }
@@ -170,7 +178,11 @@ public abstract class AsteroidsRepository {
               Math.round(shipY / ZONE_SIZE)));
     }
     if (newZones.size > 0) {
-      System.out.println("new zones: " + newZones.size);
+      System.out.println("\nnew zones: " + newZones.size);
+      System.out.println(coveredTopLeft + " " + coveredTop + " " + coveredTopRight);
+      System.out.println(coveredLeft + " ---- " + coveredRight);
+      System.out.println(coveredBottomLeft + " " + coveredBottom + " " + coveredBottomRight);
+      System.out.println("total zones: " + (coveredZones.size + newZones.size));
     }
     while (newZones.size > 0) {
       z = newZones.get(0);
@@ -189,12 +201,26 @@ public abstract class AsteroidsRepository {
 
   private static void generateAsteroidsGroup(float x, float y, Random random) {
     int amount = random.nextInt(1, 7);
+    Vector2 position;
     for (byte i = 0; i < amount; i++) {
+      position = random.nextGaussian().scl(7f);
       asteroids.add(new Asteroid(
+              random.getSeed(),
               random.nextInt(random.nextInt(1, Asteroid.smallAmount), Asteroid.typesAmount) - 1,
-              x + random.nextFloat(-13.3f, 13.3f),
-              y + random.nextFloat(-13.3f, 13.3f)
+              x + position.x,
+              y + position.y
       ));
+    }
+  }
+
+  public static void handleCrash(AsteroidCrashed crashData) {
+    Asteroid a;
+    for (int i = 0; i < asteroids.size; i++) {
+      a = asteroids.get(i);
+      if (a.asteroidId == crashData.asteroidId) {
+        a.setExploded(crashData.x, crashData.y, crashData.angle);
+        return;
+      }
     }
   }
 
@@ -232,37 +258,6 @@ public abstract class AsteroidsRepository {
       return random.nextFloat(startY, endY);
     }
 
-  }
-
-  private static class Random {
-
-    private long seed;
-
-    public Random(long seed) {
-      this.seed = seed;
-    }
-
-    public int nextInt(int start, int end) {
-      seed = (seed * 73129 + 12345) % 1000000;
-      return start + ((int) (seed / 7) % (end - start + 1));
-    }
-
-    /**
-     * @return pseudo-random float from [0, 1]
-     */
-    public float nextFloat() {
-      seed = (seed * 73129 + 12345) % 1000000;
-      return ((int) (seed / 7) % 32768) / 32767f;
-    }
-
-    /**
-     * @param start - start of the range
-     * @param end - end of the range
-     * @return pseudo-random float from [start, end]
-     */
-    public float nextFloat(float start, float end) {
-      return start + nextFloat() * (end - start);
-    }
   }
 
 }
