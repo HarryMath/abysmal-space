@@ -67,7 +67,7 @@ public class MenuScreen implements Screen {
   private float currentShipY = 0;
   private float prevShipY = 1f;
 
-  private ShapeRenderer shapeRenderer = new ShapeRenderer();
+  private final ShapeRenderer shapeRenderer = new ShapeRenderer();
   private final Array<Option> options = new Array<>();
   private float optionHeight;
   private float menuWidth;

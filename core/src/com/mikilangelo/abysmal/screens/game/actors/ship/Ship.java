@@ -392,8 +392,12 @@ public class Ship {
     secondaryBody = shield;
   }
 
+  public float getShieldAbilityReloadTime() {
+    return (def.shieldRechargeTime + lastShieldOnTime - System.currentTimeMillis()) / 1000f;
+  }
+
   public void activateShield() {
-    final long currentTime = TimeUtils.millis();
+    final long currentTime = System.currentTimeMillis();
     if (currentTime - lastShieldOnTime > def.shieldRechargeTime) {
       shieldOn = true;
       primaryBody = shield;
@@ -402,6 +406,7 @@ public class Ship {
       shield.setAwake(true);
       lastShieldOnTime = currentTime;
       shieldTimeLeft = def.shieldLifeTime;
+      shieldScale = shieldSize * 0.1f;
       velocity = primaryBody.getLinearVelocity();
     }
   }

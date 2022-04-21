@@ -4,6 +4,7 @@ import static com.mikilangelo.abysmal.screens.game.GameScreen.HEIGHT;
 import static com.mikilangelo.abysmal.screens.game.GameScreen.WIDTH;
 
 import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
+import com.mikilangelo.abysmal.screens.game.uiElements.ButtonShield;
 import com.mikilangelo.abysmal.screens.game.uiElements.ButtonShot;
 import com.mikilangelo.abysmal.screens.game.uiElements.JoystickController;
 import com.mikilangelo.abysmal.screens.game.uiElements.JoystickShooter;
@@ -29,12 +30,16 @@ public class TouchHandler {
           JoystickController shipController,
           JoystickShooter turretShooter,
           ButtonShot shotButton,
+          ButtonShield shieldButton,
           float delta
   ) {
     buttonClicked = false;
     if (!createdShooter && !createdJoystick) {
       if (shotButton.contains(touchX, HEIGHT - touchY)) {
         ship.shotDirectly();
+        buttonClicked = true;
+      } else if (shieldButton.contains(touchX, HEIGHT - touchY)) {
+        ship.activateShield();
         buttonClicked = true;
       }
       // else if () {} TODO check if other buttons are clicked

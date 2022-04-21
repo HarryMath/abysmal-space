@@ -7,6 +7,7 @@ import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
 import com.mikilangelo.abysmal.screens.game.components.Camera;
 import com.mikilangelo.abysmal.screens.game.controllers.GameController;
 import com.mikilangelo.abysmal.screens.game.controllers.TouchHandler;
+import com.mikilangelo.abysmal.screens.game.uiElements.ButtonShield;
 import com.mikilangelo.abysmal.screens.game.uiElements.ButtonShot;
 import com.mikilangelo.abysmal.screens.game.uiElements.JoystickController;
 import com.mikilangelo.abysmal.screens.game.uiElements.JoystickShooter;
@@ -18,6 +19,7 @@ public class DesktopController implements GameController {
   private JoystickController shipController;
   private JoystickShooter turretShooter;
   private ButtonShot shotButton;
+  private ButtonShield shieldButton;
 
   @Override
   public void init(Ship ship, float w, float h) {
@@ -27,21 +29,23 @@ public class DesktopController implements GameController {
     shipController = new JoystickController(w, h);
     turretShooter = new JoystickShooter(w, h, ship.def.turretDefinitions.size > 0);
     shotButton = new ButtonShot(w, h, ship.def.lasersAmount > 0);
+    shieldButton = new ButtonShield(ship.def.shieldRechargeTime / 1000f, w, h);
   }
 
   @Override
   public boolean process(Ship ship, Camera camera, float delta) {
+    shieldButton.process(ship.getShieldAbilityReloadTime());
     if (Gdx.input.isTouched(1)) {
       touch2Handler.touchX = Gdx.input.getX(1);
       touch2Handler.touchY = Gdx.input.getY(1);
-      touch2Handler.handleTouch(shipController, turretShooter, shotButton, delta);
+      touch2Handler.handleTouch(shipController, turretShooter, shotButton, shieldButton, delta);
     } else {
       touch2Handler.endTouch();
     }
     if (Gdx.input.isTouched(0)) {
       touch1Handler.touchX = Gdx.input.getX(0);
       touch1Handler.touchY = Gdx.input.getY(0);
-      touch1Handler.handleTouch(shipController, turretShooter, shotButton, delta);
+      touch1Handler.handleTouch(shipController, turretShooter, shotButton, shieldButton, delta);
     } else {
       touch1Handler.endTouch();
     }
@@ -72,6 +76,7 @@ public class DesktopController implements GameController {
     turretShooter.draw(batch);
     shipController.draw(batch);
     shotButton.draw(batch);
+    shieldButton.draw(batch);
   }
 
   @Override
@@ -79,6 +84,7 @@ public class DesktopController implements GameController {
     shipController.handleScreenResize(w, h);
     turretShooter.handleScreenResize(w, h);
     shotButton.handleScreenResize(w, h);
+    shieldButton.handleScreenResize(w, h);
   }
 
   @Override

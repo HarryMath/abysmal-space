@@ -51,7 +51,7 @@ public class ShipDef {
   public Array<EngineDef> engineDefinitions;
 
   // shield
-  public int shieldRechargeTime = 45000; // ms
+  public int shieldRechargeTime = 20000; // ms
   public int shieldLifeTime = 15; // s
   public float laserX = 0;
 
