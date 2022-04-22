@@ -3,7 +3,9 @@ package com.mikilangelo.abysmal.screens.game.controllers;
 import static com.mikilangelo.abysmal.screens.game.GameScreen.HEIGHT;
 import static com.mikilangelo.abysmal.screens.game.GameScreen.WIDTH;
 
+import com.mikilangelo.abysmal.screens.game.actors.ship.PlayerShip;
 import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
+import com.mikilangelo.abysmal.screens.game.uiElements.Button;
 import com.mikilangelo.abysmal.screens.game.uiElements.ButtonShield;
 import com.mikilangelo.abysmal.screens.game.uiElements.ButtonShot;
 import com.mikilangelo.abysmal.screens.game.uiElements.JoystickController;
@@ -17,11 +19,11 @@ public class TouchHandler {
   public boolean createdJoystick = false;
   public boolean createdShooter = false;
   public boolean buttonClicked = false;
-  private final Ship ship;
+  private final PlayerShip ship;
 
   public float touchX, touchY;
 
-  public TouchHandler(Ship ship) {
+  public TouchHandler(PlayerShip ship) {
     this.ship = ship;
     hasCreatedJoystick = hasCreatedShooter = false;
   }
@@ -29,8 +31,9 @@ public class TouchHandler {
   public boolean handleTouch(
           JoystickController shipController,
           JoystickShooter turretShooter,
-          ButtonShot shotButton,
-          ButtonShield shieldButton,
+          Button shotButton,
+          Button shieldButton,
+          Button speedUpButton,
           float delta
   ) {
     buttonClicked = false;
@@ -40,6 +43,9 @@ public class TouchHandler {
         buttonClicked = true;
       } else if (shieldButton.contains(touchX, HEIGHT - touchY)) {
         ship.activateShield();
+        buttonClicked = true;
+      } else if (speedUpButton.contains(touchX, HEIGHT - touchY)) {
+        ship.speedUp();
         buttonClicked = true;
       }
       // else if () {} TODO check if other buttons are clicked

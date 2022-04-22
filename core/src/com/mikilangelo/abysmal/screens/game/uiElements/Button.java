@@ -1,5 +1,6 @@
 package com.mikilangelo.abysmal.screens.game.uiElements;
 
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 
 public abstract class Button extends InterfaceElement {
@@ -13,4 +14,10 @@ public abstract class Button extends InterfaceElement {
     }
     return false;
   }
+
+  public void update(float secondsLeft) {}
+
+  public abstract void draw(Batch batch);
+
+  public abstract void handleScreenResize(float w, float h);
 }

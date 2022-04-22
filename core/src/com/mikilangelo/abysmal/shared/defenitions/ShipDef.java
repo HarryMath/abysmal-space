@@ -41,7 +41,7 @@ public class ShipDef {
   public LaserDef laserDefinition;
   public byte lasersAmount;
   public float lasersDistance;
-  public float shotInterval;
+  public int shotIntervalMs;
   public int ammo;
 
   // turrets
@@ -51,9 +51,14 @@ public class ShipDef {
   public Array<EngineDef> engineDefinitions;
 
   // shield
-  public int shieldRechargeTime = 20000; // ms
-  public int shieldLifeTime = 15; // s
+  public int shieldRechargeTimeMs = 45000; // ms
+  public int shieldLifeTimeS = 15; // s
   public float laserX = 0;
+
+  // speedUp
+  public long speedRechargeTimeMs = 35000;
+  public float speedTimeS = 10;
+  public float speedUpCoefficient = 2;
 
   public void resizeTextures(float coefficient) {
     final float scale = size / bodyTexture.getHeight() * coefficient;

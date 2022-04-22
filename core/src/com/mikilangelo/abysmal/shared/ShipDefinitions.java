@@ -93,7 +93,7 @@ public abstract class ShipDefinitions {
     // lasers
     rocinante.laserDefinition = get("invader").laserDefinition;
     rocinante.lasersAmount = 1;
-    rocinante.shotInterval = 2500;
+    rocinante.shotIntervalMs = 2500;
     // turrets
     rocinante.turretDefinitions = new Array<>();
     LaserDef mainLaser = new LaserDef(); {
@@ -224,7 +224,7 @@ public abstract class ShipDefinitions {
     xWing.laserDefinition = laserDefinition;
     xWing.lasersAmount = 2;
     xWing.lasersDistance = 2.06f;
-    xWing.shotInterval = 311f;
+    xWing.shotIntervalMs = 311;
     // turrets
     xWing.turretDefinitions = new Array<>();
     // engines
@@ -285,7 +285,7 @@ public abstract class ShipDefinitions {
     defender.laserDefinition = laserDefinition;
     defender.lasersAmount = 2;
     defender.lasersDistance = 2.06f;
-    defender.shotInterval = 311f;
+    defender.shotIntervalMs = 311;
     // turrets
     defender.turretDefinitions = new Array<>();
     // engines
@@ -370,7 +370,7 @@ public abstract class ShipDefinitions {
     invader.lasersAmount = 1;
     invader.laserX = 3;
     invader.lasersDistance = 2.06f;
-    invader.shotInterval = 241f;
+    invader.shotIntervalMs = 241;
     // turrets
     invader.turretDefinitions = new Array<>();
     // engines
@@ -446,7 +446,7 @@ public abstract class ShipDefinitions {
     alien.laserDefinition = laserDefinition;
     alien.lasersAmount = 2;
     alien.lasersDistance = 1.06f;
-    alien.shotInterval = 211f;
+    alien.shotIntervalMs = 211;
     // turrets
     alien.turretDefinitions = new Array<>();
     // engines

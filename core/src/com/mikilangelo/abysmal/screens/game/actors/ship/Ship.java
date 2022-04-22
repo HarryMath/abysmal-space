@@ -188,10 +188,14 @@ public class Ship {
     }
   }
 
+  public float getShotReloadTime(long currentTime) {
+    return (def.shotIntervalMs + lastShotTime - currentTime) / 1000f;
+  }
+
   protected void shotDirectly(float soundScale, float pan) {
     if (def.lasersAmount < 1) return;
-    final long newShotTime = TimeUtils.millis();
-    if (def.lasersAmount > ammo || (newShotTime - lastShotTime) < def.shotInterval) {
+    final long newShotTime = System.currentTimeMillis();
+    if (def.lasersAmount > ammo || (newShotTime - lastShotTime) < def.shotIntervalMs) {
       return;
     }
     final float maxLeftLaser = -def.lasersDistance * def.lasersAmount / 2f + def.lasersDistance / 2f;
@@ -301,8 +305,8 @@ public class Ship {
       shieldTexture.setAlpha(0.55f);
       if (shieldTimeLeft < 3) {
         shieldTexture.setAlpha(0.55f * shieldTimeLeft * 0.333f);
-      } else if (def.shieldLifeTime - shieldTimeLeft < 0.5f) {
-        shieldScale = shieldSize * (def.shieldLifeTime - shieldTimeLeft) * 2;
+      } else if (def.shieldLifeTimeS - shieldTimeLeft < 0.5f) {
+        shieldScale = shieldSize * (def.shieldLifeTimeS - shieldTimeLeft) * 2;
       } else {
         shieldScale = shieldSize;
       }
@@ -392,20 +396,20 @@ public class Ship {
     secondaryBody = shield;
   }
 
-  public float getShieldAbilityReloadTime() {
-    return (def.shieldRechargeTime + lastShieldOnTime - System.currentTimeMillis()) / 1000f;
+  public float getShieldAbilityReloadTime(long currentTime) {
+    return (def.shieldRechargeTimeMs + lastShieldOnTime - currentTime) / 1000f;
   }
 
   public void activateShield() {
     final long currentTime = System.currentTimeMillis();
-    if (currentTime - lastShieldOnTime > def.shieldRechargeTime) {
+    if (currentTime - lastShieldOnTime > def.shieldRechargeTimeMs) {
       shieldOn = true;
       primaryBody = shield;
       secondaryBody = body;
       shield.setActive(true);
       shield.setAwake(true);
       lastShieldOnTime = currentTime;
-      shieldTimeLeft = def.shieldLifeTime;
+      shieldTimeLeft = def.shieldLifeTimeS;
       shieldScale = shieldSize * 0.1f;
       velocity = primaryBody.getLinearVelocity();
     }

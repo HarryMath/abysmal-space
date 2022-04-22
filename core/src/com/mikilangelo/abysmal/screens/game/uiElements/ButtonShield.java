@@ -1,30 +1,21 @@
 package com.mikilangelo.abysmal.screens.game.uiElements;
 
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
 
-public class ButtonShield extends ButtonWithReload {
+public class ButtonShield extends AbilityButton {
 
-  private float timeLeft;
-
-  public ButtonShield(float reloadTimeMs, float w, float h) {
-    super(new Sprite(TexturesRepository.get("UI/shield.png")),
-            TexturesRepository.get("UI/indicators/red.png"),
-            reloadTimeMs,
+  public ButtonShield(float reloadTimeS, float w, float h) {
+    super(new Sprite(TexturesRepository.get("UI/buttons/shield.png")),
+            new Sprite(TexturesRepository.get("UI/buttons/shieldBack.png")),
+            TexturesRepository.get("UI/buttons/shieldBorder.png"),
+            reloadTimeS,
             w - SHIELD_BUTTON_CENTER_X * RATIO,
             SHIELD_BUTTON_CENTER_Y * RATIO,
             BUTTON_RADIUS * RATIO);
   }
 
-  public void process(float timeLeft) {
-    this.timeLeft = timeLeft;
-  }
-
-  public void draw(Batch batch) {
-    super.draw(batch, timeLeft);
-  }
-
+  @Override
   public void handleScreenResize(float w, float h) {
     this.x = w - SHIELD_BUTTON_CENTER_X * RATIO;
     this.y = SHIELD_BUTTON_CENTER_Y * RATIO;

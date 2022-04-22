@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
 
 public class ButtonShot extends Button {
-  private final Texture texture = TexturesRepository.get("UI/shotDirect.png");
+  private final Texture texture = TexturesRepository.get("UI/buttons/fire.png");
   private final boolean isActive;
 
   public ButtonShot(float w, float h, boolean isActive) {

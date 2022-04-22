@@ -261,7 +261,7 @@ public class GameScreen implements Screen {
 
 	private void drawInterface(float delta) {
 		game.batchInterface.begin(); {
-		  game.controller.drawInterface(game.batchInterface);
+		  game.controller.drawInterface(game.batchInterface, game.digits);
       radar.drawBack(game.batchInterface);
 			AsteroidsRepository.drawAtRadar(game.batchInterface, radar);
       enemiesProcessor.drawAtRadar(game.batchInterface, radar);
