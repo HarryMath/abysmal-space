@@ -54,8 +54,8 @@ public abstract class DataPackage {
     return compress(ByteBuffer.allocate(4).putFloat(a).array());
   }
 
-  protected byte compress(boolean a) {
-    return a ? 1 : (byte) -1;
+  protected byte[] compress(boolean a) {
+    return a ? new byte[]{1} : new byte[]{};
   }
 
   protected static float decodeFloat(byte[] data) {
@@ -87,20 +87,6 @@ public abstract class DataPackage {
 
   protected boolean decodeBoolean(byte[] data) {
     return data.length == 1 && data[0] == 1;
-  }
-
-  public static void main(String[] a) {
-    byte[] data = {
-            1, 3,4, 4,32, -24, 123, 0,
-            0,
-            0,
-            21, 23, -13, 83 ,0,
-            -43, 124, 31, 1, 24, 93, 98, 0,
-            12
-    };
-    for(byte[] chunk: split(data, (byte) 6, (byte) 3)) {
-      System.out.println(Arrays.toString(chunk));
-    }
   }
 
   protected static boolean startsWith(byte[] data, byte[] prefix) {

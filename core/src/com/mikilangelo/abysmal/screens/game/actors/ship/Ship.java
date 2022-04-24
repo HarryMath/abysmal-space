@@ -4,6 +4,7 @@ import static com.mikilangelo.abysmal.screens.game.GameScreen.SCREEN_WIDTH;
 
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Vector2;
+import com.mikilangelo.abysmal.screens.game.enemies.online.data.PlayerState;
 import com.mikilangelo.abysmal.shared.Settings;
 import com.mikilangelo.abysmal.shared.repositories.ExplosionsRepository;
 import com.mikilangelo.abysmal.shared.repositories.LasersRepository;
@@ -25,7 +26,6 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.mikilangelo.abysmal.screens.game.GameScreen;
 
 public class Ship {
@@ -146,6 +146,23 @@ public class Ship {
     }
   }
 
+  public void setState(PlayerState state, float delta) {
+    if (state.shieldOn && !shieldOn) {
+      activateShield();
+    } else if (!state.shieldOn && shieldOn) {
+      stopShield();
+    }
+    final float speedM = 1 / (1 + delta * 0.5f);
+    x = state.x + state.speedX * delta * speedM;
+    y = state.y + state.speedY * delta * speedM;
+    angle = CalculateUtils.normalizeAngle(state.angle + state.angularSpeed * delta * 0.9f);
+    primaryBody.setTransform(x, y, angle);
+    secondaryBody.setTransform(x, y, angle);
+    primaryBody.setLinearVelocity(state.speedX * speedM, state.speedY * speedM);
+    primaryBody.setAngularVelocity(state.angularSpeed * speedM * 0.9f);
+
+  }
+
   public void move(float delta, float playerX, float playerY) {
     move(delta);
     this.distance = CalculateUtils.distance(playerX, playerY, x, y);
@@ -170,6 +187,23 @@ public class Ship {
       isUnderControl = false;
     } else {
       this.currentPower *= 0.97f;
+    }
+    if (bodyData.health < 20) {
+      if (MathUtils.random() < 0.03f) {
+        ParticlesRepository.addSmoke(new ParticleSmog(x, y, velocity.x * 0.3f, velocity.y * 0.3f));
+      }
+      if (MathUtils.random() < (20 - bodyData.health) / 40) {
+        ParticlesRepository.addSmoke(new ParticleSmog(x, y, velocity.x * 0.7f, velocity.y * 0.7f));
+        ParticlesRepository.addFire(new ParticleFire(x, y, velocity.x, velocity.y));
+      }
+      if (bodyData.health < 10) {
+        if (MathUtils.random() < (15 - bodyData.health) / 15) {
+          ParticlesRepository.addFire(new ParticleFire(x, y, velocity.x, velocity.y));
+          bodyData.health -= 0.001f;
+        } else if (MathUtils.random() < (15 - bodyData.health) / 15) {
+          ParticlesRepository.addSmoke(new ParticleSmog(x, y, velocity.x, velocity.y));
+        }
+      }
     }
   }
 
@@ -337,7 +371,7 @@ public class Ship {
                 e.isResizing ? new ResizingParticle(
                         e, posX + screwX, posY + screwY,
                         velocity.x, velocity.y) :
-                new EngineParticle(
+                new Particle(
                 e, posX + screwX, posY + screwY,
                 velocity.x, velocity.y), e.isTopLayer);
       }
@@ -401,8 +435,12 @@ public class Ship {
   }
 
   public void activateShield() {
+    activateShield(false);
+  }
+
+  public void activateShield(boolean force) {
     final long currentTime = System.currentTimeMillis();
-    if (currentTime - lastShieldOnTime > def.shieldRechargeTimeMs) {
+    if (force || currentTime - lastShieldOnTime > def.shieldRechargeTimeMs) {
       shieldOn = true;
       primaryBody = shield;
       secondaryBody = body;

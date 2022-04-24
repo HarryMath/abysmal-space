@@ -3,7 +3,6 @@ package com.mikilangelo.abysmal.shared.repositories;
 import static com.mikilangelo.abysmal.screens.game.GameScreen.SCREEN_HEIGHT;
 import static com.mikilangelo.abysmal.screens.game.GameScreen.SCREEN_WIDTH;
 
-import com.badlogic.gdx.math.MathUtils;
 import com.mikilangelo.abysmal.screens.game.actors.fixtures.Asteroid;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.AsteroidCrashed;
 import com.mikilangelo.abysmal.screens.game.uiElements.Radar;
@@ -19,7 +18,7 @@ public abstract class AsteroidsRepository {
   private static final Array<Zone> coveredZones = new Array<>();
   private static final Array<Zone> newZones = new Array<>();
 
-  private static final int ZONE_SIZE = 150;
+  private static final int ZONE_SIZE = 100;
   private static long seed;
   private static float shipX;
   private static float shipY;
@@ -28,12 +27,17 @@ public abstract class AsteroidsRepository {
     asteroids.add(a);
   }
 
-  public static void drawAll(final Batch batch, Vector2 shipPos, final float delta) {
-    updateAsteroids(shipPos);
-    asteroids.forEach(a -> {
+  // takes 0 - 2 ms
+  public static void drawAll(final Batch batch, float x, float y, float delta, float zoom) {
+    updateAsteroids(x, y);
+    final float dx = SCREEN_WIDTH * zoom + 4;
+    final float dy = SCREEN_HEIGHT * zoom + 4;
+    for (Asteroid a: asteroids) {
       a.move(delta);
-      a.draw(batch);
-    });
+      if ( Math.abs(a.x - shipX) < dx && Math.abs(a.y - shipY) < dy) {
+        a.draw(batch);
+      }
+    }
   }
 
   public static void drawAtRadar(Batch batch, Radar radar) {
@@ -73,9 +77,9 @@ public abstract class AsteroidsRepository {
     }
   }
 
-  private static void updateAsteroids(Vector2 shipPos) {
-    shipX = shipPos.x;
-    shipY = shipPos.y;
+  private static void updateAsteroids(float x, float y) {
+    shipX = x;
+    shipY = y;
     // remove destroyed asteroids
     for (int i = 0; i < asteroids.size; i++) {
       if (asteroids.get(i).destroyed) {
@@ -127,8 +131,8 @@ public abstract class AsteroidsRepository {
         coveredRight = z.covers(shipX + ZONE_SIZE, shipY);
         if (coveredRight) continue;
       }
-      if ( Math.abs(z.startY + ZONE_SIZE * 0.5f - shipY) > ZONE_SIZE * 3 ||
-              Math.abs(z.startX + ZONE_SIZE * 0.5f - shipX) > ZONE_SIZE * 3
+      if ( Math.abs(z.startY + ZONE_SIZE * 0.5f - shipY) > ZONE_SIZE * 2.5f ||
+              Math.abs(z.startX + ZONE_SIZE * 0.5f - shipX) > ZONE_SIZE * 2.5f
       ) {
         System.out.println("\nleft zone: [" + z.startX + ", " + z.endX  +" ] * ["
                 + z.startY +  "," + + z.endY + "]");
@@ -193,7 +197,7 @@ public abstract class AsteroidsRepository {
   }
 
   private static void generateAsteroidsIn(Zone z) {
-    int amount = z.random.nextInt(5, 10);
+    float amount = z.random.nextInt(5, 10) * ZONE_SIZE / 190f;
     for (short i = 0; i < amount; i++) {
       generateAsteroidsGroup(z.randomX(), z.randomY(), z.random);
     }

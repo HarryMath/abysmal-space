@@ -59,7 +59,7 @@ public class JoystickController extends InterfaceElement {
   }
 
   public void handleScreenResize(float w, float h) {
-    radius = BUTTON_RADIUS * RATIO * 2;
+    radius = BUTTON_RADIUS * RATIO * 2.2f;
     centerX = JOYSTICK_CENTER_X * RATIO;
     centerY = JOYSTICK_CENTER_Y * RATIO;
   }

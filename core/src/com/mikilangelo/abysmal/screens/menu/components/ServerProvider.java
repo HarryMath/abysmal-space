@@ -1,43 +1,29 @@
 package com.mikilangelo.abysmal.screens.menu.components;
 
 import com.mikilangelo.abysmal.screens.menu.models.ServerDto;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import com.mikilangelo.abysmal.shared.tools.HttpRequest;
 
 public abstract class ServerProvider {
 
-  private static final String mainServerUrl = "http://localhost:80/nodes/provide";
+  private static final String mainServerUrl = "https://abysmal-space.herokuapp.com";
   public static ServerDto server;
 
   public final static Runnable findGlobalServer = () -> {
     try {
-      URL url = new URL(mainServerUrl);
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-      connection.setRequestMethod("GET");
-      connection.setRequestProperty("content-type", "application/json");
-      System.out.println("[ServerProvider] response code: " + connection.getResponseCode());
-      InputStream responseStream = connection.getInputStream();
-      BufferedReader rd = new BufferedReader(new InputStreamReader(responseStream));
-      StringBuilder responseBuilder = new StringBuilder(); // or StringBuffer if Java version 5+
-      String line;
-      while ((line = rd.readLine()) != null) {
-        responseBuilder.append(line);
-        responseBuilder.append('\r');
-      }
-      rd.close();
-      String response = responseBuilder.toString();
+      String response = HttpRequest.GET(mainServerUrl + "/nodes/provide");
       System.out.println("[ServerProvider] response: " + response);
       server = new ServerDto();
       server.ip = getProperty(response, "ip").replace("::ffff:", "");
-      System.out.println("ip is " + server.ip);
       server.udpPort = Integer.parseInt(getProperty(response, "udpPort"));
       server.playersAmount = Integer.parseInt(getProperty(response, "playersAmount"));
       server.seed = Long.parseLong(getProperty(response, "seed"));
+      long t0 = System.currentTimeMillis();
+      response = HttpRequest.GET(mainServerUrl + "/time");
+      long serverTimestamp = Long.parseLong(getProperty(response, "timestamp"));
+      long t1 = System.currentTimeMillis();
+      int requestDuration = (int) (t1 - t0);
+      server.correction = serverTimestamp - t1 - Math.round(requestDuration * 0.25f);
+      System.out.println("correction is: " + server.correction);
     } catch (Exception ignore) {
       System.out.println("[ServerProvider] error getting global server");
       ignore.printStackTrace();
@@ -46,7 +32,7 @@ public abstract class ServerProvider {
   };
 
   private static String getProperty(String json, String param) {
-    String value = json.split("\"" + param + "\":")[1].split("}")[0];
+    String value = json.split("\"" + param + "\":")[1].replace("}", "");
     value = value.contains(",") ? value.split(",")[0] : value;
     return value.replace("\"", "").trim();
   }

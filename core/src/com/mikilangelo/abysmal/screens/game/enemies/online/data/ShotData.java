@@ -30,9 +30,7 @@ public class ShotData extends DataPackage {
   }
 
   public ShotData(byte[] data) {
-    System.out.println(Arrays.toString(data));
     byte[][] chunks = split(data, (short) 9, (short) indicator.length);
-    System.out.println(Arrays.deepToString(chunks));
     x = decodeFloat(chunks[0]);
     y = decodeFloat(chunks[1]);
     angle = decodeFloat(chunks[2]);

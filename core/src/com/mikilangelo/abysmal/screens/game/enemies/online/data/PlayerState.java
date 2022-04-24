@@ -13,30 +13,14 @@ public class PlayerState extends DataPackage {
   public float speedX, speedY, angularSpeed; // angular velocity
   public float health; // health
   public boolean isUnderControl; // is under control
+  public boolean shieldOn;
   public float currentPower;
   public long timestamp; // timestamp
 
   public PlayerState() { }
 
-  @Deprecated
-  public void setNotCompressed(String string) {
-    String[] data = string.substring(6, string.length() - 1).split(",");
-    generationId = data[0];
-    shipId = Integer.parseInt(data[1]);
-    x = Float.parseFloat(data[2]);
-    y = Float.parseFloat(data[3]);
-    angle = Float.parseFloat(data[4]);
-    speedX = Float.parseFloat(data[5]);
-    speedY = Float.parseFloat(data[6]);
-    angularSpeed = Float.parseFloat(data[7]);
-    health = Float.parseFloat(data[8]);
-    isUnderControl = Boolean.parseBoolean(data[9]);
-    currentPower = Float.parseFloat(data[10]);
-    timestamp = Long.parseLong(data[11]);
-  }
-
   public PlayerState(byte[] data) {
-    byte[][] chunks = split(data, (short) 12, (short) indicator.length);
+    byte[][] chunks = split(data, (short) 13, (short) indicator.length);
     generationId = decodeString(chunks[0]);
     shipId = decodeInt(chunks[1]);
     x = decodeFloat(chunks[2]);
@@ -47,8 +31,9 @@ public class PlayerState extends DataPackage {
     angularSpeed = decodeFloat(chunks[7]);
     health = decodeFloat(chunks[8]);
     isUnderControl = decodeBoolean(chunks[9]);
-    currentPower = decodeFloat(chunks[10]);
-    timestamp = decodeLong(chunks[11]);
+    shieldOn = decodeBoolean(chunks[10]);
+    currentPower = decodeFloat(chunks[11]);
+    timestamp = decodeLong(chunks[12]);
   }
 
   public static boolean isInstance(byte[] data) {
@@ -77,6 +62,8 @@ public class PlayerState extends DataPackage {
     outputStream.write(compress(health));
     outputStream.write(separator);
     outputStream.write(compress(isUnderControl));
+    outputStream.write(separator);
+    outputStream.write(compress(shieldOn));
     outputStream.write(separator);
     outputStream.write(compress(currentPower));
     outputStream.write(separator);

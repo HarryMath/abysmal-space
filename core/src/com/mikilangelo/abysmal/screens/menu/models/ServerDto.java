@@ -5,4 +5,5 @@ public class ServerDto {
   public int udpPort;
   public int playersAmount;
   public long seed;
+  public long correction;
 }

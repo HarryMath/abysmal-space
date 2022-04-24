@@ -60,7 +60,7 @@ public class JoystickShooter extends InterfaceElement {
       touchX = centerX;
       touchY = centerY;
     }
-    radius = BUTTON_RADIUS * RATIO * 2;
+    radius = BUTTON_RADIUS * RATIO * 2.2f;
   }
 
   public void draw(Batch batch) {

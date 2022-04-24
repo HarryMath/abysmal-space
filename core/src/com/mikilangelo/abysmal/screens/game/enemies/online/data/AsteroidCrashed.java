@@ -18,7 +18,6 @@ public class AsteroidCrashed extends DataPackage {
 
   public AsteroidCrashed(byte[] data) {
     byte[][] chunks = split(data, (short) 5, (short) indicator.length);
-    System.out.println(Arrays.deepToString(chunks));
     asteroidId = decodeLong(chunks[0]);
     x = decodeFloat(chunks[1]);
     y = decodeFloat(chunks[2]);

@@ -26,8 +26,7 @@ public class Laser implements DynamicObject {
   public float opacity = 1f;
   public boolean ended = false;
 
-  public Laser(LaserDef def, ShotData shotData, short bodyId) {
-    final float delta = (System.currentTimeMillis() - shotData.timestamp) * 0.001f;
+  public Laser(LaserDef def, ShotData shotData, short bodyId, float delta) {
     this.definition = def;
     this.angle = shotData.angle;
     BodyDef bodyDef = new BodyDef();
@@ -42,11 +41,11 @@ public class Laser implements DynamicObject {
     fixtureDef.filter.groupIndex = bodyId;
     body = GameScreen.world.createBody(bodyDef);
     body.createFixture(fixtureDef);
-    if (delta > 0.007f) {
+    if (delta > 0) {
       final float mass = body.getMass();
-      shotData.x += shotData.impulseX / mass * delta;
-      shotData.y += shotData.impulseY / mass * delta;
-      this.opacity -= delta / definition.lifeTime;
+      shotData.x += shotData.impulseX / mass * delta * 0.5f;
+      shotData.y += shotData.impulseY / mass * delta * 0.5f;
+      this.opacity -= delta * 0.5f / definition.lifeTime;
     } else {
       lastShotData = shotData;
     }
@@ -66,10 +65,9 @@ public class Laser implements DynamicObject {
             x, y, angle,
             def.impulse * MathUtils.cos(angle) + speedX / 27f * def.density,
             def.impulse * MathUtils.sin(angle) + speedY / 27f * def.density,
-            0,
-            System.currentTimeMillis() + 1,
+            0, 0,
             shipId
-    ), bodyId);
+    ), bodyId, 0);
   }
 
   @Override

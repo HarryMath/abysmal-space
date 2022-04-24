@@ -4,10 +4,7 @@ import static com.mikilangelo.abysmal.screens.game.GameScreen.HEIGHT;
 import static com.mikilangelo.abysmal.screens.game.GameScreen.WIDTH;
 
 import com.mikilangelo.abysmal.screens.game.actors.ship.PlayerShip;
-import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
 import com.mikilangelo.abysmal.screens.game.uiElements.Button;
-import com.mikilangelo.abysmal.screens.game.uiElements.ButtonShield;
-import com.mikilangelo.abysmal.screens.game.uiElements.ButtonShot;
 import com.mikilangelo.abysmal.screens.game.uiElements.JoystickController;
 import com.mikilangelo.abysmal.screens.game.uiElements.JoystickShooter;
 

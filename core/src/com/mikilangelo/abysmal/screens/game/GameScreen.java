@@ -170,21 +170,39 @@ public class GameScreen implements Screen {
 
   private void drawObjects(float delta) {
     game.objectsBatch.begin(); {
+      // long t1 = System.currentTimeMillis();
       if (Settings.drawBackground) {
         for (StaticObject p : nearObjects) {
           p.draw(game.objectsBatch, camera.X, camera.Y, camera.zoom * 1.2f);
         }
       }
+      // long t2 = System.currentTimeMillis();
       portal.draw(game.objectsBatch, delta, camera.X, camera.Y, camera.zoom);
       ParticlesRepository.drawAll(game.objectsBatch, delta);
+      // long t3 = System.currentTimeMillis();
       LasersRepository.drawSimple(game.objectsBatch, delta);
+      // long t4 = System.currentTimeMillis();
       enemiesProcessor.process(ship, delta);
+      // long t5 = System.currentTimeMillis();
       enemiesProcessor.drawAll(game.objectsBatch, delta);
+      // long t6 = System.currentTimeMillis();
       ship.draw(game.objectsBatch, delta);
       LasersRepository.drawTurrets(game.objectsBatch, delta);
+      // long t7 = System.currentTimeMillis();
       ExplosionsRepository.drawLaserExplosions(game.objectsBatch, delta);
-      AsteroidsRepository.drawAll(game.objectsBatch, ship.body.getPosition(), delta);
+      // long t8 = System.currentTimeMillis();
+      AsteroidsRepository.drawAll(game.objectsBatch, camera.X, camera.Y, delta, camera.zoom);
+      // long t9 = System.currentTimeMillis();
+      ParticlesRepository.drawFire(game.objectsBatch, delta);
       ExplosionsRepository.drawSimpleExplosions(game.objectsBatch, delta);
+      //      System.out.println("\nstars:      " + (t2 - t1) +
+      //              "\nparticles:  " + (t3 - t2) +
+      //              "\nlasers:     " + (t4 - t3) +
+      //              "\nenems proc: " + (t5 - t4) +
+      //              "\nenems draw: " + (t6 - t5) +
+      //              "\nlasers:     " + (t7 - t6) +
+      //              "\nexplosions: " + (t8 - t7) +
+      //              "\nasteroids:  " + (t9 - t8));
     }
     game.objectsBatch.end();
   }

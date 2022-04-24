@@ -152,7 +152,11 @@ public class MenuScreen implements Screen {
     new Async(ServerProvider.findGlobalServer).then(() -> {
       if (ServerProvider.server != null) {
         try {
-          this.enemiesProcessor = new UdpClient(ServerProvider.server.ip, ServerProvider.server.udpPort);
+          this.enemiesProcessor = new UdpClient(
+                  ServerProvider.server.ip,
+                  ServerProvider.server.udpPort,
+                  ServerProvider.server.correction
+          );
           this.seed = ServerProvider.server.seed;
           this.startGame();
         } catch (IOException e) {
@@ -233,7 +237,8 @@ public class MenuScreen implements Screen {
   }
 
   private void updateMenu(float delta) {
-    menuStartY = h / 2f + options.size / 2f * optionHeight;
+    menuStartY = 0.3f * (h * 0.5f + options.size * optionHeight) +
+            0.7f * (h * 0.97f - optionHeight * 3);
     if (menuAnimationCounter < menuWidthSqrt * 1.2f) {
       menuAnimationCounter += delta * 17 + menuAnimationCounter / 10f;
       menuStartX = - (menuAnimationCounter - menuWidthSqrt) * (menuAnimationCounter - menuWidthSqrt);

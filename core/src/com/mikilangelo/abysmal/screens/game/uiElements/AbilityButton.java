@@ -31,7 +31,7 @@ public abstract class AbilityButton extends Button {
   @Override
   public void draw(Batch batch) {
     if (secondsLeft > 0) {
-      icon.setAlpha(0.4f);
+      icon.setAlpha(0.5f);
       icon.draw(batch);
       drawArc(batch, 1 - secondsLeft / reloadTimeS);
     } else {
@@ -47,7 +47,7 @@ public abstract class AbilityButton extends Button {
   public void draw(Batch batch, BitmapFont font) {
     if (secondsLeft > 0) {
       secondsLeft = Math.min(secondsLeft, reloadTimeS);
-      background.setAlpha(0.3f);
+      background.setAlpha(0.5f);
       background.draw(batch);
       font.setColor(0.9f, 0.9f, 0.9f, 1);
       final float fontSize = radius / maxTextLength;

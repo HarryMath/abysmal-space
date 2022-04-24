@@ -7,7 +7,7 @@ import com.mikilangelo.abysmal.screens.game.GameScreen;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 
-public class EngineParticle implements DynamicObject {
+public class Particle implements DynamicObject {
   final EngineDef def;
   public float x;
   public float y;
@@ -19,7 +19,7 @@ public class EngineParticle implements DynamicObject {
 
   final float speedCoefficient;
 
-  public EngineParticle(EngineDef def, float x, float y, float speedX, float speedY) {
+  public Particle(EngineDef def, float x, float y, float speedX, float speedY) {
     this.def = def;
     this.speedX = speedX * def.particleShipSpeedCoefficient +
             (float) (Math.random() - 0.5f) * def.particleSpeedDispersion;
@@ -42,11 +42,10 @@ public class EngineParticle implements DynamicObject {
     this.speedX *= 0.987f;
     this.speedY *= 0.987f;
     if (stateRaising) {
-      if (opacity >= 0.9) {
+      this.opacity += 0.1;
+      if (opacity >= 1) {
         this.opacity = 1;
         this.stateRaising = false;
-      } else {
-        this.opacity += 0.1;
       }
     } else if (opacity > 0) {
       opacity -= def.decayRate;

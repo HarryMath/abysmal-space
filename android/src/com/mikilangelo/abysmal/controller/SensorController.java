@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.mikilangelo.abysmal.screens.game.actors.ship.PlayerShip;
-import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
 import com.mikilangelo.abysmal.screens.game.components.Camera;
 import com.mikilangelo.abysmal.screens.game.controllers.GameController;
 import com.mikilangelo.abysmal.screens.game.controllers.TouchHandler;
@@ -45,7 +44,7 @@ public class SensorController implements GameController {
   @Override
   public boolean process(PlayerShip ship, Camera camera, float delta) {
     boolean isScreenUsed = false;
-    final long currentTime = System.currentTimeMillis();
+    long currentTime = System.currentTimeMillis();
     shieldButton.update(ship.getShieldAbilityReloadTime(currentTime));
     shotButton.update(ship.getShotReloadTime(currentTime));
     speedUpButton.update(ship.getSpeedReloadTime(currentTime));

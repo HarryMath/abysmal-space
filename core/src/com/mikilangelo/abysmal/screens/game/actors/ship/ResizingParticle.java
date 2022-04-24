@@ -3,7 +3,7 @@ package com.mikilangelo.abysmal.screens.game.actors.ship;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.mikilangelo.abysmal.shared.defenitions.EngineDef;
 
-public class ResizingParticle extends EngineParticle {
+public class ResizingParticle extends Particle {
 
   public ResizingParticle(EngineDef def, float x, float y, float speedX, float speedY) {
     super(def, x, y, speedX, speedY);
