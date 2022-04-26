@@ -14,8 +14,8 @@ public class ParticleSmog extends Particle {
     definition.color[1] = 0.005f;
     definition.color[2] = 0.015f;
     definition.withTint = true;
-    definition.particlePositionDispersion = 2.21f;
-    definition.particleSpeedDispersion = 1.93f;
+    definition.particlePositionDispersion = 1.29f;
+    definition.particleSpeedDispersion = 1.98f;
     definition.decayRate = 0.001f / 0.17f;
     definition.particleScale = 0.052f;
     definition.particleSizeDispersion = 0.014f;
@@ -35,7 +35,7 @@ public class ParticleSmog extends Particle {
             whiteTint + def.color[1] * (1 - whiteTint),
             whiteTint + def.color[2] * (1 - whiteTint),
     opacity);
-    def.particleTexture.setScale(scale * (2 - opacity));
+    def.particleTexture.setScale(scale * (2 - opacity * 1.6f));
     def.particleTexture.setCenter(x, y);
     def.particleTexture.draw(batch);
   }

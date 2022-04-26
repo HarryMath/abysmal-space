@@ -188,11 +188,11 @@ public class Ship {
     } else {
       this.currentPower *= 0.97f;
     }
-    if (bodyData.health < 20) {
+    if (bodyData.health < 15) {
       if (MathUtils.random() < 0.03f) {
         ParticlesRepository.addSmoke(new ParticleSmog(x, y, velocity.x * 0.3f, velocity.y * 0.3f));
       }
-      if (MathUtils.random() < (20 - bodyData.health) / 40) {
+      if (MathUtils.random() < (15 - bodyData.health) / 60) {
         ParticlesRepository.addSmoke(new ParticleSmog(x, y, velocity.x * 0.7f, velocity.y * 0.7f));
         ParticlesRepository.addFire(new ParticleFire(x, y, velocity.x, velocity.y));
       }
@@ -200,7 +200,7 @@ public class Ship {
         if (MathUtils.random() < (15 - bodyData.health) / 15) {
           ParticlesRepository.addFire(new ParticleFire(x, y, velocity.x, velocity.y));
           bodyData.health -= 0.001f;
-        } else if (MathUtils.random() < (15 - bodyData.health) / 15) {
+        } else if (MathUtils.random() < (10 - bodyData.health) / 40) {
           ParticlesRepository.addSmoke(new ParticleSmog(x, y, velocity.x, velocity.y));
         }
       }

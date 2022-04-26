@@ -148,7 +148,7 @@ public class MenuScreen implements Screen {
 
   public void setGlobalMultiplayer() {
     this.isLoading = true;
-    this.loadingText = "searching for server";
+    this.loadingText = "searching for server...";
     new Async(ServerProvider.findGlobalServer).then(() -> {
       if (ServerProvider.server != null) {
         try {
@@ -338,17 +338,24 @@ public class MenuScreen implements Screen {
       Gdx.gl.glEnable(GL20.GL_BLEND);
       Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
       shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-      shapeRenderer.setColor(0.011f, 0.011f, 0.015f, 0.6f * overlayOpacity);
+      shapeRenderer.setColor(0.011f, 0.011f, 0.015f, 0.8f * overlayOpacity);
       shapeRenderer.rect(0, 0, w, h);
       shapeRenderer.end();
       Gdx.gl.glDisable(GL20.GL_BLEND);
       overlayOpacity = (overlayOpacity * 0.6f + 0.4f);
+      game.batchInterface.begin();
+      if (isLoading) {
+        GlyphLayout box = new GlyphLayout(game.customFont, loadingText);
+        game.customFont.setColor(0.8f, 0.8f, 0.8f, 1);
+        game.customFont.getData().setScale(optionHeight * 0.33f / game.customFont.getCapHeight() * game.customFont.getScaleY());
+        game.customFont.draw(game.batchInterface, loadingText, (w - box.width) * 0.5f, (h - box.height) * 0.5f);
+      } else {
+        notification.draw(game.batchInterface, game.customFont);
+      }
+      game.batchInterface.end();
     } else {
       overlayOpacity *= 0.8f;
     }
-    game.batchInterface.begin();
-    notification.draw(game.batchInterface, game.customFont);
-    game.batchInterface.end();
   }
 
   private void drawSmoothDarkness() {

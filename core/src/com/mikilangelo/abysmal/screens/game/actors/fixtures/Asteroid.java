@@ -142,14 +142,14 @@ public class Asteroid implements DynamicObject {
   @Override
   public void move(float delta) {
     if (this.bodyLoaded && !destroyed) {
+      position = body.getPosition();
+      x = position.x;
+      y = position.y;
       final Vector2 speed = body.getLinearVelocity();
       body.setAngularVelocity(body.getAngularVelocity() * 0.99f);
       body.setLinearVelocity(speed.scl(0.997f));
       if (bodyData.health <= 0) {
         destroyed = true;
-        position = body.getPosition();
-        x = position.x;
-        y = position.y;
         if (isExplodedRemotely) {
           x = (deathX + x) * 0.5f;
           y = (deathY + y) * 0.5f;
