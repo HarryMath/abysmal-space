@@ -14,11 +14,7 @@ import com.mikilangelo.abysmal.screens.game.enemies.online.data.AsteroidCrashed;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.DataPackage;
 import com.mikilangelo.abysmal.shared.ShipDefinitions;
 import com.mikilangelo.abysmal.shared.repositories.AsteroidsRepository;
-import com.mikilangelo.abysmal.shared.repositories.ExplosionsRepository;
-import com.mikilangelo.abysmal.shared.repositories.LasersRepository;
 import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
-import com.mikilangelo.abysmal.screens.game.actors.ship.Laser;
-import com.mikilangelo.abysmal.screens.game.objectsData.DestroyableObjectData;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.PlayerState;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.ShotData;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
@@ -29,6 +25,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -40,6 +38,7 @@ public class UdpClient implements EnemiesProcessor {
   private final DatagramSocket client;
 
   private final Array<Player> players = new Array<>();
+  private final Map<String, Integer> playersToCreate = new HashMap<>();
   private final AtomicBoolean isStopped = new AtomicBoolean(false);
   private byte[] output;
   private DatagramPacket outputPacket;
@@ -64,7 +63,7 @@ public class UdpClient implements EnemiesProcessor {
         try {
           client.receive(inputPacket);
           if (isStopped.get()) {break;}
-          handleData(trimPackage(inputPacket.getData()));
+          handleData(Arrays.copyOf(inputPacket.getData(), inputPacket.getLength()));
           inputPacket.setData(new byte[256]);
         } catch (Exception ex) {
           ex.printStackTrace();
@@ -74,14 +73,6 @@ public class UdpClient implements EnemiesProcessor {
     });
     receiveThread.start();
     sendingThread.start();
-  }
-
-  private byte[] trimPackage(byte[] data) {
-    int i = (short) data.length - 1;
-    while (i >= 0 && data[i] == 0) {
-      i--;
-    }
-    return Arrays.copyOf(data, i+1);
   }
 
   @Override
@@ -112,32 +103,39 @@ public class UdpClient implements EnemiesProcessor {
       if (PlayerState.isInstance(dataPackage)) {
         PlayerState player = new PlayerState(dataPackage);
         if (!player.generationId.equals(state.generationId)) {
+          final long timestamp = timestamp();
           for (int i = 0; i < players.size; i++) {
             if (players.get(i).generationId.equals(player.generationId)) {
-              players.get(i).update(player);
+              players.get(i).update(player, timestamp);
               return;
             }
           }
-          if (player.generationId.length() > 1) {
-            for (int i = 0; i < players.size; i++) {
-              if (CalculateUtils.distance(player.x, player.y, players.get(i).ship.x, players.get(i).ship.y) < 2) {
-                return;
+          if (player.generationId.length() > 2) {
+            if (playersToCreate.containsKey(player.generationId)) {
+              int packagesReceive = playersToCreate.get(player.generationId);
+              packagesReceive += 1;
+              playersToCreate.put(player.generationId, packagesReceive);
+              if (packagesReceive > 5) {
+                Ship ship = new Ship(ShipDefinitions.get(player.shipId),
+                        player.x, player.y, false, playerX, playerY);
+                Gdx.app.postRunnable(() -> {
+                  ship.createBody(world);
+                  players.add(new Player(ship, player.generationId));
+                });
+                playersToCreate.remove(player.generationId);
               }
+            } else {
+              playersToCreate.put(player.generationId, 0);
             }
-            Ship ship = new Ship(ShipDefinitions.get(player.shipId),
-                    player.x, player.y, false, playerX, playerY);
-            Gdx.app.postRunnable(() -> {
-              ship.createBody(world);
-              players.add(new Player(ship, player.generationId, false));
-            });
           }
         }
       }
       else if (ShotData.isInstance(dataPackage)) {
         ShotData shotData = new ShotData(dataPackage);
+        long timestamp = timestamp();
         for (Player p : players) {
           if (p.generationId.equals(shotData.generationId)) {
-            p.shot(shotData);
+            p.shot(shotData, timestamp);
             return;
           }
         }
@@ -170,11 +168,12 @@ public class UdpClient implements EnemiesProcessor {
       state.shieldOn = player.shieldOn;
       state.currentPower = player.currentPower;
       player.isPowerApplied = false;
-      state.health = ((DestroyableObjectData) player.body.getUserData()).getHealth();
+      state.health = player.bodyData.health;
       sendingThread.sendStateData();
     }
+    long timestamp = timestamp();
     for (int i = 0; i < players.size; i++) {
-      if ( players.get(i).isDead(player.x, player.y, delta) ) {
+      if ( players.get(i).isDead(player.x, player.y, delta, timestamp) ) {
         players.removeIndex(i--);
       }
     }
@@ -230,88 +229,8 @@ public class UdpClient implements EnemiesProcessor {
     } catch (IOException | SecurityException e) {
       e.printStackTrace();
     }
-  }
-
-  private class Player extends Enemy {
-    private final String generationId;
-    private boolean isPowerApplied = false;
-    private long lastUpdateTimeStamp = 0; // timestamp of the latest package
-    private long lastStateTimeStamp = 0; // last time when update was
-    private boolean isDead = false;
-    private float currentPower = 0.5f;
-
-    public Player(Ship ship, String id, boolean friendly) {
-      super(ship);
-      this.generationId = id;
-      ship.generationId = friendly ? state.generationId : id;
-    }
-
-    public boolean isDead(float playerX, float playerY, float delta) {
-      ship.distance = CalculateUtils.distance(playerX, playerY, ship.x, ship.y);
-      if (
-         isDead ||
-         (ship.bodyData.health < -10 && timestamp() - lastUpdateTimeStamp > 500)
-      ) {
-        if (ship.distance < 100) {
-          ExplosionsRepository.addShipExplosion(
-                  ship.x, ship.y, 1 - ship.distance * 0.01f,
-                  (ship.x - playerX) / ship.distance );
-        }
-        ship.destroy(world);
-        return true;
-      }
-      if (ship.distance < 50) {
-        ship.move(delta);
-        if (isPowerApplied) {
-          ship.kak();
-          this.currentPower = this.currentPower * 0.96f + 0.04f;
-        }
-        ship.currentPower = this.currentPower;
-      }
-      return false;
-    }
-
-    public void update(final PlayerState data) {
-      Gdx.app.postRunnable(() -> {
-        if (!world.isLocked() && !isStopped.get() && data.timestamp > lastStateTimeStamp) {
-          final long currentTime = timestamp();
-          final float deltaTime = (currentTime - data.timestamp) * 0.001f;
-          System.out.println("delta is: " + deltaTime + "s");
-          isPowerApplied = data.isUnderControl;
-          ship.bodyData.health = data.health;
-          if (data.health <= 0) {
-            this.isDead = true;
-            return;
-          }
-          ship.setState(data, deltaTime * 0.7f);
-          if (data.isUnderControl) {
-            this.currentPower = 0.5f * (this.currentPower + 0.2f + data.currentPower * 0.8f);
-          }
-          lastUpdateTimeStamp = currentTime;
-          lastStateTimeStamp = data.timestamp;
-        }
-      });
-    }
-
-    public void shot(ShotData shotData) {
-      Gdx.app.postRunnable(() -> {
-        if (shotData.withSound) {
-          ship.playShotSound(shotData.gunId);
-        }
-        Laser l = new Laser(
-                shotData.gunId < 0 ? ship.def.laserDefinition :
-                        ship.def.turretDefinitions.get(shotData.gunId).laserDefinition,
-                shotData,
-                ship.bodyId,
-                (timestamp() - shotData.timestamp) * 0.001f
-        );
-        if (shotData.gunId < 0) {
-          LasersRepository.addSimple(l);
-        } else {
-          LasersRepository.addTurret(l);
-        }
-      });
-    }
+    playersToCreate.clear();
+    players.clear();
   }
 
   private long timestamp() {

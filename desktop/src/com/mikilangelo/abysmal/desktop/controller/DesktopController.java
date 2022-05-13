@@ -2,66 +2,56 @@ package com.mikilangelo.abysmal.desktop.controller;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Cursor;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.mikilangelo.abysmal.screens.game.actors.ship.PlayerShip;
 import com.mikilangelo.abysmal.screens.game.components.Camera;
 import com.mikilangelo.abysmal.screens.game.controllers.GameController;
-import com.mikilangelo.abysmal.screens.game.controllers.TouchHandler;
-import com.mikilangelo.abysmal.screens.game.uiElements.AbilityButton;
-import com.mikilangelo.abysmal.screens.game.uiElements.Button;
-import com.mikilangelo.abysmal.screens.game.uiElements.ButtonShield;
-import com.mikilangelo.abysmal.screens.game.uiElements.ButtonShot;
-import com.mikilangelo.abysmal.screens.game.uiElements.ButtonShotAbility;
-import com.mikilangelo.abysmal.screens.game.uiElements.ButtonSpeed;
-import com.mikilangelo.abysmal.screens.game.uiElements.JoystickController;
-import com.mikilangelo.abysmal.screens.game.uiElements.JoystickShooter;
+import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
+import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
 
 public class DesktopController implements GameController {
-  private TouchHandler touch1Handler;
-  private TouchHandler touch2Handler;
+  private float rotationSensitivity = 0.2f;
+  private boolean hasTurrets = false;
+  private boolean shipRotated = false;
+  private Cursor customCursor;
+  private float w, h;
 
-  private JoystickController shipController;
-  private JoystickShooter turretShooter;
-  private Button shotButton;
-  private AbilityButton shieldButton;
-  private AbilityButton speedUpButton;
+  public void setCustomCursor() {
+    Texture texture = TexturesRepository.get("cursor.png");
+    texture.getTextureData().prepare();
+    Pixmap pixmap = texture.getTextureData().consumePixmap();
+    int xHotspot = pixmap.getWidth() / 2;
+    int yHotspot = pixmap.getHeight() / 2;
+    this.customCursor = Gdx.graphics.newCursor(pixmap, xHotspot, yHotspot);
+    Gdx.graphics.setCursor(customCursor);
+    pixmap.dispose();
+  }
 
   @Override
   public void init(PlayerShip ship, float w, float h) {
-    touch1Handler = new TouchHandler(ship);
-    touch2Handler = new TouchHandler(ship);
-
-    shipController = new JoystickController(w, h);
-    turretShooter = new JoystickShooter(w, h, ship.def.turretDefinitions.size > 0);
-    shotButton = ship.def.shotIntervalMs >= 2000 && ship.def.lasersAmount > 0 ?
-            new ButtonShotAbility(w, h, ship.def.shotIntervalMs / 1000f) :
-            new ButtonShot(w, h, ship.def.lasersAmount > 0);
-    shieldButton = new ButtonShield(ship.def.shieldRechargeTimeMs / 1000f, w, h);
-    speedUpButton = new ButtonSpeed(ship.def.speedRechargeTimeMs / 1000f, w, h);
+    this.hasTurrets = ship.turrets.size > 0;
+    this.resizeComponents(w, h);
+    setCustomCursor();
+    // TODO shotIndicator =
+    // TODO shieldIndicator =
+    // TODO speedUpIndicator =
   }
 
   @Override
   public boolean process(PlayerShip ship, Camera camera, float delta) {
-    long currentTime = System.currentTimeMillis();
-    shieldButton.update(ship.getShieldAbilityReloadTime(currentTime));
-    shotButton.update(ship.getShotReloadTime(currentTime));
-    speedUpButton.update(ship.getSpeedReloadTime(currentTime));
-    if (Gdx.input.isTouched(1)) {
-      touch2Handler.touchX = Gdx.input.getX(1);
-      touch2Handler.touchY = Gdx.input.getY(1);
-      touch2Handler.handleTouch(shipController, turretShooter, shotButton, shieldButton, speedUpButton, delta);
-    } else {
-      touch2Handler.endTouch();
-    }
-    if (Gdx.input.isTouched(0)) {
-      touch1Handler.touchX = Gdx.input.getX(0);
-      touch1Handler.touchY = Gdx.input.getY(0);
-      touch1Handler.handleTouch(shipController, turretShooter, shotButton, shieldButton, speedUpButton, delta);
-    } else {
-      touch1Handler.endTouch();
+    // long currentTime = System.currentTimeMillis();
+    //TODO shotIndicator.update(ship.getShieldAbilityReloadTime(currentTime));
+    //TODO shieldIndicator.update(ship.getShieldAbilityReloadTime(currentTime));
+    //TODO speedUpIndicator.update(ship.getShieldAbilityReloadTime(currentTime));
+    if (Gdx.input.isTouched()) {
+      shot(ship, Gdx.input.getX(), Gdx.input.getY());
     }
     ship.newAngle = ship.angle;
+    shipRotated = false;
     if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
       ship.applyImpulse(1, true);
     }
@@ -69,10 +59,12 @@ public class DesktopController implements GameController {
       ship.applyImpulse(-0.01f, false);
     }
     if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-      ship.rotate(0.7f, delta);
+      ship.rotate(rotationSensitivity, delta);
+      shipRotated = true;
     }
     if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-      ship.rotate(-0.7f, delta);
+      ship.rotate(-rotationSensitivity, delta);
+      shipRotated = true;
     }
     if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
       camera.zoomOut();
@@ -80,33 +72,52 @@ public class DesktopController implements GameController {
     if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
       camera.zoomIn();
     }
+    if (Gdx.input.isKeyPressed(Input.Keys.E)) {
+      ship.activateShield();
+    }
+    if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
+      ship.speedUp();
+    }
+    if (shipRotated) {
+      rotationSensitivity = (rotationSensitivity * 0.89f + 0.071f);
+    } else {
+      rotationSensitivity = 0.2f;
+    }
     return false;
+  }
+
+  private void shot(PlayerShip ship, float touchX, float touchY) {
+    if (!hasTurrets) {
+      ship.shotDirectly();
+      return;
+    }
+    final float angle = CalculateUtils.defineAngle(touchX - w * 0.5f, h * 0.5f - touchY, 0);
+    ship.turrets.forEach(turret -> {
+      turret.control(angle);
+      if (Math.abs((turret.angle + ship.angle) % 6.28f - angle) < 0.5f) {
+        turret.shot(ship, 1, 0);
+      }
+    });
+    if (Math.abs(angle - ship.angle) < 0.1f) {
+      ship.shotDirectly();
+    }
   }
 
   @Override
   public void drawInterface(Batch batch, BitmapFont font) {
-    turretShooter.draw(batch);
-    shipController.draw(batch);
-    shotButton.draw(batch);
-    shieldButton.draw(batch, font);
-    speedUpButton.draw(batch, font);
+    // TODO draw indicators
   }
 
   @Override
   public void resizeComponents(float w, float h) {
-    shipController.handleScreenResize(w, h);
-    turretShooter.handleScreenResize(w, h);
-    shotButton.handleScreenResize(w, h);
-    shieldButton.handleScreenResize(w, h);
-    speedUpButton.handleScreenResize(w, h);
+    this.w = w;
+    this.h = h;
+    // TODO resize indicators
   }
 
   @Override
   public void dispose() {
-    touch1Handler = null;
-    touch2Handler = null;
-    shipController = null;
-    turretShooter = null;
-    shotButton = null;
+    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+    // TODO set indicators null
   }
 }

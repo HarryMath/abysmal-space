@@ -99,22 +99,19 @@ public class Ship {
     final float rotationLeft = (angle - newAngle + MathUtils.PI2) % MathUtils.PI2;
     final float rotationRight = (newAngle - angle + MathUtils.PI2) % MathUtils.PI2;
     final boolean isLeft = rotationLeft < rotationRight;
-    final float rotation = isLeft ? rotationLeft : rotationRight;
+    float rotation = isLeft ? rotationLeft : rotationRight;
     final float powerScale = (3.1415927f - rotation) / 3.14159267f;
     this.applyImpulse(power * (0.1f + powerScale * 0.9f), this.distance < SCREEN_WIDTH);
 
     assert angle >= 0 && angle <= MathUtils.PI2;
     assert newAngle >= 0 && newAngle <= MathUtils.PI2;
 
+    rotation = rotation > 1.5f ? 1 : (rotation / 1.5f * 0.7f + 0.3f);
+    rotation *= rotation;
     if (angle != newAngle) {
-      if (angle <= newAngle + def.controlPower / 5f && angle >= newAngle - def.controlPower / 5f) {
-        this.body.setAngularVelocity(this.body.getAngularVelocity() * 0.82f);
-      } else {
-        if (isLeft) {
-          this.rotate(- rotationLeft / MathUtils.PI * 0.55f - 0.45f, delta);
-        } else {
-          this.rotate(rotationLeft / MathUtils.PI * 0.55f + 0.45f, delta);
-        }
+      this.rotate(isLeft ? -rotation : rotation, delta);
+      if (angle <= newAngle + def.controlPower * 0.15f && angle >= newAngle - def.controlPower * 0.15f) {
+        this.body.setAngularVelocity(this.body.getAngularVelocity() * 0.9f);
       }
     }
   }

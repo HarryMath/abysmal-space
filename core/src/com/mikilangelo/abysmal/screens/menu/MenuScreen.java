@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.mikilangelo.abysmal.AbysmalSpace;
+import com.mikilangelo.abysmal.screens.game.enemies.online.UdpServer;
 import com.mikilangelo.abysmal.screens.menu.components.NotificationWrapper;
 import com.mikilangelo.abysmal.screens.menu.components.ServerProvider;
 import com.mikilangelo.abysmal.screens.menu.options.LocalClientOption;
@@ -141,6 +142,44 @@ public class MenuScreen implements Screen {
     this.startGame();
   }
 
+  public void setLocalClient() {
+    this.isLoading = true;
+    this.loadingText = "searching for server...";
+    new Async(ServerProvider.findLocalServer).then(() -> {
+      if (ServerProvider.localServer != null) {
+        try {
+          this.enemiesProcessor = new UdpClient(
+                  ServerProvider.localServer.ip,
+                  ServerProvider.localServer.udpPort,
+                  ServerProvider.localServer.correction
+          );
+          this.seed = ServerProvider.localServer.seed;
+          this.startGame();
+        } catch (Exception e) {
+          this.notification.showWarning("Error connecting to server");
+          negative.play(1);
+          e.printStackTrace();
+        }
+      } else {
+        negative.play(1);
+        this.notification.showWarning("No available server at the moment. Try later Please. We are very sorry for tat inconvenience! turn back later, please");
+      }
+      isLoading = false;
+    }).start();
+    notification.showWarning("This option is not available yet :c");
+  }
+
+  public void setLocalServer() {
+    try {
+      this.enemiesProcessor = new UdpServer();
+      this.seed = ((UdpServer) enemiesProcessor).seed;
+      this.startGame();
+    } catch (Exception e) {
+      e.printStackTrace();
+      notification.showWarning("Unavailable to start server :c");
+    }
+  }
+
   public void setLocalMultiPlayer() {
     this.options.clear();
     this.options.add(new LocalClientOption(), new LocalServerOption(), new PlayOption("< Back"));
@@ -150,14 +189,14 @@ public class MenuScreen implements Screen {
     this.isLoading = true;
     this.loadingText = "searching for server...";
     new Async(ServerProvider.findGlobalServer).then(() -> {
-      if (ServerProvider.server != null) {
+      if (ServerProvider.globalServer != null) {
         try {
           this.enemiesProcessor = new UdpClient(
-                  ServerProvider.server.ip,
-                  ServerProvider.server.udpPort,
-                  ServerProvider.server.correction
+                  ServerProvider.globalServer.ip,
+                  ServerProvider.globalServer.udpPort,
+                  ServerProvider.globalServer.correction
           );
-          this.seed = ServerProvider.server.seed;
+          this.seed = ServerProvider.globalServer.seed;
           this.startGame();
         } catch (IOException e) {
           this.notification.showWarning("Error connecting to server");
@@ -431,14 +470,6 @@ public class MenuScreen implements Screen {
   public void dispose() {
     stars.clear();
     shapeRenderer.dispose();
-  }
-
-  public void setLocalClient() {
-    notification.showWarning("This option is not available yet :c");
-  }
-
-  public void setLocalServer() {
-    notification.showWarning("This option is not available yet :c");
   }
 
   private class MenuStar {

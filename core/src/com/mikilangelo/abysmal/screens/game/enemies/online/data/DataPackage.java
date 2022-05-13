@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 public abstract class DataPackage {
 
-  protected static final byte separator = -127;
+  protected static final byte separator = -12;
 
   public abstract byte[] compress() throws IOException;
 

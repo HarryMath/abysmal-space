@@ -42,7 +42,7 @@ public abstract class TexturesRepository {
                     "ammo", "health", "border", "back", "red", "yellow", "blue", "speed"}, ".png");
     loadTextures("UI/radar/", new String[]{
             "asteroid", "enemy", "border", "back", "center", "overlay"}, ".png");
-    loadTextures("", new String[]{"back", "backMenu", "starMenu", "star"}, ".png");
+    loadTextures("", new String[]{"back", "backMenu", "starMenu", "star", "cursor"}, ".png");
     loadTextures("planets/", new String[]{
             "Baren", "Eros", "Gelios", "Ice", "mud", "Tatuin", "moon", "Terra", "Vulcano"}, ".png");
     loadTextures("planets/Magrateya", range(5), ".png");
