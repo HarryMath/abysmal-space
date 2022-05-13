@@ -117,3 +117,5 @@ Thumbs.db
 ## for google play
 /media/keystore.jks
 /media/private_key.pepk
+*.aab
+*.apk
