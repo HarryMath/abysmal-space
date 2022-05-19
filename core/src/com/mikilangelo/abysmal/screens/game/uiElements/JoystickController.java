@@ -24,6 +24,20 @@ public class JoystickController extends InterfaceElement {
     return directionAngle;
   }
 
+  public float getXPower() {
+    float dx = (centerX - touchX) / radius;
+    if (dx > 1) return 1;
+    if (dx < -1) return -1;
+    return dx > 0 ? dx * dx : - dx * dx;
+  }
+
+  public float getYPower() {
+    float dy = (touchY - centerY) / radius;
+    if (dy > 1) return 1;
+    if (dy < 0) return 0;
+    return dy;
+  }
+
   public float getPower() {
     return power > radius ? 1 : power / radius;
   }
@@ -63,5 +77,4 @@ public class JoystickController extends InterfaceElement {
     centerX = JOYSTICK_CENTER_X * RATIO;
     centerY = JOYSTICK_CENTER_Y * RATIO;
   }
-
 }

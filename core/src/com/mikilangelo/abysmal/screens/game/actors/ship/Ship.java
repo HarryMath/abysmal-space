@@ -149,14 +149,53 @@ public class Ship {
     } else if (!state.shieldOn && shieldOn) {
       stopShield();
     }
-    final float speedM = 1 / (1 + delta * 0.5f);
+    if (delta < 0) { delta = 0; }
+    float speedM = 0.1f + 0.9f / (1 + delta * 0.5f);
     x = state.x + state.speedX * delta * speedM;
     y = state.y + state.speedY * delta * speedM;
-    angle = CalculateUtils.normalizeAngle(state.angle + state.angularSpeed * delta * 0.9f);
+    angle = CalculateUtils.normalizeAngle(state.angle + state.angularSpeed * delta * 0.91f);
     primaryBody.setTransform(x, y, angle);
     secondaryBody.setTransform(x, y, angle);
-    primaryBody.setLinearVelocity(state.speedX * speedM, state.speedY * speedM);
-    primaryBody.setAngularVelocity(state.angularSpeed * speedM * 0.9f);
+    speedM = 0.3f + speedM * 0.7f;
+    primaryBody.setLinearVelocity(
+            state.speedX * speedM,
+            state.speedY * speedM
+    );
+    primaryBody.setAngularVelocity(state.angularSpeed * speedM);
+  }
+
+  public void setState(PlayerState state, float delta, float c1) {
+    x = primaryBody.getPosition().x;
+    y = primaryBody.getPosition().y;
+    velocity = primaryBody.getLinearVelocity();
+    float c2 = 1 - c1;
+    angle = primaryBody.getAngle();
+    if (state.shieldOn && !shieldOn) {
+      activateShield();
+    } else if (!state.shieldOn && shieldOn) {
+      stopShield();
+    }
+    if (delta < 0) { delta = 0; }
+    float speedM = 0.1f + 0.9f / (1 + delta * 0.5f);
+    x = c2 * x + c1 * (state.x + state.speedX * delta * speedM);
+    y = c2 * y + c1 * (state.y + state.speedY * delta * speedM);
+    primaryBody.setTransform(x, y, angle);
+    secondaryBody.setTransform(x, y, angle);
+    speedM = 0.3f + speedM * 0.7f;
+    primaryBody.setAngularVelocity(
+            primaryBody.getAngularVelocity() * c2 +
+                    c1 * state.angularSpeed * speedM
+    );
+    c1 = c1 * 0.65f + 0.35f;
+    c2 = 1 - c1;
+    primaryBody.setLinearVelocity(
+            velocity.x * c2 + c1 * state.speedX * speedM,
+            velocity.y * c2 + c1 * state.speedY * speedM
+    );
+    angle = CalculateUtils.avgAngle(
+            angle, c2,
+            state.angle + state.angularSpeed * delta * 0.95f, c1
+    );
 
   }
 
@@ -409,6 +448,7 @@ public class Ship {
     CircleShape shape = new CircleShape();
     shape.setRadius(def.shieldRadius);
     FixtureDef fixtureDef = new FixtureDef();
+    System.out.println("mass: " + body.getMass());
     fixtureDef.density = body.getMass() / (def.shieldRadius * def.shieldRadius * MathUtils.PI);
     fixtureDef.friction = def.friction * 0.14f;
     fixtureDef.restitution = 0.3f * 0.95f + def.restitution * 0.05f;

@@ -17,7 +17,7 @@ public class Player extends Enemy {
 
   public final String generationId;
   private boolean isPowerApplied = false;
-  private long lastUpdateTimeStamp = 0; // timestamp of the latest package
+  private long lastUpdateTimestamp = 0; // timestamp of the latest package
   private long lastStateTimeStamp = 0; // last time when update was
   private boolean isDead = false;
   private float currentPower = 0.5f;
@@ -36,7 +36,7 @@ public class Player extends Enemy {
     ship.distance = CalculateUtils.distance(playerX, playerY, ship.x, ship.y);
     if (
         isDead ||
-        (ship.bodyData.health < -10 && timestamp - lastUpdateTimeStamp > 500)
+        (ship.bodyData.health < -10 && timestamp - lastUpdateTimestamp > 500)
     ) {
       if (ship.distance < 100) {
         ExplosionsRepository.addShipExplosion(
@@ -61,18 +61,23 @@ public class Player extends Enemy {
     Gdx.app.postRunnable(() -> {
       if (!world.isLocked() && data.timestamp > lastStateTimeStamp) {
         final float deltaTime = (currentTime - data.timestamp) * 0.001f;
-        // System.out.println("delta is: " + deltaTime + " s");
+        System.out.println("delta is: " + deltaTime + " s");
         isPowerApplied = data.isUnderControl;
         ship.bodyData.health = data.health;
         if (data.health <= 0) {
           this.isDead = true;
           return;
         }
-        ship.setState(data, deltaTime * 0.7f);
+        final long packagesDelay = currentTime - lastUpdateTimestamp;
+        if (packagesDelay > 200) {
+          ship.setState(data, deltaTime * 1.1f, 100f / packagesDelay);
+        } else {
+          ship.setState(data, deltaTime * 0.8f);
+        }
         if (data.isUnderControl) {
           this.currentPower = 0.5f * (this.currentPower + 0.2f + data.currentPower * 0.8f);
         }
-        lastUpdateTimeStamp = currentTime;
+        lastUpdateTimestamp = currentTime;
         lastStateTimeStamp = data.timestamp;
       }
     });

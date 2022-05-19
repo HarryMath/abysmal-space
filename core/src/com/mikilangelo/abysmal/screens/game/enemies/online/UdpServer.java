@@ -110,7 +110,7 @@ public class UdpServer implements EnemiesProcessor {
         PlayerState player = new PlayerState(dataPackage);
         if (!player.generationId.equals(state.generationId)) {
           long timestamp = timestamp();
-          for (int i = 0; i < players.size; i++) {
+          for (short i = 0; i < players.size; i++) {
             if (players.get(i).generationId.equals(player.generationId)) {
               players.get(i).update(player, timestamp);
               return;
@@ -139,7 +139,9 @@ public class UdpServer implements EnemiesProcessor {
       else if (ShotData.isInstance(dataPackage)) {
         ShotData shotData = new ShotData(dataPackage);
         long timestamp = timestamp();
-        for (LocalPlayer p : players) {
+        LocalPlayer p;
+        for (short i = 0; i < players.size; i++) {
+          p = players.get(i);
           if (p.generationId.equals(shotData.generationId)) {
             p.shot(shotData, timestamp);
             return;
@@ -181,7 +183,7 @@ public class UdpServer implements EnemiesProcessor {
       sendingThread.sendStateData();
     }
     long timestamp = timestamp();
-    for (int i = 0; i < players.size; i++) {
+    for (short i = 0; i < players.size; i++) {
       if ( players.get(i).isDead(player.x, player.y, delta, timestamp) ) {
         players.removeIndex(i--);
       }
@@ -194,15 +196,22 @@ public class UdpServer implements EnemiesProcessor {
     final float h = SCREEN_HEIGHT * camera.zoom;
     final float x = camera.X;
     final float y = camera.Y;
-    for (int i = 0; i < players.size; i++) {
+    for (short i = 0; i < players.size; i++) {
       players.get(i).draw(batch, delta, x, y, w, h);
     }
   }
 
   @Override
   public void drawAtRadar(Batch batch, Radar radar) {
-    for (int i = 0; i < players.size; i++) {
+    for (short i = 0; i < players.size; i++) {
       radar.drawEnemy(batch, players.get(i).ship.x, players.get(i).ship.y);
+    }
+  }
+
+  @Override
+  public void drawAtRadar(Batch batch, Radar radar, float cameraRotation) {
+    for (short i = 0; i < players.size; i++) {
+      radar.drawEnemy(batch, players.get(i).ship.x, players.get(i).ship.y, cameraRotation);
     }
   }
 
@@ -303,7 +312,9 @@ public class UdpServer implements EnemiesProcessor {
         //long t = now();
         try {
           output = state.compress();
-          for (LocalPlayer p: players) {
+          LocalPlayer p;
+          for (short i = 0; i < players.size; i++) {
+            p = players.get(i);
             outputPacket = new DatagramPacket(output, output.length, p.ip, p.port);
             server.send(outputPacket);
           }
@@ -316,7 +327,9 @@ public class UdpServer implements EnemiesProcessor {
       if (sequence.size() > 0) {
         try {
           output = sequence.get(0).compress();
-          for (LocalPlayer p: players) {
+          LocalPlayer p;
+          for (short i = 0; i < players.size; i++) {
+            p = players.get(i);
             outputPacket = new DatagramPacket(output, output.length, p.ip, p.port);
             server.send(outputPacket);
           }
@@ -333,7 +346,9 @@ public class UdpServer implements EnemiesProcessor {
         boolean passedException = false;
         try {
           output = data.data;
-          for (LocalPlayer p: players) {
+          LocalPlayer p;
+          for (short i = 0; i < players.size; i++) {
+            p = players.get(i);
             if (!passedException && p.port == data.port) {
               passedException = true;
               continue;

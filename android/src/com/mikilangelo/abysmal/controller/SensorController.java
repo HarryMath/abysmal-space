@@ -1,12 +1,15 @@
 package com.mikilangelo.abysmal.controller;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.input.GestureDetector;
 import com.mikilangelo.abysmal.screens.game.actors.ship.PlayerShip;
 import com.mikilangelo.abysmal.screens.game.components.Camera;
 import com.mikilangelo.abysmal.screens.game.controllers.GameController;
 import com.mikilangelo.abysmal.screens.game.controllers.TouchHandler;
+import com.mikilangelo.abysmal.screens.game.controllers.ZoomController;
 import com.mikilangelo.abysmal.screens.game.uiElements.AbilityButton;
 import com.mikilangelo.abysmal.screens.game.uiElements.Button;
 import com.mikilangelo.abysmal.screens.game.uiElements.ButtonShield;
@@ -26,9 +29,12 @@ public class SensorController implements GameController {
   private Button shotButton;
   private AbilityButton shieldButton;
   private AbilityButton speedUpButton;
+  private GestureDetector gestureDetector = null;
+
 
   @Override
   public void init(PlayerShip ship, float w, float h) {
+    this.gestureDetector = new GestureDetector(new ZoomController());
     touch1Handler = new TouchHandler(ship);
     touch2Handler = new TouchHandler(ship);
 
@@ -39,6 +45,11 @@ public class SensorController implements GameController {
             new ButtonShot(w, h, ship.def.lasersAmount > 0);
     shieldButton = new ButtonShield(ship.def.shieldRechargeTimeMs / 1000f, w, h);
     speedUpButton = new ButtonSpeed(ship.def.speedRechargeTimeMs / 1000f, w, h);
+  }
+
+  @Override
+  public InputProcessor getGestureListener() {
+    return gestureDetector;
   }
 
   @Override

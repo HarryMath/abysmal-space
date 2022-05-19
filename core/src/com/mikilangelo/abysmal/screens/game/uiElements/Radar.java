@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
+import com.mikilangelo.abysmal.shared.Settings;
 import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.screens.game.actors.ship.PlayerShip;
 
@@ -42,7 +43,7 @@ public class Radar extends InterfaceElement {
   public void draw(Batch batch, BitmapFont digitsFont, BitmapFont lettersFont, float angle) {
     playerX = (int) PlayerShip.X;
     playerY = (int) PlayerShip.Y;
-    this.center.setRotation(angle * MathUtils.radiansToDegrees);
+    this.center.setRotation(Settings.cameraRotation ? 90 : angle * MathUtils.radiansToDegrees);
     this.center.draw(batch);
     time = (time + 0.2f) % 6;
     batch.draw(this.overlay, x - drawRadius,
@@ -76,6 +77,14 @@ public class Radar extends InterfaceElement {
     return font.draw(batch, text, x, y).width;
   }
 
+  public void drawEnemy(Batch batch, float x, float y, float cameraAngle) {
+    drawObject(batch, enemy, playerX, playerY, x, y, cameraAngle);
+  }
+
+  public void drawAsteroid(Batch batch, float x, float y, float cameraAngle) {
+    drawObject(batch, asteroid, playerX, playerY, x, y, cameraAngle);
+  }
+
   public void drawEnemy(Batch batch, float x, float y) {
     drawObject(batch, enemy, playerX, playerY, x, y);
   }
@@ -84,11 +93,53 @@ public class Radar extends InterfaceElement {
     drawObject(batch, asteroid, playerX, playerY, x, y);
   }
 
-  private void drawObject(Batch batch, Sprite sprite, float playerX, float playerY, float x, float y) {
+  private void drawObject(
+          Batch batch,
+          Sprite sprite,
+          float playerX,
+          float playerY,
+          float x,
+          float y,
+          float cameraAngle
+  ) {
     dx = Math.abs(playerX - x); dy = Math.abs(playerY - y);
     if (dx < detectRadius && dy < detectRadius) {
-      sprite.setCenter(this.x + (x - playerX) / detectRadius * drawRadius * 0.92f,
-              this.y + (y - playerY) / detectRadius * drawRadius * 0.92f);
+      x = (x - playerX) / detectRadius;
+      y = (y - playerY) / detectRadius;
+      float cos = MathUtils.cos(cameraAngle);
+      float sin = MathUtils.sin(cameraAngle);
+      sprite.setCenter(
+              this.x + (x * cos + y * sin) * drawRadius * 0.92f,
+              this.y + (y * cos - x * sin) * drawRadius * 0.92f
+      );
+      if (dx + dy > detectRadius * 0.2f) {
+        distance = (dx * dx + dy * dy) / (detectRadius * detectRadius * 2);
+        if (distance > 0.04f) {
+          sprite.setAlpha(1.04167f * (0.04f - distance) + 1);
+        } else {
+          sprite.setAlpha(1);
+        }
+      } else {
+        sprite.setAlpha(1);
+      }
+      sprite.draw(batch);
+    }
+  }
+
+  private void drawObject(
+          Batch batch,
+          Sprite sprite,
+          float playerX,
+          float playerY,
+          float x,
+          float y
+  ) {
+    dx = Math.abs(playerX - x); dy = Math.abs(playerY - y);
+    if (dx < detectRadius && dy < detectRadius) {
+      sprite.setCenter(
+              this.x + (x - playerX) / detectRadius * drawRadius * 0.92f,
+              this.y + (y - playerY) / detectRadius * drawRadius * 0.92f
+      );
       if (dx + dy > detectRadius * 0.2f) {
         distance = (dx * dx + dy * dy) / (detectRadius * detectRadius * 2);
         if (distance > 0.04f) {

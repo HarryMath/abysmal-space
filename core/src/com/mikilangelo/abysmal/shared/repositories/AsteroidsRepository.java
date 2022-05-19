@@ -48,6 +48,14 @@ public abstract class AsteroidsRepository {
     }
   }
 
+  public static void drawAtRadar(Batch batch, Radar radar, float cameraRotation) {
+    for (Asteroid a : asteroids) {
+      if (a.asteroidTypeId > 4) {
+        radar.drawAsteroid(batch, a.x, a.y, cameraRotation);
+      }
+    }
+  }
+
   public static void generateAsteroids(long generationSeed, float playerX, float playerY) {
     seed = generationSeed;
     Zone z = new Zone(Math.round(playerX / ZONE_SIZE), Math.round(playerY / ZONE_SIZE));

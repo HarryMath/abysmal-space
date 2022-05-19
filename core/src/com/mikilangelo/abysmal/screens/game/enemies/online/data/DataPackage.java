@@ -119,4 +119,8 @@ public abstract class DataPackage {
     }
     return result;
   }
+
+  public static void main(String[] a) {
+    System.out.println(Arrays.toString(compress(1652782459814L)));
+  }
 }

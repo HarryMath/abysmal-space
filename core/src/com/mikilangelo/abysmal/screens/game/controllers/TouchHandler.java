@@ -7,6 +7,7 @@ import com.mikilangelo.abysmal.screens.game.actors.ship.PlayerShip;
 import com.mikilangelo.abysmal.screens.game.uiElements.Button;
 import com.mikilangelo.abysmal.screens.game.uiElements.JoystickController;
 import com.mikilangelo.abysmal.screens.game.uiElements.JoystickShooter;
+import com.mikilangelo.abysmal.shared.Settings;
 
 public class TouchHandler {
 
@@ -69,7 +70,12 @@ public class TouchHandler {
     }
     if (createdJoystick) {
       shipController.update(touchX, HEIGHT - touchY);
-      ship.control(shipController.getDirection(), shipController.getPower(), delta);
+      if (Settings.cameraRotation) {
+        ship.rotate(shipController.getXPower() * 0.5f, delta);
+        ship.applyImpulse(shipController.getYPower(), shipController.getYPower() > 0);
+      } else {
+        ship.control(shipController.getDirection(), shipController.getPower(), delta);
+      }
     }
     return createdJoystick || createdShooter || buttonClicked;
   }

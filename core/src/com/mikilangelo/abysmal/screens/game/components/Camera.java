@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.mikilangelo.abysmal.shared.Settings;
 import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
+import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 
 public class Camera {
 
@@ -88,6 +89,12 @@ public class Camera {
         shaderBatch.setProjectionMatrix(camera.combined);
       }
     }
+  }
+
+  public float getRotation() {
+    return Settings.cameraRotation ? CalculateUtils.normalizeAngle(
+            CalculateUtils.defineAngle(camera.up.x, camera.up.y, 0) - 1.5708f
+            ) : 0;
   }
 
   public void zoomOut() {

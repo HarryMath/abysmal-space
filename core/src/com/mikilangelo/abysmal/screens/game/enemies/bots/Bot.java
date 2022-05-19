@@ -54,7 +54,7 @@ class Bot extends Enemy {
     }
     ship.move(delta);
     if (ship.distance > ship.def.radarPower) {
-      ship.control((ship.angle + MathUtils.random(-0.0009f, 0.003f)) % MathUtils.PI2, 0.8f, delta);
+      ship.control(CalculateUtils.normalizeAngle(ship.angle + MathUtils.random(-0.0009f, 0.003f)), 0.8f, delta);
       return true;
     }
     strategy.perform(ship, playerX, playerY, playerAngle, delta);

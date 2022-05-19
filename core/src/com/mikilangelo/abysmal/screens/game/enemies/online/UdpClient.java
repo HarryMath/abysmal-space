@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -111,6 +112,7 @@ public class UdpClient implements EnemiesProcessor {
             }
           }
           if (player.generationId.length() > 2) {
+            System.out.println("new Player: " + player.generationId);
             if (playersToCreate.containsKey(player.generationId)) {
               int packagesReceive = playersToCreate.get(player.generationId);
               packagesReceive += 1;
@@ -198,6 +200,13 @@ public class UdpClient implements EnemiesProcessor {
   }
 
   @Override
+  public void drawAtRadar(Batch batch, Radar radar, float cameraRotation) {
+    for (int i = 0; i < players.size; i++) {
+      radar.drawEnemy(batch, players.get(i).ship.x, players.get(i).ship.y, cameraRotation);
+    }
+  }
+
+  @Override
   public void shot(ShotData shotData) {
     shotData.generationId = state.generationId;
     shotData.timestamp = timestamp();
@@ -263,7 +272,9 @@ public class UdpClient implements EnemiesProcessor {
             outputPacket.setData(output, 0, output.length);
             client.send(outputPacket);
             needToSendState.set(false);
-            //System.out.println("\noriginal: " + state);
+            //System.out.print("\nUTF8:        "); System.out.println(new String(output, StandardCharsets.UTF_8));
+            //System.out.print("US_ASCII:    "); System.out.println(new String(output, StandardCharsets.US_ASCII));
+            //System.out.print("ISO_8859_1:  "); System.out.println(new String(output, StandardCharsets.ISO_8859_1));
             //System.out.println("decoded:  " + new PlayerState(output));
           } catch (ArrayIndexOutOfBoundsException | IOException e) {
             e.printStackTrace();

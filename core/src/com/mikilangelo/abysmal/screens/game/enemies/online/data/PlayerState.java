@@ -93,15 +93,11 @@ public class PlayerState extends DataPackage {
 
   /*
   old example 268 symbols:
-
-  '{"generationId":"defender0202797818","shipId":"defender","x":-10.836355,"y":53.327827,
-  "angle":0.81490326,"speedX":1.8270377,"speedY":6.214534,"angularSpeed":-0.0019457892,
-  "health":44.9,"isUnderControl":true,"currentPower":0.0041643687,"timestamp":1650204282511}'
+  '{"generationId":"defender0202797818","shipId":"defender","x":-10.836355,"y":53.327827,"angle":0.81490326,"speedX":1.8270377,"speedY":6.214534,"angularSpeed":-0.0019457892,"health":44.9,"isUnderControl":true,"currentPower":0.0041643687,"timestamp":1650204282511}'
 
   csv:
 
-  'state[defender0202797818,defender,-10.836355,53.327827,0.81490326,1.8270377,6.214534,-0.0019457892,
-  45.0,false,4.1643687E-4,1650204282511]'
+  'state[defender0202797818,defender,-10.836355,53.327827,0.81490326,1.8270377,6.214534,-0.0019457892, 44.9,false,4.1643687E-4,1650204282511]'
 
   final 54 symbols:
 

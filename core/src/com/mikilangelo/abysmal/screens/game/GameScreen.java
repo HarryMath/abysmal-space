@@ -281,8 +281,14 @@ public class GameScreen implements Screen {
 		game.batchInterface.begin(); {
 		  game.controller.drawInterface(game.batchInterface, game.digits);
       radar.drawBack(game.batchInterface);
-			AsteroidsRepository.drawAtRadar(game.batchInterface, radar);
-      enemiesProcessor.drawAtRadar(game.batchInterface, radar);
+			if (Settings.cameraRotation) {
+			  float cameraRotation = camera.getRotation();
+        AsteroidsRepository.drawAtRadar(game.batchInterface, radar, cameraRotation);
+        enemiesProcessor.drawAtRadar(game.batchInterface, radar, cameraRotation);
+      } else {
+        AsteroidsRepository.drawAtRadar(game.batchInterface, radar);
+			  enemiesProcessor.drawAtRadar(game.batchInterface, radar);
+      }
       radar.draw(game.batchInterface, game.digits, game.customFont, ship.angle);
 			// game.customFont.getData().setScale(HEIGHT / 1400f);
 			healthIndicator.draw(game.batchInterface, game.digits, ship.bodyData.getHealth());
@@ -361,7 +367,7 @@ public class GameScreen implements Screen {
   @Override
   public void show() {
     System.out.println("show method called");
-    Gdx.input.setInputProcessor(new GestureDetector(new ZoomController()));
+    Gdx.input.setInputProcessor(game.controller.getGestureListener());
   }
 
   @Override

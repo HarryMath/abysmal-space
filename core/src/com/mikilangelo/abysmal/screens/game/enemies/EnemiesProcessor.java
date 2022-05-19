@@ -17,6 +17,8 @@ public interface EnemiesProcessor {
 
   void drawAtRadar(Batch batch, Radar radar);
 
+  void drawAtRadar(Batch batch, Radar radar, float cameraRotation);
+
   void dispose();
 
   void shot(ShotData shotData);

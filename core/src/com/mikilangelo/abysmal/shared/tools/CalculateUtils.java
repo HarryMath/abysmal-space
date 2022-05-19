@@ -13,7 +13,7 @@ public abstract class CalculateUtils {
   public static String uid() {
     final long timestamp = System.currentTimeMillis();
     return new StringBuilder()
-            .append((char) (timestamp % 128))
+            .append((char) (1 + timestamp % 127))
             .append((char) MathUtils.random(0, 127))
             .append((char) MathUtils.random(0, 127))
             .append((char) MathUtils.random(0, 127))
@@ -30,7 +30,7 @@ public abstract class CalculateUtils {
     } else {
       res = PI - MathUtils.asin(y / (float) Math.hypot(x, y));
     }
-    return (res + PI2) % PI2;
+    return (res + PI4) % PI2;
   }
 
   public static boolean getProbability(float p) {
@@ -47,7 +47,7 @@ public abstract class CalculateUtils {
       return PI + halfPI;
     }
     final float res = cos >= 0 ? MathUtils.asin(sin) : PI - MathUtils.asin(sin);
-    return (res + PI2) % PI2;
+    return (res + PI4) % PI2;
   }
 
   public static float squaresSum(float x, float y) {
@@ -63,9 +63,26 @@ public abstract class CalculateUtils {
   }
 
   public static float avgAngle(float a1, float w1, float a2, float w2) {
-    final float cos = (MathUtils.cos(a1) * w1 + MathUtils.cos(a2) * w2) / (w1 + w2);
-    final float sin = (MathUtils.sin(a1) * w1 + MathUtils.sin(a2) * w2) / (w1 + w2);
-    return simpleDefineAngle(cos, sin, a1);
+    a1 = normalizeAngle(a1);
+    a2 = normalizeAngle(a2);
+    float r1, r2;
+    if (a1 > a2) {
+      r1 = a1 - a2;
+      r2 = a2 - a1 + PI2;
+      if (r1 < r2) {
+        return a2 + r1 * w2;
+      } else {
+        return a1 + r2 * w1;
+      }
+    } else {
+      r1 = a2 - a1;
+      r2 = a1 - a2 + PI2;
+      if (r1 < r2) {
+        return a1 + r1 * w2;
+      } else {
+        return a2 + r2 * w1;
+      }
+    }
   }
 
   public static float defineAngle(Vector2 p1, Vector2 p2) {

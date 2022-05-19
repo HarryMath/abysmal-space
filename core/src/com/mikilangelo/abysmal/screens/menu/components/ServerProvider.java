@@ -32,7 +32,7 @@ public abstract class ServerProvider {
       long serverTimestamp = Long.parseLong(getProperty(response, "timestamp"));
       long t1 = System.currentTimeMillis();
       int requestDuration = (int) (t1 - t0);
-      globalServer.correction = serverTimestamp - (t1 - Math.round(requestDuration * 0.25f));
+      globalServer.correction = serverTimestamp - (t1 - Math.round(requestDuration * 0.5f));
       // globalServer.correction = serverTimestamp - t1 - Math.round(requestDuration * 0.25f);
       System.out.println("correction is: " + globalServer.correction);
     } catch (Exception ignore) {

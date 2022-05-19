@@ -2,11 +2,13 @@ package com.mikilangelo.abysmal.desktop.controller;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.input.GestureDetector;
 import com.mikilangelo.abysmal.screens.game.actors.ship.PlayerShip;
 import com.mikilangelo.abysmal.screens.game.components.Camera;
 import com.mikilangelo.abysmal.screens.game.controllers.GameController;
@@ -17,8 +19,11 @@ public class DesktopController implements GameController {
   private float rotationSensitivity = 0.2f;
   private boolean hasTurrets = false;
   private boolean shipRotated = false;
+  private GestureDetector gestureDetector = null;
   private Cursor customCursor;
+  private float cameraAngle = 0;
   private float w, h;
+  private PlayerShip ship;
 
   public void setCustomCursor() {
     Texture texture = TexturesRepository.get("cursor.png");
@@ -33,8 +38,10 @@ public class DesktopController implements GameController {
 
   @Override
   public void init(PlayerShip ship, float w, float h) {
+    this.ship = ship;
     this.hasTurrets = ship.turrets.size > 0;
     this.resizeComponents(w, h);
+    this.gestureDetector = new DesktopGestureDetector();
     setCustomCursor();
     // TODO shotIndicator =
     // TODO shieldIndicator =
@@ -47,6 +54,7 @@ public class DesktopController implements GameController {
     //TODO shotIndicator.update(ship.getShieldAbilityReloadTime(currentTime));
     //TODO shieldIndicator.update(ship.getShieldAbilityReloadTime(currentTime));
     //TODO speedUpIndicator.update(ship.getShieldAbilityReloadTime(currentTime));
+    cameraAngle = camera.getRotation();
     if (Gdx.input.isTouched()) {
       shot(ship, Gdx.input.getX(), Gdx.input.getY());
     }
@@ -91,7 +99,10 @@ public class DesktopController implements GameController {
       ship.shotDirectly();
       return;
     }
-    final float angle = CalculateUtils.defineAngle(touchX - w * 0.5f, h * 0.5f - touchY, 0);
+    final float angle = CalculateUtils.normalizeAngle(
+            CalculateUtils.defineAngle(touchX - w * 0.5f, h * 0.5f - touchY, 0)
+            + cameraAngle
+    );
     ship.turrets.forEach(turret -> {
       turret.control(angle);
       if (Math.abs((turret.angle + ship.angle) % 6.28f - angle) < 0.5f) {
@@ -116,8 +127,32 @@ public class DesktopController implements GameController {
   }
 
   @Override
+  public InputProcessor getGestureListener() {
+    return gestureDetector;
+  }
+
+  @Override
   public void dispose() {
     Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
     // TODO set indicators null
+  }
+
+  private class DesktopGestureDetector extends GestureDetector {
+
+    public DesktopGestureDetector() {
+      super(new GestureAdapter());
+    }
+
+    @Override
+    public boolean mouseMoved(int x, int y) {
+      if (!hasTurrets) {
+        return false;
+      }
+      final float angle = CalculateUtils.defineAngle(x - w * 0.5f, h * 0.5f - y, 0) + cameraAngle;
+      ship.turrets.forEach(turret -> {
+        turret.control(CalculateUtils.normalizeAngle(angle));
+      });
+      return false;
+    }
   }
 }
