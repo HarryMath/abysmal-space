@@ -8,6 +8,7 @@ import com.mikilangelo.abysmal.screens.game.enemies.Enemy;
 import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
 import com.mikilangelo.abysmal.screens.game.objectsData.DestroyableObjectData;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
+import com.mikilangelo.abysmal.shared.tools.Logger;
 
 import java.util.Locale;
 
@@ -33,7 +34,7 @@ class Bot extends Enemy {
       this.strategy = CalculateUtils.getProbability(0.81f) ?
               new StrategyHitAndRun() : new StrategyKamikaze();
     } else {
-      System.out.println("Unknown ship: " + name);
+      Logger.log(this, "", "Unknown ship: " + name);
       this.strategy = CalculateUtils.getProbability(0.333f) ?
               new StrategyHitAndRun() : CalculateUtils.getProbability(0.5f) ?
               new StrategyKamikaze() : new StrategySniper();

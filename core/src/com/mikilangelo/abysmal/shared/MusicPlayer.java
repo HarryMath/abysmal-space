@@ -3,6 +3,7 @@ package com.mikilangelo.abysmal.shared;
 import com.mikilangelo.abysmal.shared.repositories.SoundsRepository;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.mikilangelo.abysmal.shared.tools.Logger;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -70,7 +71,7 @@ public abstract class MusicPlayer {
           sleep(17);
         } catch (InterruptedException ignore) {}
       }
-      System.out.println("Music thread ended");
+      Logger.log(this, "run", "ended");
     }
 
     private void updateMusic() {

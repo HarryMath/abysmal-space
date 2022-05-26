@@ -11,11 +11,11 @@ public class Async extends Thread {
 
   @Override
   public void run() {
-    System.out.println("[Async] started run");
+    Logger.log(this, "run", "started");
     super.run();
-    System.out.println("[Async] ended run");
+    Logger.log(this, "run", "ended");
     if (hasThenMethod) {
-      System.out.println("[Async] afterSuccess Started");
+      Logger.log(this, "run", "afterSuccess started");
       afterSuccess.run();
     }
   }

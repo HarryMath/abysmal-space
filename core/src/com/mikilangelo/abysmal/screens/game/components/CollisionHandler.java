@@ -6,11 +6,13 @@ import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Manifold;
+import com.mikilangelo.abysmal.screens.game.objectsData.AsteroidData;
 import com.mikilangelo.abysmal.screens.game.objectsData.DestroyableObjectData;
 import com.mikilangelo.abysmal.screens.game.objectsData.IdentityData;
 import com.mikilangelo.abysmal.screens.game.objectsData.LaserData;
 import com.mikilangelo.abysmal.screens.game.objectsData.ShieldData;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
+import com.mikilangelo.abysmal.shared.tools.Logger;
 
 public class CollisionHandler implements ContactListener {
 
@@ -41,7 +43,7 @@ public class CollisionHandler implements ContactListener {
       String shipBId = (bodyBData instanceof IdentityData) ?
               ((IdentityData) bodyBData).getId() : null;
       if (shipAId != null && shipAId.equalsIgnoreCase(shipBId)) {
-        System.out.println("ignored contact");
+        Logger.log(this, "preSolve", "ignored contact");
         contact.setEnabled(false);
         return;
       }

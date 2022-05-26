@@ -9,6 +9,7 @@ import com.mikilangelo.abysmal.screens.game.uiElements.Radar;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.mikilangelo.abysmal.shared.tools.Logger;
 import com.mikilangelo.abysmal.shared.tools.Random;
 
 
@@ -70,10 +71,9 @@ public abstract class AsteroidsRepository {
       ay = a.body.getWorldCenter().y;
       dx = Math.abs(ax - x);
       dy = Math.abs(ay - y);
-      if ( !a.destroyed &&
+      if ( !a.destroyed && dx > 0.2f && dy > 0.2f &&
               Math.abs(ax - shipX) < SCREEN_WIDTH * 3 &&
-              Math.abs(ay - shipY) < SCREEN_HEIGHT * 3 &&
-              dx > 0.2f && dy > 0.2f
+              Math.abs(ay - shipY) < SCREEN_HEIGHT * 3
       ) {
         power = 800 / (dx * dx + dy * dy) * a.getSqrtMass();
         a.body.applyLinearImpulse(
@@ -142,18 +142,15 @@ public abstract class AsteroidsRepository {
       if ( Math.abs(z.startY + ZONE_SIZE * 0.5f - shipY) > ZONE_SIZE * 2.5f ||
               Math.abs(z.startX + ZONE_SIZE * 0.5f - shipX) > ZONE_SIZE * 2.5f
       ) {
-        System.out.println("\nleft zone: [" + z.startX + ", " + z.endX  +" ] * ["
+        Logger.log("AsteroidsRepository", "updateAsteroids", "left zone: [" + z.startX + ", " + z.endX  +" ] * ["
                 + z.startY +  "," + + z.endY + "]");
-        int counter = 0;
         for (int j = 0; j < asteroids.size; j++) {
           a = asteroids.get(j);
           if (z.covers(a.x, a.y)) {
             a.destroyBody();
-            counter++;
             asteroids.removeIndex(j--);
           }
         }
-        System.out.println("removed " + counter + " asteroids");
         coveredZones.removeIndex(i--);
       }
     }
@@ -189,13 +186,13 @@ public abstract class AsteroidsRepository {
       newZones.add(new Zone(Math.round(shipX / ZONE_SIZE) + 1,
               Math.round(shipY / ZONE_SIZE)));
     }
-    if (newZones.size > 0) {
-      System.out.println("\nnew zones: " + newZones.size);
-      System.out.println(coveredTopLeft + " " + coveredTop + " " + coveredTopRight);
-      System.out.println(coveredLeft + " ---- " + coveredRight);
-      System.out.println(coveredBottomLeft + " " + coveredBottom + " " + coveredBottomRight);
-      System.out.println("total zones: " + (coveredZones.size + newZones.size));
-    }
+//    if (newZones.size > 0) {
+//      System.out.println("\nnew zones: " + newZones.size);
+//      System.out.println(coveredTopLeft + " " + coveredTop + " " + coveredTopRight);
+//      System.out.println(coveredLeft + " ---- " + coveredRight);
+//      System.out.println(coveredBottomLeft + " " + coveredBottom + " " + coveredBottomRight);
+//      System.out.println("total zones: " + (coveredZones.size + newZones.size));
+//    }
     while (newZones.size > 0) {
       z = newZones.get(0);
       generateAsteroidsIn(z);
@@ -243,6 +240,40 @@ public abstract class AsteroidsRepository {
     asteroids.clear();
     newZones.clear();
     coveredZones.clear();
+  }
+
+  @Deprecated
+  public static boolean hasNaN() {
+    for (Asteroid a: asteroids) {
+      if (
+              Float.isNaN(a.body.getPosition().x) ||
+              Float.isNaN(a.body.getPosition().y) ||
+              Float.isNaN(a.body.getLinearVelocity().x) ||
+              Float.isNaN(a.body.getLinearVelocity().y) ||
+              Float.isNaN(a.body.getAngularVelocity()) ||
+              Float.isNaN(a.body.getAngle())
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Deprecated
+  public static boolean hasInf() {
+    for (Asteroid a: asteroids) {
+      if (
+              Float.isInfinite(a.body.getPosition().x) ||
+              Float.isInfinite(a.body.getPosition().y) ||
+              Float.isInfinite(a.body.getLinearVelocity().x) ||
+              Float.isInfinite(a.body.getLinearVelocity().y) ||
+              Float.isInfinite(a.body.getAngularVelocity()) ||
+              Float.isInfinite(a.body.getAngle())
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static class Zone {

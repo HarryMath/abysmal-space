@@ -26,14 +26,4 @@ public class BroadcastResponse extends DataPackage {
   public byte[] compress() {
     return (new String(indicator) + seed + ',' + timestamp).getBytes(StandardCharsets.US_ASCII);
   }
-
-  public static void main(String[] a) {
-    long seed = MathUtils.random(1923923929L);
-    BroadcastResponse test = new BroadcastResponse(seed);
-    System.out.println("original: {t: " + test.timestamp + ", seed: " + seed + "}");
-    String encoded = new String(test.compress());
-    System.out.println("encoded:  " + encoded);
-    BroadcastResponse decoded = new BroadcastResponse(test.compress(), 12);
-    System.out.println("decoded:  {t: " + decoded.timestamp + ", seed: " + decoded.seed + "}");
-  }
 }

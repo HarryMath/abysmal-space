@@ -5,6 +5,7 @@ import com.mikilangelo.abysmal.screens.game.enemies.online.data.BroadcastRequest
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.BroadcastResponse;
 import com.mikilangelo.abysmal.screens.menu.models.ServerDto;
 import com.mikilangelo.abysmal.shared.tools.HttpRequest;
+import com.mikilangelo.abysmal.shared.tools.Logger;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -21,7 +22,7 @@ public abstract class ServerProvider {
   public final static Runnable findGlobalServer = () -> {
     try {
       String response = HttpRequest.GET(mainServerUrl + "/nodes/provide");
-      System.out.println("[ServerProvider] response: " + response);
+      Logger.log("ServerProvider", "findGlobalServer", "response: " + response);
       globalServer = new ServerDto();
       globalServer.ip = getProperty(response, "ip").replace("::ffff:", "");
       globalServer.udpPort = Integer.parseInt(getProperty(response, "udpPort"));
@@ -34,9 +35,9 @@ public abstract class ServerProvider {
       int requestDuration = (int) (t1 - t0);
       globalServer.correction = serverTimestamp - (t1 - Math.round(requestDuration * 0.5f));
       // globalServer.correction = serverTimestamp - t1 - Math.round(requestDuration * 0.25f);
-      System.out.println("correction is: " + globalServer.correction);
+      Logger.log("ServerProvider", "findGlobalServer", "correction: " + globalServer.correction);
     } catch (Exception ignore) {
-      System.out.println("[ServerProvider] error getting global server");
+      Logger.log("ServerProvider", "findGlobalServer", "error getting global server:");
       ignore.printStackTrace();
       globalServer = null;
     }
@@ -52,14 +53,14 @@ public abstract class ServerProvider {
       int attempts = 0;
       while (!receiveThread.serverFound && attempts < 10) {
         attempts++;
-        System.out.println("attempt " + attempts);
+        Logger.log("ServerProvider", "findLocalSever", "attempt №" + attempts);
         DatagramPacket packet = new DatagramPacket(
                 message, message.length,
                 InetAddress.getByName("255.255.255.255"),
                 UdpServer.PORT
         );
         socket.send(packet);
-        System.out.println("data send");
+        Logger.log("ServerProvider", "findLocalSever", "data sent");
         Thread.sleep(200);
       }
       receiveThread.interrupt();
@@ -92,7 +93,7 @@ public abstract class ServerProvider {
         try {
           attempts++;
           Thread.sleep(1);
-          System.out.println("trying to receive data");
+          Logger.log(this, "run", "trying receive data");
           DatagramPacket receivePacket = new DatagramPacket(new byte[64], 64);
           socket.receive(receivePacket);
           BroadcastResponse response = new BroadcastResponse(receivePacket.getData(), receivePacket.getLength());
@@ -100,11 +101,11 @@ public abstract class ServerProvider {
           localServer = new ServerDto();
           localServer.ip = receivePacket.getAddress().getHostAddress();
           localServer.udpPort = receivePacket.getPort();
-          System.out.println("server is " + localServer.ip + ":" + localServer.udpPort);
+          Logger.log(this, "run", "server is " + localServer.ip + ":" + localServer.udpPort);
           localServer.playersAmount = 1;
           localServer.correction = response.timestamp - t;
           localServer.seed = response.seed;
-          System.out.println("correction: " + localServer.correction);
+          Logger.log(this, "run", "correction: " + localServer.correction);
         } catch (Exception e) {
           e.printStackTrace();
         }

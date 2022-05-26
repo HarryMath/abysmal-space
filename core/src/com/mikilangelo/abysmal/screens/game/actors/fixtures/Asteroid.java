@@ -117,7 +117,8 @@ public class Asteroid implements DynamicObject {
     fixtureDef.restitution = 0.5f;
     body = GameScreen.world.createBody(bodyDef);
     bodies.get(asteroidTypeId).attachFixture(body, "Name", fixtureDef, bodyScales[asteroidTypeId]);
-    body.setTransform(x, y, random.nextFloat(0, 6.28f));
+    float ang = random.nextFloat(0, 6.28f);
+    body.setTransform(x, y, ang);
     body.setAwake(false);
     AsteroidData asteroidData = new AsteroidData();
     asteroidData.health = healthWeight * (float) Math.pow(body.getMass(), 0.6f) * random.nextFloat(1.1f, 3f);

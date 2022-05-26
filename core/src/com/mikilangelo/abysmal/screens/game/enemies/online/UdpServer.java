@@ -20,6 +20,7 @@ import com.mikilangelo.abysmal.screens.game.uiElements.Radar;
 import com.mikilangelo.abysmal.shared.ShipDefinitions;
 import com.mikilangelo.abysmal.shared.repositories.AsteroidsRepository;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
+import com.mikilangelo.abysmal.shared.tools.Logger;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -157,8 +158,7 @@ public class UdpServer implements EnemiesProcessor {
       }
     } catch (Exception e) {
       e.printStackTrace();
-      System.out.println("parse error: ");
-      System.out.println(dataPackage + "\n");
+      Logger.log(this, "handleData", "parse error: " + Arrays.toString(dataPackage));
     }
   }
 
@@ -304,7 +304,7 @@ public class UdpServer implements EnemiesProcessor {
         sendBroadcast();
         sendDirected();
       }
-      System.out.println("sending thread ended");
+      Logger.log(this, "run", "ended");
     }
 
     private void sendSelfState() {

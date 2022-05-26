@@ -12,6 +12,7 @@ import com.mikilangelo.abysmal.screens.game.enemies.online.data.ShotData;
 import com.mikilangelo.abysmal.shared.repositories.ExplosionsRepository;
 import com.mikilangelo.abysmal.shared.repositories.LasersRepository;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
+import com.mikilangelo.abysmal.shared.tools.Logger;
 
 public class Player extends Enemy {
 
@@ -61,7 +62,7 @@ public class Player extends Enemy {
     Gdx.app.postRunnable(() -> {
       if (!world.isLocked() && data.timestamp > lastStateTimeStamp) {
         final float deltaTime = (currentTime - data.timestamp) * 0.001f;
-        System.out.println("delta is: " + deltaTime + " s");
+        Logger.log(this, "update", "delta is " + deltaTime + "s");
         isPowerApplied = data.isUnderControl;
         ship.bodyData.health = data.health;
         if (data.health <= 0) {

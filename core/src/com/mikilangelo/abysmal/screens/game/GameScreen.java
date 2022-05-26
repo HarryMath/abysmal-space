@@ -44,6 +44,7 @@ import com.mikilangelo.abysmal.screens.game.components.Camera;
 import com.mikilangelo.abysmal.screens.game.uiElements.Indicator;
 import com.mikilangelo.abysmal.screens.game.uiElements.Radar;
 import com.mikilangelo.abysmal.screens.menu.MenuScreen;
+import com.mikilangelo.abysmal.shared.tools.Logger;
 
 
 public class GameScreen implements Screen {
@@ -126,6 +127,8 @@ public class GameScreen implements Screen {
   private void generatePlanets() {
     nearObjects.add(new Planet("Terra", 4.1f, 100, 100, 0.84f));
     nearObjects.add(new Planet("moon", 2.8f, 103, 97, 0.75f));
+    nearObjects.add(new Planet("Tatuin", 9.8f, -2341, -1234, 0.81f));
+    nearObjects.add(new Planet("Vulcano", 2.2f, -2337, -1221, 0.72f));
     // planets.add(new AnimatedPlanet("nebula", 3f, -200, -50, 0.8f, 60));
 
     farObjects.add(new Planet("Magrateya0", 35f, -100, -100, 0.86f));
@@ -320,13 +323,16 @@ public class GameScreen implements Screen {
 	private void generateStars() {
     Star.initTexture();
     // StarsRepository.generateGalaxy(-100, 50);
-    for (int i = 0; i < 370; i++) {
+    int amount = Settings.cameraRotation ? 600 : 370;
+    for (int i = 0; i < amount; i++) {
       stars.add(new StaticStar(MathUtils.random(0.93f, 0.98f), 0.36f));
     }
-    for (int i = 0; i < 120; i++) {
+    amount = Settings.cameraRotation ? 200 : 120;
+    for (int i = 0; i < amount; i++) {
       stars.add(new StaticStar(MathUtils.random(0.87f, 0.92f), 0.51f));
     }
-    for (int i = 0; i < 45; i++) {
+    amount = Settings.cameraRotation ? 90 : 45;
+    for (int i = 0; i < amount; i++) {
       stars.add(new StaticStar(MathUtils.random(0.81f, 0.85f), 0.67f));
     }
   }
@@ -366,7 +372,7 @@ public class GameScreen implements Screen {
 
   @Override
   public void show() {
-    System.out.println("show method called");
+    Logger.log(this, "show", "called");
     Gdx.input.setInputProcessor(game.controller.getGestureListener());
   }
 

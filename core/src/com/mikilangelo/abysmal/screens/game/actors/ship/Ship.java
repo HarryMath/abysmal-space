@@ -211,7 +211,7 @@ public class Ship {
     angle = CalculateUtils.normalizeAngle(this.body.getAngle());
     this.body.setAngularVelocity(this.body.getAngularVelocity() * def.rotationResistance);
     primaryBody.setLinearVelocity(velocity.scl(simpleSpeedResistance));
-    primaryBody.setTransform(x, y, angle);
+    // primaryBody.setTransform(x, y, angle);
     secondaryBody.setTransform(x, y, angle);
     secondaryBody.setLinearVelocity(velocity);
     speed = (float) Math.hypot(velocity.x, velocity.y);
@@ -448,7 +448,6 @@ public class Ship {
     CircleShape shape = new CircleShape();
     shape.setRadius(def.shieldRadius);
     FixtureDef fixtureDef = new FixtureDef();
-    System.out.println("mass: " + body.getMass());
     fixtureDef.density = body.getMass() / (def.shieldRadius * def.shieldRadius * MathUtils.PI);
     fixtureDef.friction = def.friction * 0.14f;
     fixtureDef.restitution = 0.3f * 0.95f + def.restitution * 0.05f;

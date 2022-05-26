@@ -19,6 +19,7 @@ import com.mikilangelo.abysmal.screens.game.enemies.online.data.PlayerState;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.ShotData;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 import com.mikilangelo.abysmal.screens.game.uiElements.Radar;
+import com.mikilangelo.abysmal.shared.tools.Logger;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -112,7 +113,7 @@ public class UdpClient implements EnemiesProcessor {
             }
           }
           if (player.generationId.length() > 2) {
-            System.out.println("new Player: " + player.generationId);
+            Logger.log(this, "handleData", "new player: " + player.generationId);
             if (playersToCreate.containsKey(player.generationId)) {
               int packagesReceive = playersToCreate.get(player.generationId);
               packagesReceive += 1;
@@ -148,8 +149,7 @@ public class UdpClient implements EnemiesProcessor {
       }
     } catch (Exception e) {
       e.printStackTrace();
-      System.out.println("parse error: ");
-      System.out.println(dataPackage + "\n");
+      Logger.log(this,"handleData", "error parsing package: " + Arrays.toString(dataPackage));
     }
   }
 
@@ -292,7 +292,7 @@ public class UdpClient implements EnemiesProcessor {
           sequence.remove(0);
         }
       }
-      System.out.println("sending thread ended");
+      Logger.log(this, "run", "ended");
     }
   }
 }

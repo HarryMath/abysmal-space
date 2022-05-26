@@ -6,6 +6,6 @@ public abstract class Settings {
   public static boolean showBlackHoles = false;
   public static boolean withParticles = true;
   public static boolean fixedPosition = true;
-  public static boolean cameraRotation = false ;
+  public static boolean cameraRotation = false;
   public static boolean debug = false;
 }

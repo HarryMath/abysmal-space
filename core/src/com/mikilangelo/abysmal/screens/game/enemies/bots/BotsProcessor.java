@@ -15,6 +15,7 @@ import com.mikilangelo.abysmal.screens.game.uiElements.Radar;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
+import com.mikilangelo.abysmal.shared.tools.Logger;
 
 public class BotsProcessor implements EnemiesProcessor {
 
@@ -45,6 +46,10 @@ public class BotsProcessor implements EnemiesProcessor {
   @Override
   public void generateEnemies(Ship ship) {
     playerX = ship.x; playerY = ship.y;
+    startRangeX = playerX - SCREEN_WIDTH * 8;
+    endRangeX = playerX + SCREEN_WIDTH * 8;
+    startRangeY = playerY - SCREEN_HEIGHT * 8;
+    endRangeY = playerY + SCREEN_HEIGHT * 8;
     if (Settings.debug) {
       final Ship bot = new Ship(
               ShipDefinitions.get("hyperion"),
@@ -54,28 +59,6 @@ public class BotsProcessor implements EnemiesProcessor {
       bot.angle = bot.newAngle = MathUtils.random(6.28f);
       newShips.add(bot);
     }
-    final Thread botsThread = new Thread(() -> {
-      startRangeX = playerX - SCREEN_WIDTH * 8;
-      endRangeX = playerX + SCREEN_WIDTH * 8;
-      startRangeY = playerY - SCREEN_HEIGHT * 8;
-      endRangeY = playerY + SCREEN_HEIGHT * 8;
-      generateBotsIn(startRangeX, (startRangeX + playerX) / 2, startRangeY, endRangeY);
-      generateBotsIn(endRangeX, (endRangeX + playerX) / 2, startRangeY, endRangeY);
-      generateBotsIn((startRangeX + playerX) / 2, (endRangeX + playerX) / 2, startRangeY, (startRangeY + playerY) / 2);
-      generateBotsIn((startRangeX + playerX) / 2, (endRangeX + playerX) / 2, endRangeY, (endRangeY + playerY) / 2);
-      while (threadWorking) {
-        botsProcessed = false;
-        updateBots();
-        botsProcessed = true;
-        try {
-          Thread.sleep(50);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-      }
-    });
-    //botsThread.setPriority(Thread.MIN_PRIORITY);
-    //botsThread.start();
   }
 
   private void updateBots() {
@@ -127,7 +110,7 @@ public class BotsProcessor implements EnemiesProcessor {
   @Override
   public void process(Ship player, final float delta) {
     if (!botsProcessed) {
-      System.out.println("missed");
+      Logger.log(this, "process", "missed frame");
       return;
     }
     playerX = player.x;
@@ -135,7 +118,7 @@ public class BotsProcessor implements EnemiesProcessor {
     updateBots();
     for (int i = 0; i < bots.size; i++) {
       if ( !bots.get(i).control(playerX, playerY, player.angle, delta) ) {
-        System.out.println("REMOVED SHIP: " + bots.get(i).ship.generationId + "\n");
+        Logger.log(this, "process", "Removed ship: " + bots.get(i).ship.generationId);
         bots.get(i).ship.destroy(world);
         bots.removeIndex(i--);
       }

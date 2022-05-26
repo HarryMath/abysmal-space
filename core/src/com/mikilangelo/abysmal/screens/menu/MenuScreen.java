@@ -215,7 +215,7 @@ public class MenuScreen implements Screen {
     Gdx.app.postRunnable(()-> {
       game.setScreen(new GameScreen(
               game,
-              new PlayerShip(currentShip, 0 , 0),
+              new PlayerShip(currentShip, -2331 , -1300),
               this.enemiesProcessor, seed));
       dispose();
     });

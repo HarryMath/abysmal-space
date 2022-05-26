@@ -8,6 +8,7 @@ public class Random {
   private long seed;
 
   public Random(long seed) {
+    // this.seed = seed > 0 ? seed : seed < 0 ? -seed : 13;
     this.seed = seed;
   }
 
@@ -29,7 +30,7 @@ public class Random {
    * with M = 0 and dispersion = 1;
    */
   public Vector2 nextGaussian() {
-    float r = nextFloat();
+    float r = 0.01f + nextFloat() * 0.99f;
     float angle = nextFloat(0, 6.2831f);
     float sqrt = (float) Math.sqrt(-2 * Math.log(r));
     return new Vector2(

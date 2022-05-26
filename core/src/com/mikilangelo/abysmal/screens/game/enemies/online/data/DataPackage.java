@@ -2,6 +2,8 @@ package com.mikilangelo.abysmal.screens.game.enemies.online.data;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 
+import com.mikilangelo.abysmal.shared.tools.Logger;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -23,7 +25,7 @@ public abstract class DataPackage {
         for (short j =0 ; j < result.length; j++) {
           if (result[j] == separator) {
             result[j] = separator + 1;
-            System.out.println("byte is " + separator);
+            Logger.log("DataPackage", "compress", "byte is " + separator);
           }
         }
         return result;
@@ -120,7 +122,4 @@ public abstract class DataPackage {
     return result;
   }
 
-  public static void main(String[] a) {
-    System.out.println(Arrays.toString(compress(1652782459814L)));
-  }
 }

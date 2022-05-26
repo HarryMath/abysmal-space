@@ -14,7 +14,7 @@ public abstract class HttpRequest {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setRequestMethod("GET");
     connection.setRequestProperty("content-type", "application/json");
-    System.out.println("[GET] response code: " + connection.getResponseCode());
+    Logger.log("HttpRequest", "GET", "response code: " + connection.getResponseCode());
     InputStream responseStream = connection.getInputStream();
     BufferedReader rd = new BufferedReader(new InputStreamReader(responseStream));
     StringBuilder responseBuilder = new StringBuilder(); // or StringBuffer if Java version 5+
