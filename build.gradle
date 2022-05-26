@@ -20,7 +20,7 @@ allprojects {
     apply plugin: "eclipse"
     version = '1.0'
     ext {
-        appName = "abysmal-space"
+        appName = "enigma-space"
         gdxVersion = '1.10.0'
         roboVMVersion = '2.3.12'
         box2DLightsVersion = '1.5'

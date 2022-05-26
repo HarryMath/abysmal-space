@@ -15,7 +15,7 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.mikilangelo.abysmal.AbysmalSpace;
+import com.mikilangelo.abysmal.EnigmaSpace;
 import com.mikilangelo.abysmal.screens.game.enemies.online.UdpServer;
 import com.mikilangelo.abysmal.screens.menu.components.NotificationWrapper;
 import com.mikilangelo.abysmal.screens.menu.components.ServerProvider;
@@ -47,7 +47,7 @@ import java.io.IOException;
 
 public class MenuScreen implements Screen {
 
-  final AbysmalSpace game;
+  final EnigmaSpace game;
   OrthographicCamera camera;
   int w, h;
   Preferences storage;
@@ -89,7 +89,7 @@ public class MenuScreen implements Screen {
   final Sound positive = SoundsRepository.getSound("sounds/button_positive.mp3");
   final Sound negative = SoundsRepository.getSound("sounds/button_negative.mp3");
 
-  public MenuScreen(AbysmalSpace game) {
+  public MenuScreen(EnigmaSpace game) {
     this.w = Gdx.graphics.getWidth();
     this.h = Gdx.graphics.getHeight();
     MusicPlayer.start("sounds/menu.mp3", 0.6f);

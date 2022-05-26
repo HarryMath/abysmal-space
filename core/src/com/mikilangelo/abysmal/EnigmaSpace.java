@@ -15,7 +15,7 @@ import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.screens.game.actors.fixtures.Asteroid;
 import com.mikilangelo.abysmal.screens.loading.LoadingScreen;
 
-public class AbysmalSpace extends Game {
+public class EnigmaSpace extends Game {
 	public OrthographicCamera cameraInterface;
 	public SpriteBatch batchInterface;
 	public SpriteBatch backgroundBatch;
@@ -26,7 +26,7 @@ public class AbysmalSpace extends Game {
 	public final boolean isSensor;
 	public final GameController controller;
 
-	public AbysmalSpace(GameController controller, boolean isSensor) {
+	public EnigmaSpace(GameController controller, boolean isSensor) {
 		this.controller = controller;
 		this.isSensor = isSensor;
 	}

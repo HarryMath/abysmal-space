@@ -3,7 +3,7 @@ package com.mikilangelo.abysmal.screens.loading;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.mikilangelo.abysmal.AbysmalSpace;
+import com.mikilangelo.abysmal.EnigmaSpace;
 import com.mikilangelo.abysmal.shared.ShipDefinitions;
 import com.mikilangelo.abysmal.shared.repositories.SoundsRepository;
 import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
@@ -13,10 +13,10 @@ import com.mikilangelo.abysmal.screens.menu.MenuScreen;
 
 public class LoadingScreen implements Screen {
 
-  final AbysmalSpace game;
+  final EnigmaSpace game;
   OrthographicCamera camera;
 
-  public LoadingScreen(AbysmalSpace abysmalSpace) {
+  public LoadingScreen(EnigmaSpace abysmalSpace) {
     this.game = abysmalSpace;
     camera = new OrthographicCamera();
     camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() );

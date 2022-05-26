@@ -1,7 +1,6 @@
 package com.mikilangelo.abysmal.screens.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -11,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -19,10 +17,8 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.mikilangelo.abysmal.AbysmalSpace;
+import com.mikilangelo.abysmal.EnigmaSpace;
 import com.mikilangelo.abysmal.screens.game.components.CollisionHandler;
-import com.mikilangelo.abysmal.screens.game.controllers.GameController;
-import com.mikilangelo.abysmal.screens.game.controllers.ZoomController;
 import com.mikilangelo.abysmal.shared.MusicPlayer;
 import com.mikilangelo.abysmal.shared.Settings;
 import com.mikilangelo.abysmal.shared.repositories.AsteroidsRepository;
@@ -64,7 +60,7 @@ public class GameScreen implements Screen {
   final Array<Star> stars = new Array<>();
   final Array<StaticObject> nearObjects = new Array<>();
   final Array<StaticObject> farObjects = new Array<>();
-  final AbysmalSpace game;
+  final EnigmaSpace game;
   Box2DDebugRenderer debugRenderer;
   Texture background;
   Sound got = Gdx.audio.newSound(Gdx.files.internal("sounds/got.mp3"));
@@ -82,7 +78,7 @@ public class GameScreen implements Screen {
 
   public static EnemiesProcessor enemiesProcessor;
 
-  public GameScreen(final AbysmalSpace game, PlayerShip ship, EnemiesProcessor processor, long seed) {
+  public GameScreen(final EnigmaSpace game, PlayerShip ship, EnemiesProcessor processor, long seed) {
     MusicPlayer.start("sounds/battle2.mp3", 0.5f);
     this.game = game;
     this.ship = ship;
