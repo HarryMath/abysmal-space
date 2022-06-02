@@ -123,8 +123,8 @@ public class GameScreen implements Screen {
   private void generatePlanets() {
     nearObjects.add(new Planet("Terra", 4.1f, 100, 100, 0.84f));
     nearObjects.add(new Planet("moon", 2.8f, 103, 97, 0.75f));
-    nearObjects.add(new Planet("Tatuin", 9.8f, -2341, -1234, 0.81f));
-    nearObjects.add(new Planet("Vulcano", 2.2f, -2337, -1221, 0.72f));
+    nearObjects.add(new Planet("Tatuin", 13.8f, -2341, -1234, 0.81f));
+    nearObjects.add(new Planet("Vulcano", 3.7f, -2337, -1221, 0.72f));
     // planets.add(new AnimatedPlanet("nebula", 3f, -200, -50, 0.8f, 60));
 
     farObjects.add(new Planet("Magrateya0", 35f, -100, -100, 0.86f));
