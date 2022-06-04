@@ -54,6 +54,7 @@ public abstract class TexturesRepository {
             "body", "laser", "engine0", "engine1", "engine2", "turret", "turretSmall"}, ".png");
     loadTextures("ships/invader/", new String[] {"body", "kak", "laser"}, ".png");
     loadTextures("ships/alien/", new String[] {"body", "kak", "laser", "decor"}, ".png");
+    loadTextures("ships/766/", new String[] {"body", "light"}, ".png");
     loadTextures("ships/rocinante/", new String[] {
             "body", "laser",  "engine0", "engine1", "engine2", "engine3", "kak", "turret", "light"}, ".png");
     loadTextures("ships/x-wing/", new String[] {"body", "0", "1", "2", "3"}, ".png");

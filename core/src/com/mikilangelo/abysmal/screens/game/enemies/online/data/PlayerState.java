@@ -1,5 +1,7 @@
 package com.mikilangelo.abysmal.screens.game.enemies.online.data;
 
+import com.google.gson.Gson;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +19,31 @@ public class PlayerState extends DataPackage {
   public float currentPower;
   public long timestamp; // timestamp
 
+  private static final Gson jsonParser = new Gson();
+
   public PlayerState() { }
+
+  public static PlayerState fromJson(String jsonData) {
+    return jsonParser.fromJson(jsonData, PlayerState.class);
+  }
+
+  public PlayerState(String csvData) {
+    csvData = csvData.substring(5);
+    String[] data = csvData.split(",");
+    generationId = data[0];
+    shipId = Integer.parseInt(data[1]);
+    x = Float.parseFloat(data[2]);
+    y = Float.parseFloat(data[3]);
+    angle = Float.parseFloat(data[4]);
+    speedX = Float.parseFloat(data[5]);
+    speedY = Float.parseFloat(data[6]);
+    angularSpeed = Float.parseFloat(data[7]);
+    health = Float.parseFloat(data[8]);
+    isUnderControl = Boolean.parseBoolean(data[9]);
+    shieldOn = Boolean.parseBoolean(data[10]);
+    currentPower = Float.parseFloat(data[11]);
+    timestamp = Long.parseLong(data[12]);
+  }
 
   public PlayerState(byte[] data) {
     byte[][] chunks = split(data, (short) 13, (short) indicator.length);
@@ -73,6 +99,27 @@ public class PlayerState extends DataPackage {
     return result;
   }
 
+  public String toJson() {
+    return jsonParser.toJson(this);
+  }
+
+  public String toCsv() {
+    return "state" +
+            generationId + "," +
+            shipId + "," +
+            x + "," +
+            y + "," +
+            angle + "," +
+            speedX + "," +
+            speedY + "," +
+            angularSpeed + "," +
+            health + "," +
+            isUnderControl + "," +
+            shieldOn + "," +
+            currentPower + "," +
+            timestamp;
+  }
+
   @Override
   @Deprecated
   public String toString() {
@@ -104,4 +151,124 @@ public class PlayerState extends DataPackage {
   '~@Eg?-a?BUO??P?????_@??v??	?B4  f9?U6�?7?�?'
 
   */
+
+  public static void main(String[] a) {
+    PlayerState state = new PlayerState();
+    state.generationId = "#2?0";
+    state.shipId = 3;
+    state.x = 9231112.3112131f;
+    state.y = -0.0f;
+    state.angle = 2.423132f;
+    state.speedX = -24.1332f;
+    state.speedY = 0.923f;
+    state.angularSpeed = -0.331091f;
+    state.health = 32.4129f;
+    state.isUnderControl = true;
+    state.shieldOn = false;
+    state.currentPower = 0.9312041f;
+    state.timestamp = System.currentTimeMillis();
+
+    compressBenchmark(state);
+  }
+
+
+  private static void compressBenchmark(PlayerState state) {
+    try {
+      long iterations = 0;
+      System.out.println("compress csv: ");
+      long t0 = System.currentTimeMillis();
+      for (int j = 1; j < 11; j++) {
+        for (long i = 0; i < 5000 * j * j; i++) {
+          state.toCsv();
+          iterations++;
+        }
+        long t = System.currentTimeMillis();
+        System.out.println("{" + iterations + "," + (t - t0) + "},");
+      }
+      System.out.println();
+
+      iterations = 0;
+      System.out.println("compress json: ");
+      t0 = System.currentTimeMillis();
+      for (int j = 1; j < 11; j++) {
+        for (long i = 0; i < 5000 * j * j; i++) {
+          state.toJson();
+          iterations++;
+        }
+        long t = System.currentTimeMillis();
+        System.out.println("{" + iterations + "," + (t - t0) + "},");
+      }
+      System.out.println();
+
+      iterations = 0;
+      System.out.println("compress custom: ");
+      t0 = System.currentTimeMillis();
+      for (int j = 1; j < 11; j++) {
+        for (long i = 0; i < 5000 * j * j; i++) {
+          state.compress();
+          iterations++;
+        }
+        long t = System.currentTimeMillis();
+        System.out.println("{" + iterations + "," + (t - t0) + "},");
+      }
+      System.out.println();
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  private static void parseBenchmark(PlayerState state) {
+    try {
+      String csv = state.toCsv();
+      String json = state.toJson();
+      byte[] custom = state.compress();
+
+      System.out.println("json:   " + json);
+      System.out.println("csv:    " + csv);
+      System.out.println("custom: " + new String(custom));
+
+      long iterations = 0;
+      System.out.println("parse json: ");
+      long t0 = System.currentTimeMillis();
+      for (int j = 1; j < 11; j++) {
+        for (long i = 0; i < 5000 * j * j; i++) {
+          fromJson(json);
+          iterations++;
+        }
+        long t = System.currentTimeMillis();
+        System.out.println("{" + iterations + "," + (t - t0) + "},");
+      }
+      System.out.println();
+
+      iterations = 0;
+      System.out.println("parse custom: ");
+      t0 = System.currentTimeMillis();
+      for (int j = 1; j < 11; j++) {
+        for (long i = 0; i < 5000 * j * j; i++) {
+          new PlayerState(custom);
+          iterations++;
+        }
+        long t = System.currentTimeMillis();
+        System.out.println("{" + iterations + "," + (t - t0) + "},");
+      }
+      System.out.println();
+
+      iterations = 0;
+      System.out.println("parse csv: ");
+      t0 = System.currentTimeMillis();
+      for (int j = 1; j < 11; j++) {
+        for (long i = 0; i < 5000 * j * j; i++) {
+          new PlayerState(csv);
+          iterations++;
+        }
+        long t = System.currentTimeMillis();
+        System.out.println("{" + iterations + "," + (t - t0) + "},");
+      }
+      System.out.println();
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 }

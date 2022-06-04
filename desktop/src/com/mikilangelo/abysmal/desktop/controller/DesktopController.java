@@ -12,6 +12,7 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.mikilangelo.abysmal.screens.game.actors.ship.PlayerShip;
 import com.mikilangelo.abysmal.screens.game.components.Camera;
 import com.mikilangelo.abysmal.screens.game.controllers.GameController;
+import com.mikilangelo.abysmal.shared.Settings;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
 
@@ -43,6 +44,9 @@ public class DesktopController implements GameController {
     this.resizeComponents(w, h);
     this.gestureDetector = new DesktopGestureDetector();
     setCustomCursor();
+    if (ship.def.isBee && !Settings.cameraRotation) {
+      rotationSensitivity = 1;
+    }
     // TODO shotIndicator =
     // TODO shieldIndicator =
     // TODO speedUpIndicator =
@@ -56,22 +60,26 @@ public class DesktopController implements GameController {
     //TODO speedUpIndicator.update(ship.getShieldAbilityReloadTime(currentTime));
     cameraAngle = camera.getRotation();
     if (Gdx.input.isTouched()) {
-      shot(ship, Gdx.input.getX(), Gdx.input.getY());
+      shot(Gdx.input.getX(), Gdx.input.getY());
     }
-    ship.newAngle = ship.angle;
+    if (Settings.cameraRotation) {
+      ship.newAngle = ship.angle;
+    } else if (ship.def.isBee) {
+      ship.control(ship.newAngle, 0, -1);
+    }
     shipRotated = false;
     if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
       ship.applyImpulse(1, true);
     }
     if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-      ship.applyImpulse(-0.01f, false);
+      ship.handleStop();
     }
     if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-      ship.rotate(rotationSensitivity, delta);
+      ship.handleRotate(rotationSensitivity, delta);
       shipRotated = true;
     }
     if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-      ship.rotate(-rotationSensitivity, delta);
+      ship.handleRotate(-rotationSensitivity, delta);
       shipRotated = true;
     }
     if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
@@ -86,6 +94,9 @@ public class DesktopController implements GameController {
     if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
       ship.speedUp();
     }
+    if (ship.def.isBee && !Settings.cameraRotation) {
+      return false;
+    }
     if (shipRotated) {
       rotationSensitivity = (rotationSensitivity * 0.89f + 0.071f);
     } else {
@@ -94,15 +105,18 @@ public class DesktopController implements GameController {
     return false;
   }
 
-  private void shot(PlayerShip ship, float touchX, float touchY) {
-    if (!hasTurrets) {
+  private void shot(float touchX, float touchY) {
+    if (!hasTurrets || ship.def.isBee) {
       ship.shotDirectly();
-      return;
+      if (!ship.def.isBee || Settings.cameraRotation) return;
     }
     final float angle = CalculateUtils.normalizeAngle(
             CalculateUtils.defineAngle(touchX - w * 0.5f, h * 0.5f - touchY, 0)
             + cameraAngle
     );
+    if (ship.def.isBee) {
+      ship.control(angle, 0, -1);
+    }
     ship.turrets.forEach(turret -> {
       turret.control(angle);
       if (Math.abs((turret.angle + ship.angle) % 6.28f - angle) < 0.5f) {
@@ -145,6 +159,11 @@ public class DesktopController implements GameController {
 
     @Override
     public boolean mouseMoved(int x, int y) {
+      if (ship.def.isBee && !Settings.cameraRotation) {
+        final float angle = CalculateUtils.defineAngle(x - w * 0.5f, h * 0.5f - y, 0) + cameraAngle;
+        ship.control(angle, 0, -1);
+        return false;
+      }
       if (!hasTurrets) {
         return false;
       }

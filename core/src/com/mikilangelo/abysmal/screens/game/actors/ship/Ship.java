@@ -39,8 +39,8 @@ public class Ship {
   public Body shield;
   public ShieldData shieldData;
   public ShipData bodyData;
-  private Body primaryBody;
-  private Body secondaryBody;
+  protected Body primaryBody;
+  protected Body secondaryBody;
   public Array<Turret> turrets;
   public float newAngle = MathUtils.PI / 2;
   private final EngineAnimation engineAnimation;
@@ -57,12 +57,16 @@ public class Ship {
   private long lastShieldOnTime = 0;
   private float shieldTimeLeft = 0;
   public boolean isPowerApplied = false;
-  private boolean isUnderControl = false;
+  protected boolean isUnderControl = false;
   public boolean shieldOn = false;
   public int ammo;
 
-  private final float controlSpeedResistance;
-  private final float simpleSpeedResistance;
+  protected float speedCoefficient = 1;
+  private long lastSpeedUp = 0;
+  private float speedTimeLeft = 0;
+
+  protected final float controlSpeedResistance;
+  protected final float simpleSpeedResistance;
   private final float shieldSize;
   private float shieldScale;
   private final Sprite shieldTexture = new Sprite(TexturesRepository.get("things/shield.png"));
@@ -118,6 +122,9 @@ public class Ship {
 
   // power: [0, 1]
   public void applyImpulse(float power, boolean withParticles) {
+    if (power > 0.85f) {
+      power = power * speedCoefficient;
+    }
     this.currentPower = (this.currentPower * 0.99f + power * 0.01f);
     isPowerApplied = isUnderControl = true;
     primaryBody.applyLinearImpulse(
@@ -133,7 +140,15 @@ public class Ship {
     if (withParticles) kak();
   }
 
-  public void rotate(float direction, float delta) {
+  public void handleStop() {
+    applyImpulse(-0.01f, false);
+  }
+
+  public void handleRotate(float p, float delta) {
+    rotate(p, delta);
+  }
+
+  protected void rotate(float direction, float delta) {
     isUnderControl = true;
     this.body.setAngularVelocity(this.body.getAngularVelocity() + direction * def.controlPower / (0.99f + delta));
     if (!isPowerApplied) {
@@ -224,6 +239,12 @@ public class Ship {
     } else {
       this.currentPower *= 0.97f;
     }
+    if (speedCoefficient > 1) {
+      speedTimeLeft -= delta;
+      if (speedTimeLeft <= 0) {
+        speedCoefficient = 1;
+      }
+    }
     if (bodyData.health < 15) {
       if (MathUtils.random() < 0.03f) {
         ParticlesRepository.addSmoke(new ParticleSmog(x, y, velocity.x * 0.3f, velocity.y * 0.3f));
@@ -260,6 +281,10 @@ public class Ship {
 
   public float getShotReloadTime(long currentTime) {
     return (def.shotIntervalMs + lastShotTime - currentTime) / 1000f;
+  }
+
+  public float getSpeedReloadTime(long currentTime) {
+    return (def.speedRechargeTimeMs + lastSpeedUp - currentTime) / 1000f;
   }
 
   protected void shotDirectly(float soundScale, float pan) {
@@ -326,8 +351,9 @@ public class Ship {
     if (def.decorUnder != null) {
       def.decorUnder.setCenter(x, y);
       def.decorUnder.setRotation(this.angle * MathUtils.radiansToDegrees);
-//      def.decorUnder.setAlpha(Math.min(speed / def.maxSpeed, 1));
-      def.decorUnder.setAlpha(Math.max(Math.min(this.currentPower, 1), 0));
+      def.decorUnder.setAlpha(
+              def.decorOnSpeed ? Math.max(Math.min(this.currentPower, 1), 0) : 1
+      );
       def.decorUnder.draw(batch);
     }
     engineAnimation.draw(batch, delta, x, y, angle);
@@ -336,10 +362,16 @@ public class Ship {
     def.bodyTexture.setCenter(x, y);
     def.bodyTexture.draw(batch);
     if (def.decorOver != null) {
-      def.decorOver.setCenter(x, y);
-      def.decorOver.setRotation(this.angle * MathUtils.radiansToDegrees);
-      def.decorOver.setAlpha(Math.min(speed / def.maxSpeed, 1));
-      def.decorOver.draw(batch);
+      if (def.decorOver.isLight) {
+        batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+      }
+      def.decorOver.texture.setCenter(x, y);
+      def.decorOver.texture.setRotation(this.angle * MathUtils.radiansToDegrees);
+      def.decorOver.texture.setAlpha(Math.min(speed / def.maxSpeed, 1));
+      def.decorOver.texture.draw(batch);
+      if (def.decorOver.isLight) {
+        batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+      }
     }
     for (int i = 0; i < turrets.size; i++) {
       turrets.get(i).draw(batch, angle);
@@ -472,6 +504,15 @@ public class Ship {
 
   public void activateShield() {
     activateShield(false);
+  }
+
+  public void speedUp() {
+    final long currentTime = System.currentTimeMillis();
+    if (currentTime - lastSpeedUp > def.speedRechargeTimeMs) {
+      this.speedCoefficient = def.speedUpCoefficient;
+      speedTimeLeft = def.speedTimeS;
+      lastSpeedUp = currentTime;
+    }
   }
 
   public void activateShield(boolean force) {

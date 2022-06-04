@@ -2,6 +2,7 @@ package com.mikilangelo.abysmal.shared;
 
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Vector3;
+import com.mikilangelo.abysmal.shared.defenitions.DecorDef;
 import com.mikilangelo.abysmal.shared.repositories.SoundsRepository;
 import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.shared.defenitions.EngineDef;
@@ -38,6 +39,7 @@ public abstract class ShipDefinitions {
     generateDefender();
     generateHyperion();
     generateInvader();
+    generate766();
     //generateXWing();
     generateRocinante();
     generateAlien();
@@ -415,8 +417,11 @@ public abstract class ShipDefinitions {
     // textures
     alien.bodyTexture = new Sprite(TexturesRepository.get("ships/alien/body.png"));
     alien.bodyTexture.setScale( alien.size / alien.bodyTexture.getHeight() );
-    alien.decorOver = new Sprite(TexturesRepository.get("ships/alien/decor.png"));
-    alien.decorOver.setScale( alien.bodyTexture.getScaleY() );
+    alien.decorOver = new DecorDef(
+            new Sprite(TexturesRepository.get("ships/alien/decor.png")),
+            false
+    );
+    alien.decorOver.texture.setScale( alien.bodyTexture.getScaleY() );
     alien.engineAnimation = new Array<>();
     for (byte i = 0; i < 0; i++) {
       alien.engineAnimation.add(new Sprite(TexturesRepository.get("ships/alien/engine" + i + ".png")));
@@ -472,6 +477,71 @@ public abstract class ShipDefinitions {
     }
     alien.engineDefinitions = engines;
     addShip(alien);
+  }
+
+  private static void generate766() {
+    ShipDef s766 = new ShipDef();
+    s766.isBee = true;
+    s766.name = "766";
+    s766.health = 25;
+    s766.ammo = 350;
+    s766.radarPower = 80;
+    s766.maxZoom = 1.5f;
+    // body
+    s766.size = 1.987f;
+    s766.density = 0.87f;
+    s766.friction = 0.3f;
+    s766.restitution = 0.85f;
+    s766.bodyLoader = new BodLLoader(Gdx.files.internal("ships/766/body.json"));
+    s766.bodyScale = 3.9689f;
+    s766.shieldRadius = 1.5f;
+    // dynamic
+    s766.speedPower = 80f;
+    s766.controlPower = 1.6f;
+    s766.speedResistance = 0.13f;
+    s766.rotationControlResistance = 0.95f;
+    s766.rotationResistance = 0.93f;
+    s766.speedUpCoefficient = 1.5f;
+    // textures
+    s766.bodyTexture = new Sprite(TexturesRepository.get("ships/766/body.png"));
+    s766.bodyTexture.setScale( s766.size / s766.bodyTexture.getHeight() );
+    s766.decorUnder = new Sprite(TexturesRepository.get("ships/766/light.png"));
+    s766.decorOnSpeed = false;
+    s766.engineAnimation = new Array<>();
+    for (byte i = 0; i < 0; i++) {
+      s766.engineAnimation.add(new Sprite(TexturesRepository.get("ships/alien/engine" + i + ".png")));
+      s766.engineAnimation.get(i).setScale( s766.size / s766.engineAnimation.get(i).getHeight() );
+    }
+    s766.frameFrequency = 0.1f;
+    // lasers
+    LaserDef laserDefinition = new LaserDef(); {
+      laserDefinition.impulse = 2.3f;
+      laserDefinition.lifeTime = 3;
+      laserDefinition.damage = 7;
+      laserDefinition.touches = 2;
+      laserDefinition.texture = new Sprite(TexturesRepository.get("ships/defender/laser.png"));
+      laserDefinition.texture.setScale( 0.9f / laserDefinition.texture.getHeight() );
+      laserDefinition.texture.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+      laserDefinition.sound = SoundsRepository.getSound( "ships/defender/shot.mp3");
+      laserDefinition.explosionTextures = new Array<>();
+      laserDefinition.density = 1.9f;
+    }
+
+    laserDefinition.explosionTextures = Graphics
+            .changeColor(sampleExplosion, new Vector3(1, 0.3f, 0));
+    for (byte i = 0; i < 11; i++) {
+      laserDefinition.explosionTextures.get(i)
+              .setScale( 2.47f / laserDefinition.explosionTextures.get(i).getHeight() );
+    }
+    s766.laserDefinition = laserDefinition;
+    s766.lasersAmount = 2;
+    s766.lasersDistance = 1.3f;
+    s766.shotIntervalMs = 211;
+    // turrets
+    s766.turretDefinitions = new Array<>();
+    // engines
+    s766.engineDefinitions = new Array<>();
+    addShip(s766);
   }
 
   private static void generateHyperion() {

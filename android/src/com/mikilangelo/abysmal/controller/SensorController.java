@@ -39,10 +39,10 @@ public class SensorController implements GameController {
     touch2Handler = new TouchHandler(ship);
 
     shipController = new JoystickController(w, h);
-    turretShooter = new JoystickShooter(w, h, ship.def.turretDefinitions.size > 0);
+    turretShooter = new JoystickShooter(w, h, ship.def.turretDefinitions.size > 0 || ship.def.isBee);
     shotButton = ship.def.shotIntervalMs >= 2000 && ship.def.lasersAmount > 0 ?
             new ButtonShotAbility(w, h, ship.def.shotIntervalMs / 1000f) :
-            new ButtonShot(w, h, ship.def.lasersAmount > 0);
+            new ButtonShot(w, h, ship.def.lasersAmount > 0 && !ship.def.isBee);
     shieldButton = new ButtonShield(ship.def.shieldRechargeTimeMs / 1000f, w, h);
     speedUpButton = new ButtonSpeed(ship.def.speedRechargeTimeMs / 1000f, w, h);
   }

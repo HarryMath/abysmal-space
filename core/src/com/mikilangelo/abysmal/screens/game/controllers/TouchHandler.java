@@ -63,15 +63,19 @@ public class TouchHandler {
     }
     if (createdShooter) {
       turretShooter.update(touchX, HEIGHT - touchY);
-      for (short i = 0; i < ship.turrets.size; i++) {
-        ship.turrets.get(i).control(turretShooter.getDirection());
+      if (ship.def.isBee) {
+        ship.control(turretShooter.getDirection(), 0, -1);
+      } else {
+        for (short i = 0; i < ship.turrets.size; i++) {
+          ship.turrets.get(i).control(turretShooter.getDirection());
+        }
       }
       ship.shotByTurrets();
     }
     if (createdJoystick) {
       shipController.update(touchX, HEIGHT - touchY);
       if (Settings.cameraRotation) {
-        ship.rotate(shipController.getXPower() * 0.5f, delta);
+        ship.handleRotate(shipController.getXPower() * 0.5f, delta);
         ship.applyImpulse(shipController.getYPower(), shipController.getYPower() > 0);
       } else {
         ship.control(shipController.getDirection(), shipController.getPower(), delta);

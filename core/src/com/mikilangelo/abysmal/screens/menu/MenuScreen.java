@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.mikilangelo.abysmal.EnigmaSpace;
+import com.mikilangelo.abysmal.screens.game.actors.ship.ShipBee;
 import com.mikilangelo.abysmal.screens.game.enemies.online.UdpServer;
 import com.mikilangelo.abysmal.screens.menu.components.NotificationWrapper;
 import com.mikilangelo.abysmal.screens.menu.components.ServerProvider;
@@ -215,7 +216,9 @@ public class MenuScreen implements Screen {
     Gdx.app.postRunnable(()-> {
       game.setScreen(new GameScreen(
               game,
-              new PlayerShip(currentShip, -2331 , -1300),
+              currentShip.isBee ?
+                      new ShipBee(currentShip, -2331, -1300) :
+                      new PlayerShip(currentShip, -2331 , -1300),
               this.enemiesProcessor, seed));
       dispose();
     });
@@ -422,10 +425,10 @@ public class MenuScreen implements Screen {
     def.bodyTexture.setCenter(x, y);
     def.bodyTexture.draw(game.batchInterface);
     if (def.decorOver != null) {
-      def.decorOver.setAlpha(0.5f);
-      def.decorOver.setCenter(x, y);
-      def.decorOver.setRotation(90);
-      def.decorOver.draw(game.batchInterface);
+      def.decorOver.texture.setAlpha(0.5f);
+      def.decorOver.texture.setCenter(x, y);
+      def.decorOver.texture.setRotation(90);
+      def.decorOver.texture.draw(game.batchInterface);
     }
   }
 

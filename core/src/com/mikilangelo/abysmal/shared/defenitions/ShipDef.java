@@ -6,6 +6,8 @@ import com.badlogic.gdx.utils.Array;
 
 public class ShipDef {
 
+  public boolean isBee = false;
+
   // basic
   public String name;
   public int id;
@@ -32,8 +34,9 @@ public class ShipDef {
 
   // texture
   public Sprite bodyTexture;
-  public Sprite decorOver = null;
+  public DecorDef decorOver = null;
   public Sprite decorUnder = null;
+  public boolean decorOnSpeed = true;
   public Array<Sprite> engineAnimation;
   public float frameFrequency;
 
@@ -67,7 +70,7 @@ public class ShipDef {
       decorUnder.setScale(scale);
     }
     if (decorOver != null) {
-      decorOver.setScale(scale);
+      decorOver.texture.setScale(scale);
     }
     for (Sprite s: engineAnimation) {
       s.setScale(scale);
