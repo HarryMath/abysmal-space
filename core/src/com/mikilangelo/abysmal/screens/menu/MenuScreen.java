@@ -217,8 +217,8 @@ public class MenuScreen implements Screen {
       game.setScreen(new GameScreen(
               game,
               currentShip.isBee ?
-                      new ShipBee(currentShip, -2331, -1300) :
-                      new PlayerShip(currentShip, -2331 , -1300),
+                      new ShipBee(currentShip, -23, -13) :
+                      new PlayerShip(currentShip, -23 , -13),
               this.enemiesProcessor, seed));
       dispose();
     });

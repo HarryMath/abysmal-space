@@ -62,6 +62,7 @@ public class BotsProcessor implements EnemiesProcessor {
   }
 
   private void updateBots() {
+    int botsAMount = this.bots.size;
     startRangeX = Math.max(startRangeX, playerX - SCREEN_WIDTH * 8);
     endRangeX = Math.min(endRangeX, playerX + SCREEN_WIDTH * 8);
     startRangeY = Math.max(startRangeY, playerY - SCREEN_HEIGHT * 8);
@@ -80,18 +81,22 @@ public class BotsProcessor implements EnemiesProcessor {
       generateBotsIn(startRangeX, endRangeX, endRangeY, playerY + SCREEN_HEIGHT * 8);
       endRangeY = playerY + SCREEN_HEIGHT * 8;
     }
-  }
-
-  private void generateBotsIn(float xMin, float xMax, float yMin, float yMax) { // 650
-    float normalSquare = (xMax - xMin) * (yMax - yMin) / SCREEN_HEIGHT / SCREEN_WIDTH / 600f;
-    int amount = Math.round(MathUtils.random(7f, 17f) * normalSquare);
-    for (short i = 0; i < amount; i++) {
-      generateBotsGroup(MathUtils.random(xMin, xMax), MathUtils.random(yMin, yMax));
+    if (botsAMount != this.bots.size) {
+      Logger.log(this, "updateBots", bots.size - botsAMount + " bots added. total amount is " + bots.size);
     }
   }
 
+  private void generateBotsIn(float xMin, float xMax, float yMin, float yMax) { // 650
+    float normalSquare = (xMax - xMin) * (yMax - yMin) / SCREEN_HEIGHT / SCREEN_WIDTH / 200f;
+    int amount = Math.round(MathUtils.random(6f, 14f) * normalSquare);
+    for (short i = 0; i < amount; i++) {
+      generateBotsGroup(MathUtils.random(xMin, xMax), MathUtils.random(yMin, yMax));
+    }
+    Logger.log(this, "generateBotsIn", "created " + amount + "groups.");
+  }
+
   private void generateBotsGroup(float x, float y) {
-    int amount = MathUtils.random(1, 2);
+    int amount = MathUtils.random(1, 4);
     for (byte i = 0; i < amount; i++) {
 //      int def = MathUtils.random(0, ShipDefinitions.shipDefinitions.size);
       String def = CalculateUtils.getProbability(0.05f) ? "alien" :
@@ -99,18 +104,22 @@ public class BotsProcessor implements EnemiesProcessor {
               CalculateUtils.getProbability(0.34f) ? "invader" : "defender";
       final Ship ship = new Ship(
               ShipDefinitions.get(def),
-              x + MathUtils.random(-19.3f, 19.3f),
-              y + MathUtils.random(-19.3f, 19.3f), false,
+              x + MathUtils.random(-29.3f, 29.3f),
+              y + MathUtils.random(-29.3f, 29.3f), false,
               playerX, playerY);
       ship.angle = ship.newAngle = MathUtils.random(6.28f);
       newShips.add(ship);
     }
+    Logger.log(this, "generateBotsGroup", "created " + amount + "bots.");
   }
 
   @Override
   public void process(Ship player, final float delta) {
     if (!botsProcessed) {
       Logger.log(this, "process", "missed frame");
+      return;
+    }
+    if (player.bodyData.health <= 0) {
       return;
     }
     playerX = player.x;

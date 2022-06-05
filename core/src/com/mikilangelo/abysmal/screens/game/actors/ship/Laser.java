@@ -65,7 +65,7 @@ public class Laser implements DynamicObject {
             x, y, angle,
             def.impulse * MathUtils.cos(angle) + speedX / 27f * def.density,
             def.impulse * MathUtils.sin(angle) + speedY / 27f * def.density,
-            0, 0,
+            0, false, 0,
             shipId
     ), bodyId, 0);
   }

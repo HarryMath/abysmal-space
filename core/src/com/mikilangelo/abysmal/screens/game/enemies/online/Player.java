@@ -9,6 +9,7 @@ import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
 import com.mikilangelo.abysmal.screens.game.enemies.Enemy;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.PlayerState;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.ShotData;
+import com.mikilangelo.abysmal.screens.game.enemies.online.data.SimplifiedState;
 import com.mikilangelo.abysmal.shared.repositories.ExplosionsRepository;
 import com.mikilangelo.abysmal.shared.repositories.LasersRepository;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
@@ -33,11 +34,13 @@ public class Player extends Enemy {
     this(ship, id, id);
   }
 
+  public void makeDead() {this.isDead = true;}
+
   public boolean isDead(float playerX, float playerY, float delta, long timestamp) {
     ship.distance = CalculateUtils.distance(playerX, playerY, ship.x, ship.y);
     if (
         isDead ||
-        (ship.bodyData.health < -10 && timestamp - lastUpdateTimestamp > 500)
+        (ship.bodyData.health < -20 && timestamp - lastUpdateTimestamp > 500)
     ) {
       if (ship.distance < 100) {
         ExplosionsRepository.addShipExplosion(
@@ -56,6 +59,17 @@ public class Player extends Enemy {
       ship.currentPower = this.currentPower;
     }
     return false;
+  }
+
+  public void update(final SimplifiedState data, long currentTime) {
+    Gdx.app.postRunnable(() -> {
+      if (!world.isLocked()) {
+        Logger.log(this, "update", "simple state update");
+        ship.setSimpleState(data);
+        lastUpdateTimestamp = currentTime;
+        lastStateTimeStamp = currentTime - 5;
+      }
+    });
   }
 
   public void update(final PlayerState data, long currentTime) {

@@ -14,8 +14,10 @@ import com.mikilangelo.abysmal.screens.game.enemies.online.data.AsteroidCrashed;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.BroadcastRequest;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.BroadcastResponse;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.DataPackage;
+import com.mikilangelo.abysmal.screens.game.enemies.online.data.DeathPackage;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.PlayerState;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.ShotData;
+import com.mikilangelo.abysmal.screens.game.enemies.online.data.SimplifiedState;
 import com.mikilangelo.abysmal.screens.game.uiElements.Radar;
 import com.mikilangelo.abysmal.shared.ShipDefinitions;
 import com.mikilangelo.abysmal.shared.repositories.AsteroidsRepository;
@@ -32,20 +34,13 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class UdpServer implements EnemiesProcessor {
+public class UdpServer extends UdpProcessor implements EnemiesProcessor {
 
   public static final int PORT = 7791;
   private final DatagramSocket server;
-  private final DatagramPacket inputPacket;
   public final long seed;
 
   private final Array<LocalPlayer> players = new Array<>();
-  private final Map<String, Integer> playersToCreate = new HashMap<>();
-  private final AtomicBoolean isStopped = new AtomicBoolean(false);
-  private byte[] output;
-  private DatagramPacket outputPacket;
-  private byte missedFrames = 0;
-  private final PlayerState state = new PlayerState();
   private final SendingThread sendingThread;
   private final Thread receiveThread;
 
@@ -78,14 +73,6 @@ public class UdpServer implements EnemiesProcessor {
     this.seed = 1 + System.currentTimeMillis() % 1000000;
   }
 
-  private byte[] trimPackage(byte[] data) {
-    int i = (short) data.length - 1;
-    while (i >= 0 && data[i] == 0) {
-      i--;
-    }
-    return Arrays.copyOf(data, i+1);
-  }
-
   @Override
   public Ship getNearestEnemy(float playerX, float playerY) {
     return null;
@@ -102,49 +89,53 @@ public class UdpServer implements EnemiesProcessor {
     state.timestamp = timestamp();
   }
 
+
   private void handleData(byte[] dataPackage, InetAddress ip, int port) {
-    if (dataPackage.length > 10) {
-      sendingThread.sendFrom(new BroadcastPackage(dataPackage, ip, port));
-    }
+    sendingThread.sendFrom(new BroadcastPackage(dataPackage, ip, port));
     try {
-      if (PlayerState.isInstance(dataPackage)) {
-        PlayerState player = new PlayerState(dataPackage);
+      if (SimplifiedState.isInstance(dataPackage)) {
+        SimplifiedState player = new SimplifiedState(dataPackage);
         if (!player.generationId.equals(state.generationId)) {
-          long timestamp = timestamp();
-          for (short i = 0; i < players.size; i++) {
+          for (int i = 0; i < players.size; i++) {
             if (players.get(i).generationId.equals(player.generationId)) {
-              players.get(i).update(player, timestamp);
+              players.get(i).update(player, timestamp());
               return;
             }
           }
-          if (player.generationId.length() > 1) {
-            if (playersToCreate.containsKey(player.generationId)) {
-              int packagesReceive = playersToCreate.get(player.generationId);
-              packagesReceive += 1;
-              playersToCreate.put(player.generationId, packagesReceive);
-              if (packagesReceive > 5) {
-                Ship ship = new Ship(ShipDefinitions.get(player.shipId),
-                        player.x, player.y, false, playerX, playerY);
-                Gdx.app.postRunnable(() -> {
-                  ship.createBody(world);
-                  players.add(new LocalPlayer(ship, player.generationId, ip, port));
-                });
-                playersToCreate.remove(player.generationId);
-              }
-            } else {
-              playersToCreate.put(player.generationId, 0);
+          if (isNewPlayer(player.generationId)) {
+            Ship ship = new Ship(ShipDefinitions.get(player.shipId),
+                    player.x, player.y, false, playerX, playerY);
+            Gdx.app.postRunnable(() -> {
+              ship.createBody(world);
+              players.add(new LocalPlayer(ship, player.generationId, ip, port));
+            });
+          }
+        }
+      }
+      else if (PlayerState.isInstance(dataPackage)) {
+        PlayerState player = new PlayerState(dataPackage);
+        if (!player.generationId.equals(state.generationId)) {
+          for (int i = 0; i < players.size; i++) {
+            if (players.get(i).generationId.equals(player.generationId)) {
+              players.get(i).update(player, timestamp());
+              return;
             }
+          }
+          if (isNewPlayer(player.generationId)) {
+            Ship ship = new Ship(ShipDefinitions.get(player.shipId),
+                    player.x, player.y, false, playerX, playerY);
+            Gdx.app.postRunnable(() -> {
+              ship.createBody(world);
+              players.add(new LocalPlayer(ship, player.generationId, ip, port));
+            });
           }
         }
       }
       else if (ShotData.isInstance(dataPackage)) {
         ShotData shotData = new ShotData(dataPackage);
-        long timestamp = timestamp();
-        LocalPlayer p;
-        for (short i = 0; i < players.size; i++) {
-          p = players.get(i);
+        for (Player p : players) {
           if (p.generationId.equals(shotData.generationId)) {
-            p.shot(shotData, timestamp);
+            p.shot(shotData, timestamp());
             return;
           }
         }
@@ -156,16 +147,28 @@ public class UdpServer implements EnemiesProcessor {
       else if (BroadcastRequest.isInstance(dataPackage)) {
         sendingThread.sendTo(new DirectedPackage(new BroadcastResponse(seed), ip, port));
       }
+      else if (DeathPackage.isInstance(dataPackage)) {
+        String genIs = new DeathPackage(dataPackage).generationId;
+        for (int i = 0; i < players.size; i++) {
+          if (players.get(i).generationId.equals(genIs)) {
+            players.get(i).makeDead();
+            return;
+          }
+        }
+      }
     } catch (Exception e) {
       e.printStackTrace();
-      Logger.log(this, "handleData", "parse error: " + Arrays.toString(dataPackage));
+      Logger.log(this,"handleData", "error parsing package: " + Arrays.toString(dataPackage));
     }
   }
 
   @Override
   public void process(final Ship player, final float delta) {
     missedFrames++;
-    if (missedFrames > 2) {
+    if (player.bodyData.health <= 0) {
+      sendingThread.sendDeathPackage();
+    }
+    else if (missedFrames > 2) {
       missedFrames = 0;
       state.generationId = player.generationId;
       state.x = playerX = player.x;
@@ -239,15 +242,6 @@ public class UdpServer implements EnemiesProcessor {
     players.clear();
     receiveThread.interrupt();
     sendingThread.interrupt();
-    state.health = 0;
-    try {
-      output = state.compress();
-      outputPacket.setData(output, 0, output.length);
-      server.send(outputPacket);
-    } catch (IOException | SecurityException e) {
-      e.printStackTrace();
-    }
-    playersToCreate.clear();
     players.clear();
   }
 
@@ -277,12 +271,18 @@ public class UdpServer implements EnemiesProcessor {
     private final Vector<BroadcastPackage> broadcastQueue = new Vector<>();
     private final Vector<DirectedPackage> directedQueue = new Vector<>();
     private final AtomicBoolean needToSendState = new AtomicBoolean(false);
+    private final AtomicBoolean isDead = new AtomicBoolean(false);
 
     public void sendData(DataPackage data) {
       sequence.add(data);
       if (sequence.size() > 20) {
         sequence.remove(0);
       }
+    }
+
+    public void sendDeathPackage() {
+      isDead.set(true);
+      needToSendState.set(true);
     }
 
     public void sendStateData() {
@@ -311,7 +311,9 @@ public class UdpServer implements EnemiesProcessor {
       if (needToSendState.get()) {
         //long t = now();
         try {
-          output = state.compress();
+          output = isDead.get() ?
+                  new DeathPackage(state.generationId).compress() :
+                  state.compress();
           LocalPlayer p;
           for (short i = 0; i < players.size; i++) {
             p = players.get(i);

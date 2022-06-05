@@ -14,9 +14,9 @@ public abstract class CalculateUtils {
     final long timestamp = System.currentTimeMillis();
     return new StringBuilder()
             .append((char) (1 + timestamp % 127))
-            .append((char) MathUtils.random(0, 127))
-            .append((char) MathUtils.random(0, 127))
-            .append((char) MathUtils.random(0, 127))
+            .append((char) MathUtils.random(1, 127))
+            .append((char) MathUtils.random(1, 127))
+            .append((char) MathUtils.random(1, 127))
             .toString();
   }
 

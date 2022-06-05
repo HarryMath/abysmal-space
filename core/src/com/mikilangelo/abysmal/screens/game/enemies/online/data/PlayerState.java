@@ -1,14 +1,17 @@
 package com.mikilangelo.abysmal.screens.game.enemies.online.data;
 
 import com.google.gson.Gson;
+import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class PlayerState extends DataPackage {
-  private static final byte[] indicator = "state".getBytes(StandardCharsets.US_ASCII);
+  private static final short length = 4 + 4 + 4 * 3 + 4 * 3 + 4 + 1 + 1 + 4 + 8; // 50
+
   public String generationId; // unique generation id
   public int shipId; // ship id
   public float x, y, angle;
@@ -46,57 +49,41 @@ public class PlayerState extends DataPackage {
   }
 
   public PlayerState(byte[] data) {
-    byte[][] chunks = split(data, (short) 13, (short) indicator.length);
-    generationId = decodeString(chunks[0]);
-    shipId = decodeInt(chunks[1]);
-    x = decodeFloat(chunks[2]);
-    y = decodeFloat(chunks[3]);
-    angle = decodeFloat(chunks[4]);
-    speedX = decodeFloat(chunks[5]);
-    speedY = decodeFloat(chunks[6]);
-    angularSpeed = decodeFloat(chunks[7]);
-    health = decodeFloat(chunks[8]);
-    isUnderControl = decodeBoolean(chunks[9]);
-    shieldOn = decodeBoolean(chunks[10]);
-    currentPower = decodeFloat(chunks[11]);
-    timestamp = decodeLong(chunks[12]);
+    generationId = decodeString(get(data, 0, 4));
+    shipId = decodeInt(get(data, 4, 4));
+    x = decodeFloat(get(data, 8, 4));
+    y = decodeFloat(get(data, 12, 4));
+    angle = decodeFloat(get(data, 16, 4));
+    speedX = decodeFloat(get(data, 20, 4));
+    speedY = decodeFloat(get(data, 24, 4));
+    angularSpeed = decodeFloat(get(data, 28, 4));
+    health = decodeFloat(get(data, 32, 4));
+    isUnderControl = decodeBoolean(get(data, 36, 1));
+    shieldOn = decodeBoolean(get(data, 37, 1));
+    currentPower = decodeFloat(get(data, 38, 4));
+    timestamp = decodeLong(get(data, 42, 8));
   }
 
   public static boolean isInstance(byte[] data) {
-    return startsWith(data, indicator);
+    return data.length == length;
   }
 
-  public byte[] compress() throws IOException {
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    outputStream.write(indicator);
-    outputStream.write(generationId.getBytes(StandardCharsets.US_ASCII));
-    outputStream.write(separator);
-    outputStream.write(compress(shipId));
-    outputStream.write(separator);
-    outputStream.write(compress(x));
-    outputStream.write(separator);
-    outputStream.write(compress(y));
-    outputStream.write(separator);
-    outputStream.write(compress(angle));
-    outputStream.write(separator);
-    outputStream.write(compress(speedX));
-    outputStream.write(separator);
-    outputStream.write(compress(speedY));
-    outputStream.write(separator);
-    outputStream.write(compress(angularSpeed));
-    outputStream.write(separator);
-    outputStream.write(compress(health));
-    outputStream.write(separator);
-    outputStream.write(compress(isUnderControl));
-    outputStream.write(separator);
-    outputStream.write(compress(shieldOn));
-    outputStream.write(separator);
-    outputStream.write(compress(currentPower));
-    outputStream.write(separator);
-    outputStream.write(compress(timestamp));
-    byte[] result = outputStream.toByteArray();
-    outputStream.close();
-    return result;
+  public byte[] compress() {
+    return ByteBuffer.allocate(length)
+            .put(generationId.getBytes(StandardCharsets.UTF_8))
+            .putInt(shipId)
+            .putFloat(x)
+            .putFloat(y)
+            .putFloat(angle)
+            .putFloat(speedX)
+            .putFloat(speedY)
+            .putFloat(angularSpeed)
+            .putFloat(health)
+            .put(isUnderControl ? (byte) 1 : (byte) 0)
+            .put(shieldOn ? (byte) 1 : (byte) 0)
+            .putFloat(currentPower)
+            .putLong(timestamp)
+            .array();
   }
 
   public String toJson() {
@@ -146,15 +133,15 @@ public class PlayerState extends DataPackage {
 
   'state[defender0202797818,defender,-10.836355,53.327827,0.81490326,1.8270377,6.214534,-0.0019457892, 44.9,false,4.1643687E-4,1650204282511]'
 
-  final 54 symbols:
+  final 50 symbols:
 
-  '~@Eg?-a?BUO??P?????_@??v??	?B4  f9?U6�?7?�?'
+  '~@Eg?-a?BUO??P?????_@??v???Bf9?U6�?7?�?'
 
   */
 
   public static void main(String[] a) {
     PlayerState state = new PlayerState();
-    state.generationId = "#2?0";
+    state.generationId = CalculateUtils.uid();
     state.shipId = 3;
     state.x = 9231112.3112131f;
     state.y = -0.0f;
@@ -168,7 +155,14 @@ public class PlayerState extends DataPackage {
     state.currentPower = 0.9312041f;
     state.timestamp = System.currentTimeMillis();
 
-    compressBenchmark(state);
+    try {
+      System.out.println(state);
+      System.out.println(new PlayerState(state.compress()));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    parseBenchmark(state);
   }
 
 

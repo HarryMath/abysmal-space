@@ -53,7 +53,7 @@ public abstract class ServerProvider {
       int attempts = 0;
       while (!receiveThread.serverFound && attempts < 10) {
         attempts++;
-        Logger.log("ServerProvider", "findLocalSever", "attempt №" + attempts);
+        Logger.log("ServerProvider", "findLocalSever", "attempt " + attempts);
         DatagramPacket packet = new DatagramPacket(
                 message, message.length,
                 InetAddress.getByName("255.255.255.255"),
@@ -61,7 +61,7 @@ public abstract class ServerProvider {
         );
         socket.send(packet);
         Logger.log("ServerProvider", "findLocalSever", "data sent");
-        Thread.sleep(200);
+        Thread.sleep(250);
       }
       receiveThread.interrupt();
 

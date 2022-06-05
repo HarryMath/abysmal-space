@@ -159,6 +159,9 @@ public class DesktopController implements GameController {
 
     @Override
     public boolean mouseMoved(int x, int y) {
+      if (ship.bodyData.health <= 0) {
+        return false;
+      }
       if (ship.def.isBee && !Settings.cameraRotation) {
         final float angle = CalculateUtils.defineAngle(x - w * 0.5f, h * 0.5f - y, 0) + cameraAngle;
         ship.control(angle, 0, -1);

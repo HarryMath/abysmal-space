@@ -5,6 +5,7 @@ import static com.mikilangelo.abysmal.screens.game.GameScreen.SCREEN_WIDTH;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Vector2;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.PlayerState;
+import com.mikilangelo.abysmal.screens.game.enemies.online.data.SimplifiedState;
 import com.mikilangelo.abysmal.shared.Settings;
 import com.mikilangelo.abysmal.shared.repositories.ExplosionsRepository;
 import com.mikilangelo.abysmal.shared.repositories.LasersRepository;
@@ -177,6 +178,15 @@ public class Ship {
             state.speedY * speedM
     );
     primaryBody.setAngularVelocity(state.angularSpeed * speedM);
+  }
+
+  public void setSimpleState(SimplifiedState state) {
+    x = state.x;
+    y = state.y;
+    primaryBody.setTransform(x, y, angle);
+    secondaryBody.setTransform(x, y, angle);
+    primaryBody.setAngularVelocity(primaryBody.getAngularVelocity() * 0.95f);
+    primaryBody.setLinearVelocity(velocity.x * 0.95f, velocity.y * 0.95f);
   }
 
   public void setState(PlayerState state, float delta, float c1) {
@@ -545,6 +555,7 @@ public class Ship {
     turrets.clear();
     shieldTouches.clear();
     this.body = null;
+    this.shield = null;
   }
 
   private static class ShieldTouch {

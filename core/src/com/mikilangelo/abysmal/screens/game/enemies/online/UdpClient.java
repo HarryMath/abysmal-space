@@ -12,6 +12,8 @@ import com.mikilangelo.abysmal.screens.game.enemies.EnemiesProcessor;
 import com.mikilangelo.abysmal.screens.game.enemies.Enemy;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.AsteroidCrashed;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.DataPackage;
+import com.mikilangelo.abysmal.screens.game.enemies.online.data.DeathPackage;
+import com.mikilangelo.abysmal.screens.game.enemies.online.data.SimplifiedState;
 import com.mikilangelo.abysmal.shared.ShipDefinitions;
 import com.mikilangelo.abysmal.shared.repositories.AsteroidsRepository;
 import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
@@ -32,7 +34,7 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class UdpClient implements EnemiesProcessor {
+public class UdpClient extends UdpProcessor implements EnemiesProcessor {
 
   private final InetAddress address;
   private final long timeCorrection;
@@ -40,15 +42,7 @@ public class UdpClient implements EnemiesProcessor {
   private final DatagramSocket client;
 
   private final Array<Player> players = new Array<>();
-  private final Map<String, Integer> playersToCreate = new HashMap<>();
-  private final AtomicBoolean isStopped = new AtomicBoolean(false);
-  private byte[] output;
-  private DatagramPacket outputPacket;
-  private final DatagramPacket inputPacket;
-  private byte missedFrames = 0;
-  private final PlayerState state = new PlayerState();
   private final SendingThread sendingThread;
-  private final Thread receiveThread;
 
   private float playerX;
   private float playerY;
@@ -102,43 +96,49 @@ public class UdpClient implements EnemiesProcessor {
 
   private void handleData(byte[] dataPackage) {
     try {
-      if (PlayerState.isInstance(dataPackage)) {
-        PlayerState player = new PlayerState(dataPackage);
+      if (SimplifiedState.isInstance(dataPackage)) {
+        SimplifiedState player = new SimplifiedState(dataPackage);
         if (!player.generationId.equals(state.generationId)) {
-          final long timestamp = timestamp();
           for (int i = 0; i < players.size; i++) {
             if (players.get(i).generationId.equals(player.generationId)) {
-              players.get(i).update(player, timestamp);
+              players.get(i).update(player, timestamp());
               return;
             }
           }
-          if (player.generationId.length() > 2) {
-            Logger.log(this, "handleData", "new player: " + player.generationId);
-            if (playersToCreate.containsKey(player.generationId)) {
-              int packagesReceive = playersToCreate.get(player.generationId);
-              packagesReceive += 1;
-              playersToCreate.put(player.generationId, packagesReceive);
-              if (packagesReceive > 5) {
-                Ship ship = new Ship(ShipDefinitions.get(player.shipId),
-                        player.x, player.y, false, playerX, playerY);
-                Gdx.app.postRunnable(() -> {
-                  ship.createBody(world);
-                  players.add(new Player(ship, player.generationId));
-                });
-                playersToCreate.remove(player.generationId);
-              }
-            } else {
-              playersToCreate.put(player.generationId, 0);
+          if (isNewPlayer(player.generationId)) {
+            Ship ship = new Ship(ShipDefinitions.get(player.shipId),
+                    player.x, player.y, false, playerX, playerY);
+            Gdx.app.postRunnable(() -> {
+              ship.createBody(world);
+              players.add(new Player(ship, player.generationId));
+            });
+          }
+        }
+      }
+      else if (PlayerState.isInstance(dataPackage)) {
+        PlayerState player = new PlayerState(dataPackage);
+        if (!player.generationId.equals(state.generationId)) {
+          for (int i = 0; i < players.size; i++) {
+            if (players.get(i).generationId.equals(player.generationId)) {
+              players.get(i).update(player, timestamp());
+              return;
             }
+          }
+          if (isNewPlayer(player.generationId)) {
+            Ship ship = new Ship(ShipDefinitions.get(player.shipId),
+                    player.x, player.y, false, playerX, playerY);
+            Gdx.app.postRunnable(() -> {
+              ship.createBody(world);
+              players.add(new Player(ship, player.generationId));
+            });
           }
         }
       }
       else if (ShotData.isInstance(dataPackage)) {
         ShotData shotData = new ShotData(dataPackage);
-        long timestamp = timestamp();
         for (Player p : players) {
           if (p.generationId.equals(shotData.generationId)) {
-            p.shot(shotData, timestamp);
+            p.shot(shotData, timestamp());
             return;
           }
         }
@@ -146,6 +146,15 @@ public class UdpClient implements EnemiesProcessor {
       else if (AsteroidCrashed.isInstance(dataPackage)) {
         AsteroidCrashed crashData = new AsteroidCrashed(dataPackage);
         AsteroidsRepository.handleCrash(crashData);
+      }
+      else if (DeathPackage.isInstance(dataPackage)) {
+        String genIs = new DeathPackage(dataPackage).generationId;
+        for (int i = 0; i < players.size; i++) {
+          if (players.get(i).generationId.equals(genIs)) {
+            players.get(i).makeDead();
+            return;
+          }
+        }
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -156,7 +165,10 @@ public class UdpClient implements EnemiesProcessor {
   @Override
   public void process(final Ship player, final float delta) {
     missedFrames++;
-    if (missedFrames > 2) {
+    if (player.bodyData.health <= 0) {
+      sendingThread.sendDeathPackage();
+    }
+    else if (missedFrames > 2) {
       missedFrames = 0;
       state.generationId = player.generationId;
       state.x = playerX = player.x;
@@ -226,20 +238,13 @@ public class UdpClient implements EnemiesProcessor {
 
   @Override
   public void dispose() {
+    super.dispose();
     isStopped.set(true);
     players.clear();
     receiveThread.interrupt();
     sendingThread.interrupt();
-    state.health = 0;
-    try {
-      output = state.compress();
-      outputPacket.setData(output, 0, output.length);
-      client.send(outputPacket);
-    } catch (IOException | SecurityException e) {
-      e.printStackTrace();
-    }
-    playersToCreate.clear();
     players.clear();
+    Logger.log(this, "dispose", "closed");
   }
 
   private long timestamp() {
@@ -250,12 +255,18 @@ public class UdpClient implements EnemiesProcessor {
 
     private final Vector<DataPackage> sequence = new Vector<>();
     private final AtomicBoolean needToSendState = new AtomicBoolean(false);
+    private final AtomicBoolean isDead = new AtomicBoolean(false);
 
     public void sendData(DataPackage data) {
       sequence.add(data);
       if (sequence.size() > 20) {
         sequence.remove(0);
       }
+    }
+
+    public void sendDeathPackage() {
+      isDead.set(true);
+      needToSendState.set(true);
     }
 
     public void sendStateData() {
@@ -266,16 +277,13 @@ public class UdpClient implements EnemiesProcessor {
     public void run() {
       while (!isStopped.get()) {
         if (needToSendState.get()) {
-          //long t = now();
           try {
-            output = state.compress();
+            output = isDead.get() ?
+                    new DeathPackage(state.generationId).compress() :
+                    state.compress();
             outputPacket.setData(output, 0, output.length);
             client.send(outputPacket);
             needToSendState.set(false);
-            //System.out.print("\nUTF8:        "); System.out.println(new String(output, StandardCharsets.UTF_8));
-            //System.out.print("US_ASCII:    "); System.out.println(new String(output, StandardCharsets.US_ASCII));
-            //System.out.print("ISO_8859_1:  "); System.out.println(new String(output, StandardCharsets.ISO_8859_1));
-            //System.out.println("decoded:  " + new PlayerState(output));
           } catch (ArrayIndexOutOfBoundsException | IOException e) {
             e.printStackTrace();
           }

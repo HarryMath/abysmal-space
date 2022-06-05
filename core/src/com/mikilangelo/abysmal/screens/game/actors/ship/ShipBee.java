@@ -38,22 +38,27 @@ public class ShipBee extends PlayerShip {
   }
 
   private void simpleControl(float direction) {
+    if (direction < 0 || direction > MathUtils.PI2) {
+      return;
+    }
     newAngle = direction;
     final float rotationLeft = (angle - newAngle + MathUtils.PI2) % MathUtils.PI2;
     final float rotationRight = (newAngle - angle + MathUtils.PI2) % MathUtils.PI2;
     final boolean isLeft = rotationLeft < rotationRight;
     float rotation = isLeft ? rotationLeft : rotationRight;
 
-    assert angle >= 0 && angle <= MathUtils.PI2;
-    assert newAngle >= 0 && newAngle <= MathUtils.PI2;
-
     rotation = rotation > 1f ? 1 : (rotation * 0.7f + 0.3f);
     if (angle != newAngle) {
-      this.rotate(isLeft ? -rotation : rotation, 0.013f);
+      this.simpleRotate(isLeft ? -rotation : rotation);
       if (angle <= newAngle + def.controlPower * 0.15f && angle >= newAngle - def.controlPower * 0.15f) {
         this.body.setAngularVelocity(this.body.getAngularVelocity() * 0.9f);
       }
     }
+  }
+
+  private void simpleRotate(float direction) {
+    isUnderControl = true;
+    this.body.setAngularVelocity(this.body.getAngularVelocity() + direction * def.controlPower * 0.99f);
   }
 
   @Override
@@ -104,7 +109,6 @@ public class ShipBee extends PlayerShip {
             velocity.y * controlSpeedResistance);
     if (withParticles) kak();
   }
-
 
   @Override
   public void shotDirectly() {

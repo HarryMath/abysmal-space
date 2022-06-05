@@ -49,6 +49,8 @@ public class GameScreen implements Screen {
   public static float SCREEN_WIDTH;
   public static World world;
   private final PlayerShip ship;
+  private boolean isExploded = false;
+  private float afterDeathTime = 0;
   public static boolean screenUnderControl = false;
 
   public static int HEIGHT;
@@ -141,16 +143,27 @@ public class GameScreen implements Screen {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    handleControls(delta);
-    camera.update(ship, game.objectsBatch, game.backgroundBatch, shaderBatch);
+    if (ship.bodyData.health <= 0) {
+      if (isExploded) {
+        afterDeathTime += delta;
+        if (afterDeathTime > 1.5f) {
+          dispose();
+          game.setScreen(new MenuScreen(game));
+          return;
+        }
+      } else {
+        isExploded = true;
+        ExplosionsRepository.addShipExplosion(ship.x, ship.y, 1, 0);
+        ship.destroy(world);
+      }
+    } else {
+      handleControls(delta);
+      camera.update(ship, game.objectsBatch, game.backgroundBatch, shaderBatch);
+    }
     drawBackground(delta);
     drawObjects(delta);
     // debugRenderer.render(world, camera.combined());
     drawInterface(delta);
-    if (ship.bodyData.getHealth() < 0) {
-      dispose();
-      game.setScreen(new MenuScreen(game));
-    }
     period += delta;
     framesPassed += 1;
     if (period >= 1) {
@@ -185,7 +198,9 @@ public class GameScreen implements Screen {
       // long t5 = System.currentTimeMillis();
       enemiesProcessor.drawAll(game.objectsBatch, delta);
       // long t6 = System.currentTimeMillis();
-      ship.draw(game.objectsBatch, delta);
+      if (!isExploded) {
+        ship.draw(game.objectsBatch, delta);
+      }
       LasersRepository.drawTurrets(game.objectsBatch, delta);
       // long t7 = System.currentTimeMillis();
       ExplosionsRepository.drawLaserExplosions(game.objectsBatch, delta);
@@ -356,7 +371,7 @@ public class GameScreen implements Screen {
     ExplosionsRepository.clear();
     LasersRepository.clear();
     AsteroidsRepository.clear();
-    ship.destroy(world);
+    // ship.destroy(world);
     world.dispose();
     stars.clear();
     if (shader != null) {

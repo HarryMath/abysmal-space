@@ -496,7 +496,7 @@ public abstract class ShipDefinitions {
     s766.bodyScale = 3.9689f;
     s766.shieldRadius = 1.5f;
     // dynamic
-    s766.speedPower = 80f;
+    s766.speedPower = 75f;
     s766.controlPower = 1.6f;
     s766.speedResistance = 0.13f;
     s766.rotationControlResistance = 0.95f;

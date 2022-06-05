@@ -72,12 +72,12 @@ public class CollisionHandler implements ContactListener {
             ((IdentityData) bodyAData).setPlayerFocus();
           }
         }
+        ((DestroyableObjectData) bodyAData).damage(damage);
         // System.out.println("\nimpulse: " + bodyB.getMass() * bodyB.getLinearVelocity().len());
         // System.out.println("damage: " + damage);
-        ((DestroyableObjectData) bodyAData).damage(damage);
-        if (((DestroyableObjectData) bodyAData).getHealth() < 0) {
-          contact.setEnabled(false);
-        }
+        // if (((DestroyableObjectData) bodyAData).getHealth() < -100) {
+        //   contact.setEnabled(false);
+        // }
       }
       else if (bodyAData instanceof ShieldData) {
         final float speed = bodyB.getLinearVelocity().sub(bodyA.getLinearVelocity()).len();
