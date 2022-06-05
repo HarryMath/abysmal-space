@@ -1,5 +1,6 @@
 package com.mikilangelo.abysmal.shared.repositories;
 
+import com.badlogic.gdx.graphics.GL20;
 import com.mikilangelo.abysmal.screens.game.actors.decor.animations.Explosion;
 import com.mikilangelo.abysmal.screens.game.actors.decor.animations.LaserExplosion;
 import com.mikilangelo.abysmal.screens.game.actors.decor.animations.explosion.AnimatedExplosion;

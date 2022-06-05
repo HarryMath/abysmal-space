@@ -486,7 +486,8 @@ public abstract class ShipDefinitions {
     s766.health = 25;
     s766.ammo = 350;
     s766.radarPower = 80;
-    s766.maxZoom = 1.5f;
+    s766.maxZoom = 1f;
+    s766.minZoom = 0.4f;
     // body
     s766.size = 1.987f;
     s766.density = 0.87f;

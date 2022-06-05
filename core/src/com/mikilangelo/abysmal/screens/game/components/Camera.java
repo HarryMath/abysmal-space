@@ -59,7 +59,7 @@ public class Camera {
         shakeRotation += shakeDirect ? (0.01f + shakePower * 0.333f) : -(0.01f + shakePower * 0.333f);
         if (Settings.cameraRotation) {
           camera.up.x = MathUtils.cos(ship.angle + shakeRotation);
-          camera.up.y = MathUtils.sin(ship.angle +shakeRotation);
+          camera.up.y = MathUtils.sin(ship.angle + shakeRotation);
         } else {
           camera.up.x = MathUtils.sin(shakeRotation);
           camera.up.y = MathUtils.cos(shakeRotation);
@@ -69,7 +69,7 @@ public class Camera {
       camera.up.x = MathUtils.cos(ship.angle);
       camera.up.y = MathUtils.sin(ship.angle);
     }
-    speedZoomCoefficient = (ship.speed * 0.06f + speedZoomCoefficient * 39f) / 40f;
+    speedZoomCoefficient = (ship.speed * 0.05f + speedZoomCoefficient * 39f) / 40f;
     if (Settings.fixedPosition) {
       cameraBiasX = cameraBiasY = 0;
     } else {

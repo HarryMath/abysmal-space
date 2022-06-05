@@ -1,7 +1,6 @@
 package com.mikilangelo.abysmal.screens.game.actors.ship;
 
-import static com.mikilangelo.abysmal.screens.game.GameScreen.SCREEN_WIDTH;
-
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikilangelo.abysmal.shared.Settings;
@@ -10,6 +9,7 @@ import com.mikilangelo.abysmal.shared.defenitions.ShipDef;
 public class ShipBee extends PlayerShip {
 
   private final float beePower;
+  private boolean wasShooting = false;
 
   public ShipBee(ShipDef def, float x, float y) {
     super(def, x, y);
@@ -35,9 +35,18 @@ public class ShipBee extends PlayerShip {
     primaryBody.setLinearVelocity(
             velocity.x * controlSpeedResistance,
             velocity.y * controlSpeedResistance);
+    if (!wasShooting) {
+      simpleControl(direction, 0.2f);
+    }
   }
 
-  private void simpleControl(float direction) {
+  @Override
+  public void draw(Batch batch, float delta) {
+    super.draw(batch, delta);
+    wasShooting = false;
+  }
+
+  private void simpleControl(float direction, float scale) {
     if (direction < 0 || direction > MathUtils.PI2) {
       return;
     }
@@ -48,12 +57,17 @@ public class ShipBee extends PlayerShip {
     float rotation = isLeft ? rotationLeft : rotationRight;
 
     rotation = rotation > 1f ? 1 : (rotation * 0.7f + 0.3f);
+    rotation *= scale;
     if (angle != newAngle) {
       this.simpleRotate(isLeft ? -rotation : rotation);
       if (angle <= newAngle + def.controlPower * 0.15f && angle >= newAngle - def.controlPower * 0.15f) {
         this.body.setAngularVelocity(this.body.getAngularVelocity() * 0.9f);
       }
     }
+  }
+
+  private void simpleControl(float direction) {
+    simpleControl(direction, 1);
   }
 
   private void simpleRotate(float direction) {
@@ -117,6 +131,7 @@ public class ShipBee extends PlayerShip {
 
   @Override
   public void shotByTurrets() {
+    wasShooting = true;
     if (Math.abs(angle - newAngle) < 0.2f) {
       super.shotDirectly();
     }

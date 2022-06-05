@@ -21,7 +21,6 @@ import com.mikilangelo.abysmal.screens.game.enemies.online.data.SimplifiedState;
 import com.mikilangelo.abysmal.screens.game.uiElements.Radar;
 import com.mikilangelo.abysmal.shared.ShipDefinitions;
 import com.mikilangelo.abysmal.shared.repositories.AsteroidsRepository;
-import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 import com.mikilangelo.abysmal.shared.tools.Logger;
 
 import java.io.IOException;
@@ -29,8 +28,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 

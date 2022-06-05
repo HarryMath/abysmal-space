@@ -1,12 +1,12 @@
 package com.mikilangelo.abysmal.screens.game.components;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Manifold;
-import com.mikilangelo.abysmal.screens.game.objectsData.AsteroidData;
 import com.mikilangelo.abysmal.screens.game.objectsData.DestroyableObjectData;
 import com.mikilangelo.abysmal.screens.game.objectsData.IdentityData;
 import com.mikilangelo.abysmal.screens.game.objectsData.LaserData;
@@ -56,7 +56,7 @@ public class CollisionHandler implements ContactListener {
     if (contact.isEnabled() && (bodyAData != null)) {
       if (bodyAData instanceof LaserData) {
         LaserData l = (LaserData) bodyAData;
-        l.collision = contact.getWorldManifold().getPoints()[0];
+        l.collision = bodyA.getPosition();
         l.contactsCounter++;
       }
       else if (bodyAData instanceof DestroyableObjectData) {
