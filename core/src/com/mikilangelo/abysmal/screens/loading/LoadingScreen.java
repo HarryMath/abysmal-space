@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.mikilangelo.abysmal.EnigmaSpace;
 import com.mikilangelo.abysmal.shared.ShipDefinitions;
+import com.mikilangelo.abysmal.shared.repositories.PlanetsRepository;
 import com.mikilangelo.abysmal.shared.repositories.SoundsRepository;
 import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.screens.game.actors.fixtures.Asteroid;
@@ -25,6 +26,7 @@ public class LoadingScreen implements Screen {
       Gdx.app.postRunnable(() -> {
         TexturesRepository.init();
         ShipDefinitions.init();
+        PlanetsRepository.init();
         Asteroid.init();
         Indicator.init();
         launchMenu();

@@ -64,7 +64,6 @@ public class Player extends Enemy {
   public void update(final SimplifiedState data, long currentTime) {
     Gdx.app.postRunnable(() -> {
       if (!world.isLocked()) {
-        Logger.log(this, "update", "simple state update");
         ship.setSimpleState(data);
         lastUpdateTimestamp = currentTime;
         lastStateTimeStamp = currentTime - 5;
@@ -72,11 +71,11 @@ public class Player extends Enemy {
     });
   }
 
-  public void update(final PlayerState data, long currentTime) {
+  public float update(final PlayerState data, long currentTime) {
     Gdx.app.postRunnable(() -> {
       if (!world.isLocked() && data.timestamp > lastStateTimeStamp) {
         final float deltaTime = (currentTime - data.timestamp) * 0.001f;
-        Logger.log(this, "update", "delta is " + deltaTime + "s");
+        // Logger.log(this, "update", "delta is " + deltaTime + "s");
         isPowerApplied = data.isUnderControl;
         ship.bodyData.health = data.health;
         if (data.health <= 0) {
@@ -96,6 +95,7 @@ public class Player extends Enemy {
         lastStateTimeStamp = data.timestamp;
       }
     });
+    return (currentTime - data.timestamp) * 0.001f;
   }
 
   public void shot(ShotData shotData, long currentTime) {

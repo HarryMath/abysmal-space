@@ -21,6 +21,14 @@ public class Planet implements StaticObject {
     this.y = y;
   }
 
+  public Planet(Sprite texture, float size, float x, float y, float layer) {
+    this.texture = texture;
+    this.scale = size / this.texture.getHeight();
+    this.layer = layer;
+    this.x = x;
+    this.y = y;
+  }
+
   @Override
   public void draw(Batch batch, float cameraX, float cameraY, float zoom) {
     texture.setCenter(

@@ -46,6 +46,9 @@ public abstract class TexturesRepository {
     loadTextures("planets/", new String[]{
             "Baren", "Eros", "Gelios", "Ice", "mud", "Tatuin", "moon", "Terra", "Vulcano"}, ".png");
     loadTextures("planets/Magrateya", range(5), ".png");
+    loadTexture("planets/venus.png");
+    loadTexture("planets/test.png");
+    loadTexture("planets/test1.png");
     loadTextures("things/spawn/", range(24), ".png");
     loadTextures("things/", new String[] {"shield", "shieldTouch"}, ".png");
     loadTextures("ships/defender/", new String[] {

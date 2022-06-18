@@ -94,6 +94,9 @@ public class UdpClient extends UdpProcessor implements EnemiesProcessor {
     }
   }
 
+  private double totalDelta = 0;
+  private long totalPackages = 0;
+
   private void handleData(byte[] dataPackage) {
     try {
       if (SimplifiedState.isInstance(dataPackage)) {
@@ -120,7 +123,15 @@ public class UdpClient extends UdpProcessor implements EnemiesProcessor {
         if (!player.generationId.equals(state.generationId)) {
           for (int i = 0; i < players.size; i++) {
             if (players.get(i).generationId.equals(player.generationId)) {
-              players.get(i).update(player, timestamp());
+              totalDelta += players.get(i).update(player, timestamp());
+              totalPackages += 1;
+              if (totalPackages > 1000) {
+                Logger.log(
+                        this,
+                        "handleData",
+                        "avg delta is " + (totalDelta / totalPackages * 1000) + " ms"
+                );
+              }
               return;
             }
           }

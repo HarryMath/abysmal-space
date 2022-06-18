@@ -18,6 +18,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mikilangelo.abysmal.EnigmaSpace;
+import com.mikilangelo.abysmal.screens.game.actors.decor.AnimatedPlanet;
 import com.mikilangelo.abysmal.screens.game.components.CollisionHandler;
 import com.mikilangelo.abysmal.shared.MusicPlayer;
 import com.mikilangelo.abysmal.shared.Settings;
@@ -26,6 +27,7 @@ import com.mikilangelo.abysmal.shared.repositories.ExplosionsRepository;
 import com.mikilangelo.abysmal.shared.repositories.HolesRepository;
 import com.mikilangelo.abysmal.shared.repositories.LasersRepository;
 import com.mikilangelo.abysmal.shared.repositories.ParticlesRepository;
+import com.mikilangelo.abysmal.shared.repositories.PlanetsRepository;
 import com.mikilangelo.abysmal.shared.repositories.StarsRepository;
 import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.screens.game.enemies.EnemiesProcessor;
@@ -123,6 +125,13 @@ public class GameScreen implements Screen {
   }
 
   private void generatePlanets() {
+//    nearObjects.add(new AnimatedPlanet(
+//            PlanetsRepository.get("test"), 4.1f, 100, 100, 0.84f, 0.2f
+//    ));
+//    nearObjects.add(new AnimatedPlanet(
+//            PlanetsRepository.get("test1"), 4.2f, 100, 100, 0.84f, 0.09f
+//    ));
+
     nearObjects.add(new Planet("Terra", 4.1f, 100, 100, 0.84f));
     nearObjects.add(new Planet("moon", 2.8f, 103, 97, 0.75f));
     nearObjects.add(new Planet("Tatuin", 13.8f, -2341, -1234, 0.81f));

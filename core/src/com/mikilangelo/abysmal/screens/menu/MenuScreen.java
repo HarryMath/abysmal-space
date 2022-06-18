@@ -187,6 +187,17 @@ public class MenuScreen implements Screen {
   }
 
   public void setGlobalMultiplayer() {
+//    try {
+//      this.enemiesProcessor = new UdpClient(
+//              "127.0.0.1",
+//              8081,
+//              0
+//      );
+//      this.seed = 3243241;
+//      this.startGame();
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//    }
     this.isLoading = true;
     this.loadingText = "searching for server...";
     new Async(ServerProvider.findGlobalServer).then(() -> {
