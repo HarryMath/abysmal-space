@@ -316,7 +316,7 @@ public class GameScreen implements Screen {
 			// game.customFont.getData().setScale(HEIGHT / 1400f);
 			healthIndicator.draw(game.batchInterface, game.digits, ship.bodyData.getHealth());
       ammoIndicator.draw(game.batchInterface, game.digits, ship.ammo);
-			game.simpleFont.draw(game.batchInterface, "FPS: " + FPS, 10, HEIGHT - 20);
+			game.simpleFont.draw(game.batchInterface, "FPS: " + FPS, 10, HEIGHT - 70);
 //			game.customFont.draw(game.batchInterface, "x: " + Math.round(cameraX) + ", y: " + Math.round(cameraY), 10, HEIGHT - 80);
 		}
 		game.batchInterface.end();
