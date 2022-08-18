@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option java_outer_classname = "StateProtoPackage";
+option java_package = "com.mikilangelo.abysmal.screens.game.enemies.online.data";
+
+message State {
+  string generationId = 1;
+  int32 shipId = 2;
+  float x = 3;
+  float y = 4;
+  float angle = 5;
+  float speedX = 6;
+  float speedY = 7;
+  float angularSpeed = 8;
+  float health = 9;
+  bool isUnderControl = 10;
+  bool shieldOn = 11;
+  float currentPower = 12;
+  int64 timestamp = 13;
+
+}

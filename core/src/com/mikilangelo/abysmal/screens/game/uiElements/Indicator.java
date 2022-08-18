@@ -48,6 +48,7 @@ public class Indicator extends InterfaceElement {
   }
 
   public void draw(Batch batch, BitmapFont font, float currentValue) {
+    if (currentValue < 0) currentValue = 0;
     batch.draw(background, x, y, fullWidth, fullHeight);
     bar.draw(batch, currentValue);
     batch.draw(border, x, y, fullWidth, fullHeight);

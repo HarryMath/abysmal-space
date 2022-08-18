@@ -196,6 +196,7 @@ public class PlayerState extends DataPackage {
 
       iterations = 0;
       System.out.println("compress custom: ");
+      System.out.println(new String(state.compress()));
       t0 = System.currentTimeMillis();
       for (int j = 1; j < 11; j++) {
         for (long i = 0; i < 5000 * j * j; i++) {
