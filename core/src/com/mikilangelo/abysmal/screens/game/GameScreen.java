@@ -152,6 +152,9 @@ public class GameScreen implements Screen {
     } catch (Exception e) {
       e.printStackTrace();
     }
+    if (Settings.debug) {
+      ship.bodyData.health = ship.def.health;
+    }
     if (ship.bodyData.health <= 0) {
       if (isExploded) {
         afterDeathTime += delta;
@@ -171,7 +174,9 @@ public class GameScreen implements Screen {
     }
     drawBackground(delta);
     drawObjects(delta);
-    // debugRenderer.render(world, camera.combined());
+    if (Settings.debug) {
+      debugRenderer.render(world, camera.combined());
+    }
     drawInterface(delta);
     period += delta;
     framesPassed += 1;

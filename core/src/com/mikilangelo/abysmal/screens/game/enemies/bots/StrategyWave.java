@@ -7,7 +7,7 @@ import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
 import com.mikilangelo.abysmal.screens.game.actors.ship.Turret;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 
-public class StrategyWave implements BotStrategy {
+public class StrategyWave extends BotStrategy {
 
   private float biasAngle = 0;
   private final float maxBias = MathUtils.random(0.6f, 1.03f);
@@ -20,7 +20,7 @@ public class StrategyWave implements BotStrategy {
   public void perform(Ship bot, float playerX, float playerY, float playerAngle, float delta) {
     targetAngle = CalculateUtils.simpleDefineAngle((playerX - bot.x) / bot.distance, (playerY - bot.y) / bot.distance, targetAngle);
     if (bot.distance > bot.def.radarPower * 0.7f) {
-      bot.control(targetAngle, 1, delta);
+      control(bot, targetAngle, 1, delta);
       biasAngle = 0;
     } else {
       if (angleRotateRight) {
@@ -36,7 +36,7 @@ public class StrategyWave implements BotStrategy {
           biasAngle -= biasSpeed;
         }
       }
-      bot.control((MathUtils.PI2 + targetAngle + biasAngle * (0.2f + bot.distance / bot.def.radarPower / 0.4f * 0.8f)) % MathUtils.PI2, 1, delta);
+      control(bot, (MathUtils.PI2 + targetAngle + biasAngle * (0.2f + bot.distance / bot.def.radarPower / 0.4f * 0.8f)) % MathUtils.PI2, 1, delta);
     }
 
     if (bot.distance < SCREEN_WIDTH * 0.4f * bot.def.maxZoom) {
@@ -51,7 +51,7 @@ public class StrategyWave implements BotStrategy {
       if (needToShotTurrets) {
         bot.shotByTurrets();
       }
-      if (Math.abs(targetAngle - bot.angle) < 0.015f) {
+      if (!hasDynamicHindrances && Math.abs(targetAngle - bot.angle) < 0.015f) {
         bot.shotDirectly();
       }
     }

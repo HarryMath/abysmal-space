@@ -19,7 +19,7 @@ import com.mikilangelo.abysmal.shared.tools.Logger;
 
 public class BotsProcessor implements EnemiesProcessor {
 
-  private final Array<Bot> bots = new Array<>();
+  public final Array<Bot> bots = new Array<>();
   private float startRangeX;
   private float endRangeX;
   private float startRangeY;
@@ -46,13 +46,13 @@ public class BotsProcessor implements EnemiesProcessor {
   @Override
   public void generateEnemies(Ship ship) {
     playerX = ship.x; playerY = ship.y;
-    startRangeX = playerX - SCREEN_WIDTH * 8;
-    endRangeX = playerX + SCREEN_WIDTH * 8;
-    startRangeY = playerY - SCREEN_HEIGHT * 8;
-    endRangeY = playerY + SCREEN_HEIGHT * 8;
+    startRangeX = playerX - SCREEN_WIDTH * 2;
+    endRangeX = playerX + SCREEN_WIDTH * 2;
+    startRangeY = playerY - SCREEN_HEIGHT * 2;
+    endRangeY = playerY + SCREEN_HEIGHT * 2;
     if (Settings.debug) {
       final Ship bot = new Ship(
-              ShipDefinitions.get("hyperion"),
+              ShipDefinitions.get("invader"),
               playerX + MathUtils.random(-19.3f, 19.3f),
               playerY + MathUtils.random(-19.3f, 19.3f), false,
               playerX, playerY);
@@ -87,7 +87,7 @@ public class BotsProcessor implements EnemiesProcessor {
   }
 
   private void generateBotsIn(float xMin, float xMax, float yMin, float yMax) { // 650
-    float normalSquare = (xMax - xMin) * (yMax - yMin) / SCREEN_HEIGHT / SCREEN_WIDTH / 200f;
+    float normalSquare = (xMax - xMin) * (yMax - yMin) / SCREEN_HEIGHT / SCREEN_WIDTH / 650f;
     int amount = Math.round(MathUtils.random(6f, 14f) * normalSquare);
     for (short i = 0; i < amount; i++) {
       generateBotsGroup(MathUtils.random(xMin, xMax), MathUtils.random(yMin, yMax));
@@ -96,16 +96,15 @@ public class BotsProcessor implements EnemiesProcessor {
   }
 
   private void generateBotsGroup(float x, float y) {
-    int amount = MathUtils.random(1, 4);
+    int amount = MathUtils.random(1, MathUtils.random(2, 4));
     for (byte i = 0; i < amount; i++) {
-//      int def = MathUtils.random(0, ShipDefinitions.shipDefinitions.size);
-      String def = CalculateUtils.getProbability(0.05f) ? "alien" :
-              CalculateUtils.getProbability(0.1f) ? "hyperion" :
-              CalculateUtils.getProbability(0.34f) ? "invader" : "defender";
+      String def = CalculateUtils.testProbability(0.05f) ? "alien" :
+              CalculateUtils.testProbability(0.1f) ? "hyperion" :
+              CalculateUtils.testProbability(0.34f) ? "invader" : "defender";
       final Ship ship = new Ship(
               ShipDefinitions.get(def),
-              x + MathUtils.random(-29.3f, 29.3f),
-              y + MathUtils.random(-29.3f, 29.3f), false,
+              x + MathUtils.random(-25f, 25f),
+              y + MathUtils.random(-25f, 25f), false,
               playerX, playerY);
       ship.angle = ship.newAngle = MathUtils.random(6.28f);
       newShips.add(ship);
@@ -149,7 +148,16 @@ public class BotsProcessor implements EnemiesProcessor {
       for (Bot bot: bots) {
         bot.draw(batch, delta, x, y, w, h);
       }
-    } catch (NullPointerException ignore) {}
+      if (Settings.debug) {
+        batch.end();
+        for (Bot bot: bots) {
+          bot.drawDirection(camera);
+        }
+        batch.begin();
+      }
+    } catch (NullPointerException e) {
+      Logger.log(this, "drawAll", e.getMessage());
+    }
   }
 
   @Override

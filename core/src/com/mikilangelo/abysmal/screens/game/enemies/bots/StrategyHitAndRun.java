@@ -7,7 +7,7 @@ import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
 import com.mikilangelo.abysmal.screens.game.actors.ship.Turret;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 
-public class StrategyHitAndRun implements BotStrategy {
+public class StrategyHitAndRun extends BotStrategy {
 
   private float targetAngle = 0;
   private boolean isAttacking = false;
@@ -19,9 +19,9 @@ public class StrategyHitAndRun implements BotStrategy {
     targetAngle = CalculateUtils.simpleDefineAngle((playerX - bot.x) / bot.distance, (playerY - bot.y) / bot.distance, targetAngle);
     if (isAttacking) {
       if (bot.distance > attackDistance) {
-        bot.control(targetAngle, 1, delta);
+        control(bot, targetAngle, 1, delta);
       } else if (bot.distance > 21 || Math.abs(bot.angle - playerAngle) <= 1) {
-        bot.control(targetAngle, 0.8f + bot.distance / attackDistance * 0.2f, delta);
+        control(bot, targetAngle, 0.8f + bot.distance / attackDistance * 0.2f, delta);
       } else {
         isAttacking = false;
         leavingAngle = 0;
@@ -35,7 +35,7 @@ public class StrategyHitAndRun implements BotStrategy {
       if (leavingAngle < 3.14f) {
         leavingAngle = leavingAngle * 1.03f + 0.008f;
       }
-      bot.control((leavingAngle + targetAngle) % MathUtils.PI2, 1, delta);
+      control(bot,(leavingAngle + targetAngle) % MathUtils.PI2, 1, delta);
     }
     // try shot
     if (bot.distance < SCREEN_WIDTH * 0.4f * bot.def.maxZoom) {
@@ -50,7 +50,7 @@ public class StrategyHitAndRun implements BotStrategy {
       if (needToShotTurrets) {
         bot.shotByTurrets();
       }
-      if (Math.abs(targetAngle - bot.angle) < 0.03f ||
+      if (!hasDynamicHindrances && Math.abs(targetAngle - bot.angle) < 0.03f ||
           (bot.distance < 21 && Math.abs(targetAngle - bot.angle) < 0.2f)
       ) {
         bot.shotDirectly();

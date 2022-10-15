@@ -15,7 +15,7 @@ import com.mikilangelo.abysmal.shared.tools.Random;
 
 public abstract class AsteroidsRepository {
 
-  private static final Array<Asteroid> asteroids = new Array<>();
+  public static final Array<Asteroid> asteroids = new Array<>();
   private static final Array<Zone> coveredZones = new Array<>();
   private static final Array<Zone> newZones = new Array<>();
 

@@ -14,7 +14,7 @@ import com.mikilangelo.abysmal.screens.game.objectsData.ShieldData;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 import com.mikilangelo.abysmal.shared.tools.Logger;
 
-public class CollisionHandler implements ContactListener {
+public class CollisionHandler extends Logger implements ContactListener {
 
   private final String playerId;
 
@@ -43,7 +43,7 @@ public class CollisionHandler implements ContactListener {
       String shipBId = (bodyBData instanceof IdentityData) ?
               ((IdentityData) bodyBData).getId() : null;
       if (shipAId != null && shipAId.equalsIgnoreCase(shipBId)) {
-        Logger.log(this, "preSolve", "ignored contact");
+        this.log("preSolve", "ignored contact");
         contact.setEnabled(false);
         return;
       }

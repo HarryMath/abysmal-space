@@ -3,10 +3,10 @@ package com.mikilangelo.abysmal.screens.game.enemies.bots;
 import static com.mikilangelo.abysmal.screens.game.GameScreen.SCREEN_WIDTH;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.mikilangelo.abysmal.shared.repositories.ExplosionsRepository;
-import com.mikilangelo.abysmal.screens.game.enemies.Enemy;
 import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
+import com.mikilangelo.abysmal.screens.game.enemies.Enemy;
 import com.mikilangelo.abysmal.screens.game.objectsData.DestroyableObjectData;
+import com.mikilangelo.abysmal.shared.repositories.ExplosionsRepository;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 import com.mikilangelo.abysmal.shared.tools.Logger;
 
@@ -19,24 +19,25 @@ class Bot extends Enemy {
   public Bot(Ship ship) {
     super(ship);
     final String name = ship.def.name.toLowerCase(Locale.ROOT);
+    // this.strategy = new StrategyNinja();
     if (name.contains("defender")) {
       this.strategy =
-              CalculateUtils.getProbability(0.5f) ? new StrategyHitAndRun() :
-              CalculateUtils.getProbability(0.3f) ? new StrategyWave() :
-              CalculateUtils.getProbability(0.4f) ? new StrategyKamikaze() : new StrategySniper();
+              CalculateUtils.testProbability(0.5f) ? new StrategyHitAndRun() :
+              CalculateUtils.testProbability(0.3f) ? new StrategyWave() :
+              CalculateUtils.testProbability(0.4f) ? new StrategyKamikaze() : new StrategySniper();
     } else if (name.contains("invader")) {
-      this.strategy = CalculateUtils.getProbability(0.4f) ?
+      this.strategy = CalculateUtils.testProbability(0.4f) ?
               new StrategySniper() : new StrategyKamikaze();
     } else if (name.contains("hyperion")) {
-      this.strategy = CalculateUtils.getProbability(0.6f) ?
+      this.strategy = CalculateUtils.testProbability(0.6f) ?
               new StrategyHitAndRun() : new StrategySniper();
     } else if (name.contains("alien")){
-      this.strategy = CalculateUtils.getProbability(0.81f) ?
+      this.strategy = CalculateUtils.testProbability(0.81f) ?
               new StrategyHitAndRun() : new StrategyKamikaze();
     } else {
       Logger.log(this, "", "Unknown ship: " + name);
-      this.strategy = CalculateUtils.getProbability(0.333f) ?
-              new StrategyHitAndRun() : CalculateUtils.getProbability(0.5f) ?
+      this.strategy = CalculateUtils.testProbability(0.333f) ?
+              new StrategyHitAndRun() : CalculateUtils.testProbability(0.5f) ?
               new StrategyKamikaze() : new StrategySniper();
     }
   }
