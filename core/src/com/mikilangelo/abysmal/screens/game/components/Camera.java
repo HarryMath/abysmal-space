@@ -85,7 +85,7 @@ public class Camera {
     backgroundBatch.setProjectionMatrix(camera.combined);
     if (Settings.drawBackground) {
       backgroundBatch.setProjectionMatrix(camera.combined);
-      if (Settings.showBlackHoles) {
+      if (Settings.drawBlackHoles) {
         shaderBatch.setProjectionMatrix(camera.combined);
       }
     }

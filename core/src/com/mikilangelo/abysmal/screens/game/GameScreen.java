@@ -18,7 +18,6 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mikilangelo.abysmal.EnigmaSpace;
-import com.mikilangelo.abysmal.screens.game.actors.decor.AnimatedPlanet;
 import com.mikilangelo.abysmal.screens.game.components.CollisionHandler;
 import com.mikilangelo.abysmal.shared.MusicPlayer;
 import com.mikilangelo.abysmal.shared.Settings;
@@ -27,7 +26,6 @@ import com.mikilangelo.abysmal.shared.repositories.ExplosionsRepository;
 import com.mikilangelo.abysmal.shared.repositories.HolesRepository;
 import com.mikilangelo.abysmal.shared.repositories.LasersRepository;
 import com.mikilangelo.abysmal.shared.repositories.ParticlesRepository;
-import com.mikilangelo.abysmal.shared.repositories.PlanetsRepository;
 import com.mikilangelo.abysmal.shared.repositories.StarsRepository;
 import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.screens.game.enemies.EnemiesProcessor;
@@ -160,7 +158,7 @@ public class GameScreen implements Screen {
         afterDeathTime += delta;
         if (afterDeathTime > 1.5f) {
           dispose();
-          game.setScreen(new MenuScreen(game));
+          game.setScreen(new MenuScreen(game, ship.def.id));
           return;
         }
       } else {
@@ -239,7 +237,7 @@ public class GameScreen implements Screen {
     if (!Settings.drawBackground) {
       return;
     }
-    if (Settings.showBlackHoles) {
+    if (Settings.drawBlackHoles) {
       frameBuffer.begin(); {
         drawBackgroundAt(shaderBatch, delta, 1.2f);
       }
@@ -328,7 +326,7 @@ public class GameScreen implements Screen {
 	}
 
 	private void generateHoles() {
-    if (!Settings.showBlackHoles) {
+    if (!Settings.drawBlackHoles) {
       return;
     }
     try {
