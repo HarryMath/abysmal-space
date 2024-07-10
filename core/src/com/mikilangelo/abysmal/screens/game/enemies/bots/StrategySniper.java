@@ -7,7 +7,7 @@ import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
 import com.mikilangelo.abysmal.screens.game.actors.ship.Turret;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 
-public class StrategySniper implements BotStrategy {
+public class StrategySniper extends BotStrategy {
 
   private final float attackDistance = MathUtils.random(11f, 30f);
   private final float aheadCoefficient = MathUtils.random(0.07f, 0.31f);
@@ -20,7 +20,7 @@ public class StrategySniper implements BotStrategy {
             (playerY + bot.distance * aheadCoefficient * MathUtils.sin(playerAngle) - bot.y) / bot.distance,
             targetAngle
     );
-    bot.control(targetAngle,
+    control(bot, targetAngle,
             bot.distance > attackDistance * 1.2f ? 1 :
             bot.distance > attackDistance * 0.4f ?
             (bot.distance - attackDistance * 0.4f) / (attackDistance * (1.2f - 0.4f)) : 0,
@@ -38,7 +38,7 @@ public class StrategySniper implements BotStrategy {
       if (needToShotTurrets) {
         bot.shotByTurrets();
       }
-      if (Math.abs(targetAngle - bot.angle) < 0.01f ||
+      if (!hasDynamicHindrances && Math.abs(targetAngle - bot.angle) < 0.01f ||
          (bot.distance < attackDistance && Math.abs(targetAngle - bot.angle) < 0.02f)
       ) {
         bot.shotDirectly();

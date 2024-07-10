@@ -7,11 +7,18 @@ import java.sql.Timestamp;
 public class Logger {
 
   private static final boolean IS_ENABLED = true;
+  private final String className;
 
-  public static void log(Object classObject, String method, String message) {
-    if (IS_ENABLED || Settings.debug) {
-      log(classObject.getClass().getSimpleName(), method, message);
-    }
+  protected Logger() {
+    this.className = this.getClass().getSimpleName();
+  }
+
+  public static void log(Object object, String method, String message) {
+    log(object.getClass().getSimpleName(), method, message);
+  }
+
+  protected void log(String method, String message) {
+    log(this.className, method, message);
   }
 
   public static void log(String className, String method, String message) {

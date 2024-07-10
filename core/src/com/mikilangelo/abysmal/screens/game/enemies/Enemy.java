@@ -1,7 +1,11 @@
 package com.mikilangelo.abysmal.screens.game.enemies;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.mikilangelo.abysmal.screens.game.components.Camera;
+import com.mikilangelo.abysmal.shared.Settings;
 import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
 import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
 
@@ -21,6 +25,18 @@ public abstract class Enemy {
     }
     this.ship = ship;
     shipSize = ship.def.shieldRadius;
+  }
+
+  private static final ShapeRenderer renderer = Settings.debug ? new ShapeRenderer() : null;
+
+  public void drawDirection(Camera camera) {
+    Gdx.gl.glLineWidth(1);
+    renderer.setProjectionMatrix(camera.combined());
+    renderer.begin(ShapeRenderer.ShapeType.Line);
+    renderer.setColor(1, 1, 1, 1);
+    renderer.line(ship.x, ship.y, ship.aimX, ship.aimY);
+    renderer.line(ship.aimX, ship.aimY, ship.aimX + ship.normalX, ship.aimY + ship.normalY);
+    renderer.end();
   }
 
   public void draw(Batch batch, float delta, float cameraX, float cameraY, float w, float h) {

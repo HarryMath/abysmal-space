@@ -6,8 +6,9 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.mikilangelo.abysmal.screens.game.GameScreen;
+import com.mikilangelo.abysmal.shared.tools.Logger;
 
-public class Turret {
+public class Turret extends Logger {
   private static final float halfPI = MathUtils.PI * 0.5f;
   public TurretDef definition;
   private final int gunId;

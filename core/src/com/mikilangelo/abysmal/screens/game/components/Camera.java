@@ -35,7 +35,7 @@ public class Camera {
 
   public void shake(float power) {
     isShaken = true;
-    shakePower = power * MathUtils.degreesToRadians;
+    shakePower = power * MathUtils.degreesToRadians * 2;
     shakeDirect = !shakeDirect;
   }
 
@@ -85,7 +85,7 @@ public class Camera {
     backgroundBatch.setProjectionMatrix(camera.combined);
     if (Settings.drawBackground) {
       backgroundBatch.setProjectionMatrix(camera.combined);
-      if (Settings.showBlackHoles) {
+      if (Settings.drawBlackHoles) {
         shaderBatch.setProjectionMatrix(camera.combined);
       }
     }
@@ -98,13 +98,13 @@ public class Camera {
   }
 
   public void zoomOut() {
-    if (initialZoomCoefficient < maxZoom) {
+    if (initialZoomCoefficient < maxZoom * 4|| Settings.debug && maxZoom < 15) {
       initialZoomCoefficient += 0.01;
     }
   }
 
   public void zoomIn() {
-    if (initialZoomCoefficient > 0.4) {
+    if (initialZoomCoefficient > minZoom) {
       initialZoomCoefficient -= 0.01;
     }
   }

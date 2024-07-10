@@ -99,6 +99,12 @@ public class Ship {
     ammo = this.def.ammo;
   }
 
+  // fields to draw in debug mode
+  public float aimX = 0;
+  public float aimY = 0;
+  public float normalX = 0;
+  public float normalY = 0;
+
   public void control(float direction, float power, float delta) {
     newAngle = direction;
     final float rotationLeft = (angle - newAngle + MathUtils.PI2) % MathUtils.PI2;

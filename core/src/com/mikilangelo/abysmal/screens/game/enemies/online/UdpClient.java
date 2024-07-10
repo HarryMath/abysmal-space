@@ -9,7 +9,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.utils.Array;
 import com.mikilangelo.abysmal.screens.game.enemies.EnemiesProcessor;
-import com.mikilangelo.abysmal.screens.game.enemies.Enemy;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.AsteroidCrashed;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.DataPackage;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.DeathPackage;
@@ -19,7 +18,6 @@ import com.mikilangelo.abysmal.shared.repositories.AsteroidsRepository;
 import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.PlayerState;
 import com.mikilangelo.abysmal.screens.game.enemies.online.data.ShotData;
-import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 import com.mikilangelo.abysmal.screens.game.uiElements.Radar;
 import com.mikilangelo.abysmal.shared.tools.Logger;
 
@@ -27,10 +25,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 

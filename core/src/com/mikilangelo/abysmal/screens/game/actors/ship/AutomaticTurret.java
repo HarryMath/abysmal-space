@@ -28,7 +28,7 @@ public class AutomaticTurret extends Turret {
       final float targetX = target.x + target.body.getLinearVelocity().x * 0.2f;
       final float targetY = target.y + target.body.getLinearVelocity().y * 0.2f;
       final float distance = CalculateUtils.distance(targetX, targetY, this.x, this.y);
-      Logger.log(this, "move", "distance is " + distance);
+      this.log("move", "distance is " + distance);
       if (distance < 80) {
         this.newAngle = defineAngle(targetX - this.x, targetY - this.y, newAngle);
         if (distance < 45 && Math.abs((angle + shipAngle) % MathUtils.PI2 - newAngle) < 0.02f) {

@@ -2,6 +2,7 @@ package com.mikilangelo.abysmal.shared.tools;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.mikilangelo.abysmal.shared.basic.V;
 
 public abstract class CalculateUtils {
 
@@ -20,6 +21,35 @@ public abstract class CalculateUtils {
             .toString();
   }
 
+  public static V normal(float originX, float originY, float length) {
+    if (originX < 0.000001 && originX > -0.000001) {
+      return new V(length, 0);
+    } else if (originY < 0.000001 && originY > -0.000001) {
+      return new V(0, length);
+    } else {
+      float y = - (originX / originY);
+      float len = (float) Math.hypot(y, 1);
+      y = y * length / len;
+      float x = length / len;
+      return new V(x, y);
+    }
+  }
+
+  public static float projection(float originX, float originY, float vX, float vY) {
+    return projection(
+            originX, originY, vX, vY,
+            (float) Math.hypot(originX, originY)
+    );
+  }
+
+  public static float projection(
+          float originX, float originY,
+          float vX, float vY,
+          float originLen
+  ) {
+    return (originX * vX + originY * vY) / originLen;
+  }
+
   public static float defineAngle(float x, float y, float angle) {
     if (x == 0 && y == 0) {
       return angle;
@@ -33,7 +63,7 @@ public abstract class CalculateUtils {
     return (res + PI4) % PI2;
   }
 
-  public static boolean getProbability(float p) {
+  public static boolean testProbability(float p) {
     return MathUtils.random(1f) <= p;
   }
 

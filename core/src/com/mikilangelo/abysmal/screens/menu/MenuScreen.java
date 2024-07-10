@@ -20,10 +20,8 @@ import com.mikilangelo.abysmal.screens.game.actors.ship.ShipBee;
 import com.mikilangelo.abysmal.screens.game.enemies.online.UdpServer;
 import com.mikilangelo.abysmal.screens.menu.components.NotificationWrapper;
 import com.mikilangelo.abysmal.screens.menu.components.ServerProvider;
-import com.mikilangelo.abysmal.screens.menu.options.LocalClientOption;
-import com.mikilangelo.abysmal.screens.menu.options.LocalGameOption;
-import com.mikilangelo.abysmal.screens.menu.options.LocalServerOption;
 import com.mikilangelo.abysmal.shared.MusicPlayer;
+import com.mikilangelo.abysmal.shared.Settings;
 import com.mikilangelo.abysmal.shared.ShipDefinitions;
 import com.mikilangelo.abysmal.shared.repositories.SoundsRepository;
 import com.mikilangelo.abysmal.shared.repositories.TexturesRepository;
@@ -36,13 +34,6 @@ import com.mikilangelo.abysmal.screens.game.actors.decor.animations.EngineAnimat
 import com.mikilangelo.abysmal.screens.game.GameScreen;
 import com.mikilangelo.abysmal.shared.tools.Async;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
-import com.mikilangelo.abysmal.screens.menu.options.ExitOption;
-import com.mikilangelo.abysmal.screens.menu.options.MainMenuOption;
-import com.mikilangelo.abysmal.screens.menu.options.GlobalGameOption;
-import com.mikilangelo.abysmal.screens.menu.options.Option;
-import com.mikilangelo.abysmal.screens.menu.options.PlayOption;
-import com.mikilangelo.abysmal.screens.menu.options.SettingsOption;
-import com.mikilangelo.abysmal.screens.menu.options.SingleplayerOption;
 
 import java.io.IOException;
 
@@ -90,7 +81,7 @@ public class MenuScreen implements Screen {
   final Sound positive = SoundsRepository.getSound("sounds/button_positive.mp3");
   final Sound negative = SoundsRepository.getSound("sounds/button_negative.mp3");
 
-  public MenuScreen(EnigmaSpace game) {
+  public MenuScreen(EnigmaSpace game, int shipIndex) {
     this.w = Gdx.graphics.getWidth();
     this.h = Gdx.graphics.getHeight();
     MusicPlayer.start("sounds/menu.mp3", 0.6f);
@@ -99,13 +90,14 @@ public class MenuScreen implements Screen {
     camera.setToOrtho(false, w, h);
     logoRatio = logo.getWidth() / (float) logo.getHeight();
     storage = Gdx.app.getPreferences("storage");
-    currentShipIndex = storage.contains("shipId") ? storage.getInteger("shipId") : 0;
+    currentShipIndex = shipIndex >= 0 ? shipIndex :
+            storage.contains("shipId") ? storage.getInteger("shipId") : 0;
     selectShip(currentShipIndex);
     for (ShipDef d: ShipDefinitions.shipDefinitions) {
       this.engineAnimations.add(new EngineAnimation(d.engineAnimation, d.frameFrequency));
     }
     game.simpleFont.setColor(1, 1, 1, 0.8f);
-    handleMainMenuOption();
+    setMainMenu();
     generateStars();
     resize(w, h);
   }
@@ -128,14 +120,31 @@ public class MenuScreen implements Screen {
     }
   }
 
-  public void handlePlayClick() {
+  public void setPlayMenu() {
     this.options.clear();
-    this.options.add(new SingleplayerOption(), new GlobalGameOption(), new LocalGameOption(), new MainMenuOption());
+    this.options.add(
+            new Option("Story mode", this::setSingleplayer),
+            new Option("Online multiplayer", this::setGlobalMultiplayer),
+            new Option("By local network", this::setLocalMultiPlayer),
+            new Option("< Back", this::setMainMenu)
+    );
   }
 
-  public void handleMainMenuOption() {
+  public void setMainMenu() {
     this.options.clear();
-    this.options.add(new PlayOption(), new SettingsOption(), new ExitOption());
+    this.options.add(
+            new Option("Play", this::setPlayMenu),
+            new Option("Settings", this::handleSettingsOption),
+            new Option("Quit ", () -> {
+              TexturesRepository.disposeAll();
+              ShipDefinitions.disposeAll();
+              MusicPlayer.dispose();
+              Gdx.app.postRunnable(() -> {
+                Gdx.app.exit();
+                System.exit(0);
+              });
+            })
+    );
   }
 
   public void setSingleplayer() {
@@ -183,7 +192,10 @@ public class MenuScreen implements Screen {
 
   public void setLocalMultiPlayer() {
     this.options.clear();
-    this.options.add(new LocalClientOption(), new LocalServerOption(), new PlayOption("< Back"));
+    this.options.add(
+            new Option("Connect to server", this::setLocalClient),
+            new Option("Create server server", this::setLocalClient),
+            new Option("< Back", this::setPlayMenu));
   }
 
   public void setGlobalMultiplayer() {
@@ -236,7 +248,37 @@ public class MenuScreen implements Screen {
   }
 
   public void handleSettingsOption() {
-    notification.showWarning("Settings unavailable yet :c");
+    this.options.clear();
+    this.options.add(
+            new SettingOption("draw background? ", Settings.drawBackground, () -> {
+              Settings.drawBackground = !Settings.drawBackground;
+              storage.putBoolean("drawBackground", Settings.drawBackground);
+              storage.flush();
+            }),
+            new SettingOption("draw particles? ", Settings.withParticles, () -> {
+              Settings.withParticles = !Settings.withParticles;
+              storage.putBoolean("withParticles", Settings.withParticles);
+              storage.flush();
+            }),
+            new SettingOption("draw black holes? ", Settings.drawBlackHoles, () -> {
+              Settings.drawBlackHoles = !Settings.drawBlackHoles;
+              storage.putBoolean("drawBlackHoles", Settings.drawBlackHoles);
+              storage.flush();
+            })
+    );
+    this.options.add(
+            new SettingOption("fix ship position at center? ", Settings.fixedPosition, () -> {
+              Settings.fixedPosition = !Settings.fixedPosition;
+              storage.putBoolean("fixedPosition", Settings.fixedPosition);
+              storage.flush();
+            }),
+            new SettingOption("rotate camera? ", Settings.cameraRotation, () -> {
+              Settings.cameraRotation = !Settings.cameraRotation;
+              storage.putBoolean("cameraRotation", Settings.cameraRotation);
+              storage.flush();
+            }),
+            new Option("< Back", this::setMainMenu)
+    );
   }
 
   private void animateShips(float delta) {
@@ -272,7 +314,7 @@ public class MenuScreen implements Screen {
 
   @Override
   public void show() {
-    Gdx.input.setInputProcessor(new ActionDetector(this));
+    Gdx.input.setInputProcessor(new ActionDetector());
   }
 
   @Override
@@ -503,8 +545,8 @@ public class MenuScreen implements Screen {
 
   private class ActionDetector extends GestureDetector {
 
-    public ActionDetector(MenuScreen screen) {
-      super(new Controller(screen));
+    public ActionDetector() {
+      super(new Controller());
     }
 
     @Override
@@ -535,12 +577,6 @@ public class MenuScreen implements Screen {
 
   private class Controller implements GestureDetector.GestureListener {
 
-    private final MenuScreen screen;
-
-    Controller(MenuScreen screen) {
-      this.screen = screen;
-    }
-
     @Override
     public boolean tap(float x, float y, int count, int button) {
       if (isLoading) {
@@ -559,9 +595,11 @@ public class MenuScreen implements Screen {
                   y > menuStartY - optionHeight * i &&
                   y < menuStartY - optionHeight * (i - 0.8f)
           ) {
-            menuAnimationCounter = 0;
-            options.get(i).handleClick(screen);
+            if (! (options.get(i) instanceof SettingOption) ) {
+              menuAnimationCounter = 0;
+            }
             positive.play(0.3f);
+            options.get(i).click();
             return false;
           }
         }

@@ -7,7 +7,7 @@ import com.mikilangelo.abysmal.screens.game.actors.ship.Ship;
 import com.mikilangelo.abysmal.screens.game.actors.ship.Turret;
 import com.mikilangelo.abysmal.shared.tools.CalculateUtils;
 
-public class StrategyKamikaze implements BotStrategy {
+public class StrategyKamikaze extends BotStrategy {
 
   private float biasAngle;
   private final float biasRadius;
@@ -45,12 +45,12 @@ public class StrategyKamikaze implements BotStrategy {
                       (playerY - bot.y) / bot.distance, targetAngle)
               ) % MathUtils.PI2;
       // bot.control((aimAngle + 0.5f / (0.1f + bot.distance - attackDistance)) % MathUtils.PI2, 1, delta);
-      bot.control(aimAngle, 1, delta);
+      control(bot, aimAngle, 1, delta);
     }
     if (bot.distance < SCREEN_WIDTH * 0.4f * bot.def.maxZoom) {
       targetAngle = CalculateUtils.simpleDefineAngle((playerX - bot.x) / bot.distance, (playerY - bot.y) / bot.distance, targetAngle);
       if (bot.distance < attackDistance) {
-        bot.control(targetAngle, 1, delta);
+        control(bot, targetAngle, 1, delta);
       }
       boolean needToShotTurrets = false;
       for (Turret t : bot.turrets) {
@@ -63,7 +63,7 @@ public class StrategyKamikaze implements BotStrategy {
       if (needToShotTurrets) {
         bot.shotByTurrets();
       }
-      if (Math.abs(targetAngle - bot.angle) < 0.013f ||
+      if (!hasDynamicHindrances && Math.abs(targetAngle - bot.angle) < 0.013f ||
           (bot.distance < biasRadius && Math.abs(targetAngle - bot.angle) < 0.03f)
       ) {
         bot.shotDirectly();
