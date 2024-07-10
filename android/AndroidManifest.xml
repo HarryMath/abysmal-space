@@ -13,6 +13,7 @@
         android:label="@string/app_name"
         android:theme="@style/GdxTheme" >
         <activity
+            android:exported="false"
             android:name="com.mikilangelo.abysmal.AndroidLauncher"
             android:label="@string/app_name" 
             android:screenOrientation="landscape"
